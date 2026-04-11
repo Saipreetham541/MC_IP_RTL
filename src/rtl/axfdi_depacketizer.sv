@@ -1,0 +1,218 @@
+module axfdi_depacketizer #(
+   parameter fdi_flit_width = 2048,
+   parameter axi_data_width = 1024
+)(
+//clock and reset
+  input logic                       fdi_clk,
+  input logic                       fdi_rst_n,
+  input logic                       por_n, //global reset
+
+  input                             flit_rx_data,
+  input                             flit_rx_data_valid,
+
+  //signals to the credit manager
+  output logic [1:0]                depktr_crdtmgr_credit_vcn,
+  output logic [5:0]                depktr_crdtmgr_credit_cnt,
+  output logic                      depktr_crdtmgr_rtn_valid,
+  output logic                      depktr_crdtmgr_credit_rx_incr,
+  output logic                      depktr_crdtmgr_rx_vcn,
+
+  //signals to the port router
+  output logic [axi_data_width-1:0] depktr_portrtr_axi_data,
+  output logic [7:0]                depktr_portrtr_axi_burst_len,
+  output logic [1:0]                depktr_portrtr_axi_burst_type,
+  output logic [2:0]                depktr_portrt_axi_burst_size,
+  output logic [1:0]                depktr_portrtr_axi_resp,
+  output logic [39:0]               depkrt_portrtr_axi_addr,
+  output logic [127:0]              depktr_portrtr_axi_wstrb,
+  input logic                       portrtr_depktr_bakpres,
+  input logic                       portrtr_depktr_read_done,
+  output logic                      depktr_portrtr_write_req_valid,
+  output logic                      depktr_portrtr_read_req_valid,
+  output logic                      depktr_portrtr_write_resp_valid,
+  output logic                      depktr_portrtr_read_resp_valid,
+  output logic                      depktr_portrtr_port_id,
+  output logic                      depktr_portrtr_txn_id,
+
+
+  //signals completion tracker
+  output logic                      depktr_cmpltkr_resp_valid,
+  output logic                      depktr_cmpltkr_vcn,
+  output logic                      depktr_cmpltkr_txn_id,
+  input logic                       cmpltkr_depktr_port_id,
+  input logic                       cmpltkr_depktr_port_id_valid,
+
+);
+   logic [2:0] s_flit_vcn;
+   logic       s_flit_sop;
+   logic       s_flit_eop;
+   logic [3:0] s_flit_opcode ;
+   logic [7:0] s_flit_txn_id;
+   logic       s_flit_port_id;
+   logic [7:0] s_flit_burst_len;
+   logic [1:0] s_flit_burst_type;
+   logic [2:0] s_flit_burst_size;
+   logic [1:0] s_flit_resp;
+   logic [1:0] s_flit_credit_rtn_vcn;
+   logic [5:0] s_flit_credit_rtn_cnt;
+   logic       s_flit_wstrb_present;
+   logic [39:0] s_flit_addr;
+   logic [127:0] s_flit_wstrb_b0;
+   logic [1727:0] s_flit_data_line;
+
+   logic [2:0] r_flit_vcn;
+   logic       r_flit_sop;
+   logic       r_flit_eop;
+   logic [3:0] r_flit_opcode ;
+   logic [7:0] r_flit_txn_id;
+   logic       r_flit_port_id;
+   logic [7:0] r_flit_burst_len;
+   logic [1:0] r_flit_burst_type;
+   logic [2:0] r_flit_burst_size;
+   logic [1:0] r_flit_resp;
+   logic [1:0] r_flit_credit_rtn_vcn;
+   logic [5:0] r_flit_credit_rtn_cnt;
+   logic       r_flit_wstrb_present;
+   logic [39:0] r_flit_addr;
+   logic [127:0] r_flit_wstrb_b0;
+   logic [1727:0] r_flit_data_line;
+
+
+   //opcode enable signal
+   logic          s_write_req_en;
+   logic          s_read_req_en;
+   logic          s_write_resp_en;
+   logic          s_read_resp_en;
+   logic          s_credit_rtn_en;
+   logic          s_nop_en;
+   logic          r_write_req_en;
+   logic          r_read_req_en;
+   logic          r_write_resp_en;
+   logic          r_read_resp_en;
+   logic          r_credit_rtn_en;
+
+   //module port  assignment CREDIT_MGR
+   assign depktr_crdtmgr_rtn_valid = s_credit_rtn_en | s_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
+   assign depktr_crdtmgr_credit_vcn = s_flit_credit_rtn_vcn;
+   assign depktr_crdtmgr_credit_cnt = s_flit_credit_rtn_cnt;
+   assign depktr_crdtmgr_credit_rx_incr = s_write_req_en & s_read_req_en;
+   assign depktr_crdtmgr_rx_vcn = s_flit_vcn;
+
+   //module port assignment port router
+   assign depktr_portrtr_axi_data = r_flit_data_line[1727:703];
+   assign depktr_portrtr_axi_burst_len = r_flit_burst_len;
+   assign depktr_portrtr_axi_burst_type = r_flit_burst_type;
+   assign depktr_portrt_axi_burst_size = r_flit_burst_size;
+   assign depktr_portrtr_axi_resp = r_flit_resp;
+   assign depkrt_portrtr_axi_addr = r_flit_addr;
+   assign depktr_portrtr_axi_wstrb = r_flit_wstrb_b0;
+   assign depktr_portrtr_write_req_valid = r_write_req_en;
+   assign depktr_portrtr_read_req_valid = r_read_req_en;
+   assign depktr_portrtr_write_resp_valid = (cmpltkr_depktr_port_id) ? r_write_resp_en : 1'b0;
+   assign depktr_portrtr_read_resp_valid = (cmpltkr_depktr_port_id) ? r_read_resp_en : 1'b0;
+   assign depktr_portrtr_port_id = (r_write_req_en && r_read_req_en) ? r_flit_port_id:
+                                   (r_write_resp_en && r_read_resp_en) ? cmpltkr_depktr_port_id:
+                                   1'b0;
+   assign depktr_portrtr_txn_id = r_flit_txn_id;
+
+   //module port assignment Completion tracker
+
+   assign depktr_cmpltkr_resp_valid = s_read_resp_en & s_write_resp_en;
+   assign depktr_cmpltkr_vcn = s_flit_vcn[0];
+   assign depktr_cmpltkr_txn_id = s_flit_txn_id;
+
+   //internal signal assignment
+   assign s_flit_vcn = (flit_rx_data_valid) ? flit_rx_data[5:3] : '0;
+   assign s_flit_sop = (flit_rx_data_valid) ? flit_rx_data[6]: '0;
+   assign s_flit_eop = (flit_rx_data_valid) ? flit_rx_data[7] : '0;
+   assign s_flit_opcode = (flit_rx_data_valid) ? flit_rx_data[11:8] : '0;
+   assign s_flit_port_id = (flit_rx_data_valid) ? flit_rx_data[12] : '0;
+   assign s_flit_txn_id = (flit_rx_data_valid) ? flit_rx_data[20:13] : '0;
+   assign s_flit_burst_len = (flit_rx_data_valid) ? flit_rx_data[28:21] : '0;
+   assign s_flit_burst_type = (flit_rx_data_valid) ? flit_rx_data[30:29] : '0;
+   assign s_flit_burst_size = (flit_rx_data_valid) ? flit_rx_data[33:31] : '0;
+   assign s_flit_credit_rtn_vcn = (flit_rx_data_valid) ? flit_rx_data[37:36] : '0;
+   assign s_flit_credit_rtn_cnt = (flit_rx_data_valid) ? flit_rx_data[43:38] : '0;
+   assign s_flit_wstrb_present = (flit_rx_data_valid) ? flit_rx_data[44] : '0;
+   assign s_flit_addr = (flit_rx_data_valid) ? flit_rx_data[84:45] : '0;
+   assign s_flit_wstrb_b0 = (flit_rx_data_valid) ? flit_rx_data[255:128]: '0;
+   assign s_flit_data_line = (flit_rx_data_valid) ? flit_rx_data[1983:256]: '0;
+
+ always_ff @(posedge fdi_clk or negedge por_n)
+     if (!por_n) begin
+        r_flit_vcn <= '0;
+        r_flit_txn_id <= '0;
+        r_flit_port_id <= '0;
+        r_flit_burst_len <= '0;
+        r_flit_burst_type <= '0;
+        r_flit_burst_size <= '0;
+        r_flit_resp <= '0;
+        r_flit_credit_rtn_vcn <= '0;
+        r_flit_credit_rtn_cnt <= '0;
+     end
+     else begin
+        if (!fdi_rst_n) begin
+           r_flit_vcn <= '0;
+           r_flit_txn_id <= '0;
+           r_flit_port_id <= '0;
+           r_flit_burst_len <= '0;
+           r_flit_burst_type <= '0;
+           r_flit_burst_size <= '0;
+           r_flit_resp <= '0;
+           r_flit_credit_rtn_vcn <= '0;
+           r_flit_credit_rtn_cnt <= '0;
+        end
+        else begin
+           if (flit_rx_data_valid) begin
+              r_flit_vcn <= s_flit_vcn;
+              r_flit_txn_id <= s_flit_txn_id;
+              r_flit_port_id <= s_flit_port_id;
+              r_flit_burst_len <= s_flit_burst_len;
+              r_flit_burst_type <= s_flit_burst_type;
+              r_flit_burst_size <= s_flit_burst_size;
+              r_flit_resp <= s_flit_resp;
+              r_flit_credit_rtn_vcn <= s_flit_credit_rtn_vcn;
+              r_flit_credit_rtn_cnt <= s_flit_credit_rtn_cnt;
+              r_flit_addr = s_flit_addr;
+              r_flit_wstrb_b0 = s_flit_wstrb_b0;
+              r_flit_data_line <= s_flit_data_line;
+              r_write_req_en <= s_write_req_en;
+              r_read_req_en <= s_read_req_en;
+              r_write_resp_en <= s_write_resp_en;
+              r_read_resp_en <= s_read_resp_en;
+              r_credit_rtn_en <= s_credit_rtn_en;
+           end
+        end
+     end // else: !if(!por_n)
+
+   always_comb begin
+      s_write_req_en = 1'b0;
+      s_read_req_en =  1'b0;
+      s_write_resp_en = 1'b0;
+      s_read_resp_en = 1'b0;
+      s_credit_rtn_en = 1'b0;
+      s_nop_en = 1'b0;
+      case(s_flit_opcode)
+        4'b0000:s_write_req_en = 1'b1;
+        4'b0001:s_read_req_en = 1'b1;
+        4'b0010:s_write_resp_en = 1'b1;
+        4'b0011:s_read_resp_en = 1'b1;
+        4'b0100:s_credit_rtn_en = 1'b1;
+        4'b0101: s_nop_en = 1'b1;
+        default: s_nop_en = 1'b1;
+      endcase // case (s_flit_opcode)
+   end
+
+   always_ff@(posedge fdi_clk or negedge por_n)
+     if (!por_n)begin
+     end
+     else if (!fdi_rst_n) begin
+     end
+     else begin
+     end
+
+   always_comb begin
+
+   end
+
+endmodule
