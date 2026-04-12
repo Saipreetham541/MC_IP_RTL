@@ -1,4 +1,8 @@
-module axi_sub #(                                  
+/* Module Nmae : axfdi_axi_sub
+   Clock Domain : AXI 500Mhz
+*/
+
+module axfdi_axi_sub #(                                  
     parameter AXI_DATA_W = 1024,
     parameter AXI_ADDR_W = 40,
     parameter AXI_ID_W   = 8
@@ -260,7 +264,8 @@ always_ff @(posedge axi_clk) begin
     end
 end
 
-TX_BUFF AW_tx_buff #(.DEPTH(32), .DATA_WIDTH(61)) u_aw_buf (
+// TX Buffers
+TX_BUFF axfdi_aw_buf #(.DEPTH(32), .DATA_WIDTH(61)) u_aw_buf (
     .clk      (axi_clk),
     .rst_n    (axi_rst_n),
     .w_en     (AW_buf_wr_en),
@@ -271,7 +276,7 @@ TX_BUFF AW_tx_buff #(.DEPTH(32), .DATA_WIDTH(61)) u_aw_buf (
     .empty    (AW_buf_empty)
 );
 
-TX_BUFF W_tx_buff #(.DEPTH(64), .DATA_WIDTH(1153)) u_w_buf (  // 64 deep — W can arrive before AW
+TX_BUFF axfdi_w_buf #(.DEPTH(64), .DATA_WIDTH(1153)) u_w_buf (  // 64 deep — W can arrive before AW
     .clk      (axi_clk),
     .rst_n    (axi_rst_n),
     .w_en     (W_buf_wr_en),
@@ -282,7 +287,7 @@ TX_BUFF W_tx_buff #(.DEPTH(64), .DATA_WIDTH(1153)) u_w_buf (  // 64 deep — W c
     .empty    (W_buf_empty)
 );
 
-TX_BUFF AR_tx_buff #(.DEPTH(32), .DATA_WIDTH(61)) u_ar_buf (
+TX_BUFF axfdi_ar_buf #(.DEPTH(32), .DATA_WIDTH(61)) u_ar_buf (
     .clk      (axi_clk),
     .rst_n    (axi_rst_n),
     .w_en     (AR_buf_wr_en),
