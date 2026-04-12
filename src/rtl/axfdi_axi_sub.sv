@@ -50,7 +50,7 @@ module axfdi_axi_sub #(
     output logic                    rvalid,
     input  logic                    rready,         
 
-    // CDC FIFO ports — TX side (going toward FDI domain)
+    // CDC FIFO ports — TX side 
     input  logic                    AW_cdc_full,
     output logic [60:0]             AW_cdc_data,    // {awid,awlen,awburst,awsize,awaddr}
     output logic                    AW_cdc_wr_en,   
@@ -62,7 +62,7 @@ module axfdi_axi_sub #(
     output logic [60:0]             AR_cdc_data,    // {arid,arlen,arburst,arsize,araddr}
     output logic                    AR_cdc_wr_en,
 
-    // CDC FIFO ports — RX side (coming from FDI domain)
+    // CDC FIFO ports — RX side 
     input  logic                    B_cdc_empty,
     input  logic [9:0]              B_cdc_data,     // {bid,bresp}
     output logic                    B_cdc_rd_en,
