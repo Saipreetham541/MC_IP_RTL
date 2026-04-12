@@ -131,7 +131,7 @@ assign AR_buf_din   = {arid, arlen, arburst, arsize, araddr};
 assign AR_buf_wr_en = arvalid & arready;
 
 
-// fsm for paring the AW and W 
+
 typedef enum logic [1:0] {
     IDLE    = 2'b00,    
     SEND_AW = 2'b01,    
