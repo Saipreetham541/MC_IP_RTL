@@ -6,27 +6,28 @@ module axfdi_fdi_if #(
 )(
   //clock and reset wires
   input logic                       fdi_clk,
-  input logic                       fdi_rstn,
+  input logic                       fdi_rst_n,
+  input logic                       por_n,
 
   //TX side
-  output logic [fdi_flit_width-1:0] fdi_tx_lp_data,
-  output logic                      fdi_tx_lp_valid,
-  output logic                      fdi_tx_lp_irdy,
-  output logic                      fdi_tx_lp_startofpkt,
-  output logic                      fdi_tx_lp_endofpkt,
-  input logic                       fdi_tx_pl_trdy,
-  output logic [2:0]                fdi_tx_lp_state_req,
-  output logic                      fdi_tx_lp_linkerror,
+  output logic [fdi_flit_width-1:0] fdi_lp_data,
+  output logic                      fdi_lp_valid,
+  output logic                      fdi_lp_irdy,
+  output logic                      fdi_lp_startofpkt,
+  output logic                      fdi_lp_endofpkt,
+  input logic                       fdi_pl_trdy,
+  output logic [2:0]                fdi_lp_state_req,
+  output logic                      fdi_lp_linkerror,
 
 
   //RX side
-  input logic [fdi_flit_width-1:0]  fdi_rx_pl_data,
-  input logic                       fdi_rx_pl_valid,
-  input logic                       fdi_rx_pl_irdy,
-  input logic                       fdi_rx_pl_startofpkt,
-  input logic                       fdi_rx_pl_endofpkt,
-  output logic                      fdi_rx_lp_trdy,
-  input logic [2:0]                 fdi_rx_pl_state_sts,
+  input logic [fdi_flit_width-1:0]  fdi_pl_data,
+  input logic                       fdi_pl_valid,
+  input logic                       fdi_pl_irdy,
+  input logic                       fdi_pl_startofpkt,
+  input logic                       fdi_pl_endofpkt,
+  output logic                      fdi_lp_trdy,
+  input logic [2:0]                 fdi_pl_state_sts,
   input logic                       fdi_pl_inband_pres,
 
   //to the DUT
@@ -40,67 +41,152 @@ module axfdi_fdi_if #(
   input logic                       fdi_crdtmgr_rx_trdy,
   output logic                      fdi_depktr_rx_sop,
   output logic                      fdi_depktr_rx_eop,
+
+  //credit signals
+  output logic                      credit_init_req,
+  input logic                       credit_init_done
 );
 
-   logic [fdi_flit_width-1:0]        r_fdi_tx_lp_data;
-   logic                             r_fdi_tx_lp_irdy;
-   logic                             r_fdi_tx_lp_valid;
-   logic                             r_fdi_tx_lp_startofpkt;
-   logic                             r_fdi_tx_lp_endofpkt;
+   //statemachine states
+   enum                             logic [2:0] {
+                                            ST_wait_remote,
+                                            ST_req_active,
+                                            ST_credit_init,
+                                            ST_TX_RX,
+                                           }CS,NS;
+
+   //wires
+   logic [2:0]                      s_fdi_lp_state_req;
+   logic                            s_fdi_lp_linkerror;
+
+
+   logic [fdi_flit_width-1:0]        r_fdi_lp_data;
+   logic                             r_fdi_lp_irdy;
+   logic                             r_fdi_lp_valid;
+   logic                             r_fdi_lp_startofpkt;
+   logic                             r_fdi_lp_endofpkt;
+   logic [2:0]                       r_fdi_lp_state_req;
 
 
    //RX side regs
-   logic [fdi_flit_width-1:0]        r_fdi_rx_pl_data;
-   logic                             r_fdi_rx_lp_trdy;
-   logic                             r_fdi_rx_pl_startofpkt;
-   logic                             r_fdi_rx_pl_endofpkt;
+   logic [fdi_flit_width-1:0]        r_fdi_pl_data;
+   logic                             r_fdi_lp_trdy;
+   logic                             r_fdi_pl_startofpkt;
+   logic                             r_fdi_pl_endofpkt;
    logic                             r_flit_rx_data_valid;
 
-   
+   //credit managing local signals
+   logic                             s_credit_rtn_req_en; //init creditrtn
+   logic                             r_credit_rtn_req_en;
+
+   //FDI interface control flag
+   logic                             s_fdi_trans_en;
+   logic                             r_fdi_trans_en;
         
-   always_ff@(posedge fdi_clk or negedge fdi_rstn)
-     if (!fdi_rstn) begin
-        r_fdi_tx_lp_irdy <= 1'b0;
-        r_fdi_tx_lp_valid = 1'b0;
-        r_fdi_tx_lp_data <= 'h0;
+   always_ff@(posedge fdi_clk or negedge fdi_rst_n)
+     if (!fdi_rst_n) begin
+        r_fdi_lp_irdy <= 1'b0;
+        r_fdi_lp_valid = 1'b0;
+        r_fdi_lp_data <= 'h0;
      end
        else begin
-          if (flit_tx_data_valid && fdi_tx_pl_trdy) begin
-             r_fdi_tx_lp_data <= flit_tx_data;
-             r_fdi_tx_lp_irdy <= 1'b1;  //??
-             r_fdi_tx_lp_startofpkt <= fdi_depktr_tx_sop;
-             r_fdi_tx_lp_endofpkt <= fdi_depktr_tx_eop;
+          if (flit_tx_data_valid && fdi_pl_trdy) begin
+             r_fdi_lp_data <= flit_tx_data;
+             r_fdi_lp_irdy <= 1'b1;  //??
+             r_fdi_lp_startofpkt <= fdi_depktr_tx_sop;
+             r_fdi_lp_endofpkt <= fdi_depktr_tx_eop;
           end
-       end
+       end // else: !if(!fdi_rstn)
+
    //module assign on the TX side
-   assign fdi_tx_lp_data = r_fdi_tx_lp_data;
-   assign fdi_tx_lp_irdy = r_fdi_tx_lp_irdy;
-   assign fdi_tx_lp_valid = flit_tx_data_valid;
-   assign fdi_tx_lp_startofpkt = r_fdi_tx_lp_startofpkt;
-   assign fdi_tx_lp_endofpkt = r_fdi_tx_lp_endof_pkt
+   assign fdi_lp_data = r_fdi_lp_data;
+   assign fdi_lp_irdy = r_fdi_lp_irdy;
+   assign fdi_lp_valid = flit_tx_data_valid;
+   assign fdi_lp_startofpkt = r_fdi_lp_startofpkt;
+   assign fdi_lp_endofpkt = r_fdi_lp_endofpkt;
 
 
    //module assign on the RX side
-   assign fdi_rx_lp_trdy = fdi_crdtmgr_rx_trdy;
+   assign fdi_lp_trdy = fdi_crdtmgr_rx_trdy;
    assign flit_rx_data_valid = r_flit_rx_data_valid;
-   assign flit_rx_data = r_fdi_rx_pl_data;
-   assign fdi_depktr_rx_eop = r_fdi_rx_pl_endofpkt;
-   assign fdi_depktr_rx_sop = r_fdi_rx_pl_startofpkt;
+   assign flit_rx_data = r_fdi_pl_data;
+   assign fdi_depktr_rx_eop = r_fdi_pl_endofpkt;
+   assign fdi_depktr_rx_sop = r_fdi_pl_startofpkt;
+
+   //initial credit iniitalization
+   assign credit_init_req =  r_credit_rtn_req_en;
 
 
-   always_ff@(posedge fdi_clk or negedge fdi_rstn)
-     if (!fdi_rstn) begin
-           r_fdi_rx_pl_data <= '0;
-           r_fdi_rx_pl_startofpkt <= 1'b0;
-           r_fdi_rx_pl_endofpkt <= 1'b0;
+   always_ff@(posedge fdi_clk or negedge fdi_rst_n)
+     if (!fdi_rst_n) begin
+           r_fdi_pl_data <= '0;
+           r_fdi_pl_startofpkt <= 1'b0;
+           r_fdi_pl_endofpkt <= 1'b0;
         r_flit_rx_data_valid <= 1'b1;
      end
      else begin
-        if (fdi_rx_pl_irdy && fdi_crdtmgr_rx_trdy && fdi_rx_pl_valid) begin
-           r_fdi_rx_pl_data <= fdi_rx_pl_data;
-           r_fdi_rx_pl_startofpkt <= fdi_rx_pl_startofpkt;
-           r_fdi_rx_pl_endofpkt <= fdi_rx_pl_endofpkt;
+        if (fdi_pl_irdy && fdi_crdtmgr_rx_trdy && fdi_pl_valid) begin
+           r_fdi_pl_data <= fdi_pl_data;
+           r_fdi_pl_startofpkt <= fdi_pl_startofpkt;
+           r_fdi_pl_endofpkt <= fdi_pl_endofpkt;
            r_flit_rx_data_valid <= 1'b1;
         end
+     end // else: !if(!fdi_rstn)
+
+   always_ff @(posedge fdi_clk or negedge por_n)
+     if (!por_n)begin
+        CS <= ST_wait_remote;
+        r_fdi_trans_en <= 1'b0;
+        r_credit_rtn_req_en <= 1'b0;
      end
+     else begin
+        if (!fdi_rst_n) begin
+           CS <= ST_wait_remote;
+           r_fdi_trans_en <= 1'b0;
+           r_credit_rtn_req_en <= 1'b0;
+        end
+        else begin
+           CS <= NS;
+           r_fdi_trans_en <= s_fdi_trans_en;
+           r_credit_rtn_req_en <= s_credit_rtn_req_en;
+        end
+     end
+
+   always_comb begin
+      s_fdi_lp_state_req = 3'h0;
+      s_credit_rtn_req_en = 1'b0;
+      s_fdi_trans_en = 1'b0;
+      s_fdi_lp_state_req = '0;
+      case(CS)
+        ST_wait_remote: begin
+           s_fdi_lp_state_req = 3'h1;
+           s_fdi_tran_en =  1'b0;
+           if (fdi_pl_inband_pres) NS = ST_req_active;
+           else NS = ST_wait_remote;
+        end
+        ST_req_active: begin
+           s_fdi_lp_state_req = 3'h2;
+           s_fdi_tran_en =  1'b0;
+           if (fdi_pl_state_sts == 3'h2) // unitlll the link is active
+             NS = ST_credit_init;
+           else
+             NS = ST_req_active;
+        end
+        ST_credit_init: begin
+           s_fdi_lp_state_req = 3'h2;
+           s_credit_rtn_req_en = 1'b1;
+           s_fdi_tran_en =  1'b1;
+           if (credit_init_done) NS = ST_TX_RX;
+           else NS = ST_credit_init;
+        end
+        ST_TX_RX: begin
+           s_fdi_lp_state_req = 3'h2;
+           s_fdi_tran_en =  1'b1;
+           if (fdi_pl_state_sts != 3'h2) NS = ST_wait_remote;
+        end
+        default: begin
+        end
+        endcase
+   end
+
 endmodule
