@@ -205,7 +205,7 @@ assign AR_cdc_wr_en = AR_buf_rd_en;
 // b channel
 assign B_cdc_rd_en = ~B_cdc_empty & ~B_hold_valid;
 
-// Deliver B response to AXI master
+
 always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin
         bvalid      <= 1'b0;
