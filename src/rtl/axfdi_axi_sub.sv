@@ -265,7 +265,7 @@ always_ff @(posedge axi_clk) begin
 end
 
 // TX Buffers
-TX_BUFF axfdi_aw_buf #(.DEPTH(32), .DATA_WIDTH(61)) u_aw_buf (
+TX_BUFF #(.DEPTH(32), .DATA_WIDTH(61)) axfdi_aw_buf  (
     .clk      (axi_clk),
     .rst_n    (axi_rst_n),
     .w_en     (AW_buf_wr_en),

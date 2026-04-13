@@ -7,15 +7,15 @@ module axfdi_depacketizer #(
   input logic                       fdi_rst_n,
   input logic                       por_n, //global reset
 
-  input                             flit_rx_data,
+  input [fdi_flit_width-1:0]        flit_rx_data,
   input                             flit_rx_data_valid,
 
   //signals to the credit manager
-  output logic [1:0]                depktr_crdtmgr_credit_vcn,
+  output logic [1:0]                depktr_crdtmgr_credit_vcn,//credit_rtn_vcn
   output logic [5:0]                depktr_crdtmgr_credit_cnt,
   output logic                      depktr_crdtmgr_rtn_valid,
   output logic                      depktr_crdtmgr_credit_rx_incr,
-  output logic                      depktr_crdtmgr_rx_vcn,
+  output logic [2:0]                depktr_crdtmgr_rx_vcn, //vcn from header
 
   //signals to the port router
   output logic [axi_data_width-1:0] depktr_portrtr_axi_data,
@@ -32,21 +32,21 @@ module axfdi_depacketizer #(
   output logic                      depktr_portrtr_write_resp_valid,
   output logic                      depktr_portrtr_read_resp_valid,
   output logic                      depktr_portrtr_port_id,
-  output logic                      depktr_portrtr_txn_id,
+  output logic [7:0]                depktr_portrtr_txn_id,
 
 
   //signals completion tracker
   output logic                      depktr_cmpltkr_resp_valid,
   output logic                      depktr_cmpltkr_vcn,
-  output logic                      depktr_cmpltkr_txn_id,
+  output logic [7:0]                depktr_cmpltkr_txn_id,
   input logic                       cmpltkr_depktr_port_id,
-  input logic                       cmpltkr_depktr_port_id_valid,
+  input logic                       cmpltkr_depktr_port_id_valid
 
 );
    logic [2:0] s_flit_vcn;
    logic       s_flit_sop;
    logic       s_flit_eop;
-   logic [3:0] s_flit_opcode ;
+   logic [3:0] s_flit_opcode;
    logic [7:0] s_flit_txn_id;
    logic       s_flit_port_id;
    logic [7:0] s_flit_burst_len;
@@ -63,7 +63,7 @@ module axfdi_depacketizer #(
    logic [2:0] r_flit_vcn;
    logic       r_flit_sop;
    logic       r_flit_eop;
-   logic [3:0] r_flit_opcode ;
+   logic [3:0] r_flit_opcode;
    logic [7:0] r_flit_txn_id;
    logic       r_flit_port_id;
    logic [7:0] r_flit_burst_len;
@@ -99,7 +99,7 @@ module axfdi_depacketizer #(
    assign depktr_crdtmgr_rx_vcn = s_flit_vcn;
 
    //module port assignment port router
-   assign depktr_portrtr_axi_data = r_flit_data_line[1727:703];
+   assign depktr_portrtr_axi_data = r_flit_data_line[1727:704];
    assign depktr_portrtr_axi_burst_len = r_flit_burst_len;
    assign depktr_portrtr_axi_burst_type = r_flit_burst_type;
    assign depktr_portrt_axi_burst_size = r_flit_burst_size;
@@ -108,8 +108,8 @@ module axfdi_depacketizer #(
    assign depktr_portrtr_axi_wstrb = r_flit_wstrb_b0;
    assign depktr_portrtr_write_req_valid = r_write_req_en;
    assign depktr_portrtr_read_req_valid = r_read_req_en;
-   assign depktr_portrtr_write_resp_valid = (cmpltkr_depktr_port_id) ? r_write_resp_en : 1'b0;
-   assign depktr_portrtr_read_resp_valid = (cmpltkr_depktr_port_id) ? r_read_resp_en : 1'b0;
+   assign depktr_portrtr_write_resp_valid = (cmpltkr_depktr_port_id_valid) ? r_write_resp_en : 1'b0;
+   assign depktr_portrtr_read_resp_valid = ( cmpltkr_depktr_port_id_valid) ? r_read_resp_en : 1'b0;
    assign depktr_portrtr_port_id = (r_write_req_en && r_read_req_en) ? r_flit_port_id:
                                    (r_write_resp_en && r_read_resp_en) ? cmpltkr_depktr_port_id:
                                    1'b0;
@@ -141,6 +141,8 @@ module axfdi_depacketizer #(
  always_ff @(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
         r_flit_vcn <= '0;
+        r_flit_eop <= 1'b0;
+        r_flit_sop <= 1'b0;
         r_flit_txn_id <= '0;
         r_flit_port_id <= '0;
         r_flit_burst_len <= '0;
@@ -149,11 +151,21 @@ module axfdi_depacketizer #(
         r_flit_resp <= '0;
         r_flit_credit_rtn_vcn <= '0;
         r_flit_credit_rtn_cnt <= '0;
+        r_flit_addr <= '0;
+        r_flit_wstrb_b0 <= '0;
+        r_flit_data_line <= '0;
+        r_write_req_en <= '0;
+        r_read_req_en <= '0;
+        r_write_resp_en <= '0;
+        r_read_resp_en <='0;
+        r_credit_rtn_en <= '0;
      end
      else begin
         if (!fdi_rst_n) begin
            r_flit_vcn <= '0;
            r_flit_txn_id <= '0;
+           r_flit_eop <= 1'b0;
+           r_flit_sop <= 1'b0;
            r_flit_port_id <= '0;
            r_flit_burst_len <= '0;
            r_flit_burst_type <= '0;
@@ -161,20 +173,30 @@ module axfdi_depacketizer #(
            r_flit_resp <= '0;
            r_flit_credit_rtn_vcn <= '0;
            r_flit_credit_rtn_cnt <= '0;
+           r_flit_addr <= '0;
+           r_flit_wstrb_b0 <= '0;
+           r_flit_data_line <= '0;
+           r_write_req_en <= '0;
+           r_read_req_en <= '0;
+           r_write_resp_en <= '0;
+           r_read_resp_en <='0;
+           r_credit_rtn_en <= '0;
         end
         else begin
            if (flit_rx_data_valid) begin
               r_flit_vcn <= s_flit_vcn;
+              r_flit_eop <= s_flit_eop;
+              r_flit_sop <= s_flit_sop;
               r_flit_txn_id <= s_flit_txn_id;
-              r_flit_port_id <= s_flit_port_id;
+              r_flit_port_id  <= s_flit_port_id;
               r_flit_burst_len <= s_flit_burst_len;
               r_flit_burst_type <= s_flit_burst_type;
               r_flit_burst_size <= s_flit_burst_size;
               r_flit_resp <= s_flit_resp;
               r_flit_credit_rtn_vcn <= s_flit_credit_rtn_vcn;
               r_flit_credit_rtn_cnt <= s_flit_credit_rtn_cnt;
-              r_flit_addr = s_flit_addr;
-              r_flit_wstrb_b0 = s_flit_wstrb_b0;
+              r_flit_addr <= s_flit_addr;
+              r_flit_wstrb_b0 <= s_flit_wstrb_b0;
               r_flit_data_line <= s_flit_data_line;
               r_write_req_en <= s_write_req_en;
               r_read_req_en <= s_read_req_en;
@@ -202,17 +224,4 @@ module axfdi_depacketizer #(
         default: s_nop_en = 1'b1;
       endcase // case (s_flit_opcode)
    end
-
-   always_ff@(posedge fdi_clk or negedge por_n)
-     if (!por_n)begin
-     end
-     else if (!fdi_rst_n) begin
-     end
-     else begin
-     end
-
-   always_comb begin
-
-   end
-
 endmodule
