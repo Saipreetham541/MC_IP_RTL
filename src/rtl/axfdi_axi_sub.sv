@@ -1,3 +1,7 @@
+/* Module Name : axfdi_axi_sub 
+   Clock Domain : AXI 500Mhz
+*/
+
 module axfdi_axi_sub #(                                  
     parameter AXI_DATA_W = 1024,
     parameter AXI_ADDR_W = 40,
