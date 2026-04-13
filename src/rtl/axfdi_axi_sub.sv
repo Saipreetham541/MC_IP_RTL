@@ -276,7 +276,7 @@ TX_BUFF axfdi_aw_buf #(.DEPTH(32), .DATA_WIDTH(61)) u_aw_buf (
     .empty    (AW_buf_empty)
 );
 
-TX_BUFF axfdi_w_buf #(.DEPTH(64), .DATA_WIDTH(1153)) u_w_buf (  // 64 deep — W can arrive before AW
+TX_BUFF  #(.DEPTH(64), .DATA_WIDTH(1153)) axfdi_w_buf (  
     .clk      (axi_clk),
     .rst_n    (axi_rst_n),
     .w_en     (W_buf_wr_en),
@@ -287,7 +287,7 @@ TX_BUFF axfdi_w_buf #(.DEPTH(64), .DATA_WIDTH(1153)) u_w_buf (  // 64 deep — W
     .empty    (W_buf_empty)
 );
 
-TX_BUFF axfdi_ar_buf #(.DEPTH(32), .DATA_WIDTH(61)) u_ar_buf (
+TX_BUFF  #(.DEPTH(32), .DATA_WIDTH(61)) axfdi_ar_buf (
     .clk      (axi_clk),
     .rst_n    (axi_rst_n),
     .w_en     (AR_buf_wr_en),
@@ -300,7 +300,7 @@ TX_BUFF axfdi_ar_buf #(.DEPTH(32), .DATA_WIDTH(61)) u_ar_buf (
 
 
 // RX buff for R channel
-TX_BUFF R_RX_buff#(.DEPTH(256), .DATA_WIDTH(1035)) u_r_buf (
+TX_BUFF #(.DEPTH(256), .DATA_WIDTH(1035)) R_RX_buff (
     .clk      (axi_clk),
     .rst_n    (axi_rst_n),
     .w_en     (R_buf_wr_en),
