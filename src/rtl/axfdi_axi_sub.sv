@@ -1,7 +1,3 @@
-/* Module Nmae : axfdi_axi_sub
-   Clock Domain : AXI 500Mhz
-*/
-
 module axfdi_axi_sub #(                                  
     parameter AXI_DATA_W = 1024,
     parameter AXI_ADDR_W = 40,
@@ -99,11 +95,6 @@ logic           AR_buf_empty;
 
 // B buffer signals 
 logic [9:0]     B_din;
-logic [9:0]     B_buf_dout;
-logic           B_buf_wr_en;
-logic           B_buf_rd_en;
-logic           B_buf_full;
-logic           B_buf_empty;
 logic           B_hold_valid;
 
 // R buffer signals 
