@@ -212,7 +212,7 @@ always_ff @(posedge axi_clk) begin
         bid         <= 8'h0;
         bresp       <= 2'b00;
         B_din       <= 10'h00;
-        b_hold_valid<= 0    ;
+        B_hold_valid<= 0    ;
     end else begin
          
         if (B_cdc_rd_en) begin
