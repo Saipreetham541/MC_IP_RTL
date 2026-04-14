@@ -12,7 +12,7 @@ The design supports bi-directional data flow between the AXI and FDI interface.
 
 > **Note:**  
 > This repository contains the AXFDI bridge source code, developed by **Sevya Multimedia Technologies**.  
-  >> Contributors:
+  >> Contributors:  
   >>Pavan Kammili (pavan.kammili@sevyamm.com)  
   >>Raja Ramagani (raja.ramagani@sevyamm.com)  
   >>Yesaswini Bedadhuru (yesaswini.bedadhuru@sevyamm.com)  
