@@ -9,8 +9,8 @@ The design supports bi-directional data flow between the AXI and FDI interface.
 
 ### Block Diagram:
 ![Block Diagram](https://github.com/sevyamm/Busbridges/blob/master/docs/Block_Diagram.png)
-
-/*> **Note:**  
+<!--
+> **Note:**  
 > This repository contains the AXFDI bridge source code, developed by **Sevya Multimedia Technologies**.  
   >> Contributors:  
   >>Pavan Kammili (pavan.kammili@sevyamm.com)  
@@ -19,4 +19,4 @@ The design supports bi-directional data flow between the AXI and FDI interface.
   >>Vishwa Patwari (vishwa.patwari@sevyamm.com)  
   >>Shivasai Tatipalli (shivasai.tatipalli@sevyamm.com)  
   >> Aravind P S  (aravind.prasannanpillai@sevyamm.com)  
-*/
+-->
