@@ -25,8 +25,8 @@ module axfdi_depacketizer #(
   output logic [1:0]                depktr_portrtr_axi_resp,
   output logic [39:0]               depkrt_portrtr_axi_addr,
   output logic [127:0]              depktr_portrtr_axi_wstrb,
-  input logic                       portrtr_depktr_bakpres,
-  input logic                       portrtr_depktr_read_done,
+//  input logic                       portrtr_depktr_bakpres, //backpressure from the port router
+  input logic                       portrtr_depktr_read_done, //indicating port router has performed read
   output logic                      depktr_portrtr_write_req_valid,
   output logic                      depktr_portrtr_read_req_valid,
   output logic                      depktr_portrtr_write_resp_valid,
@@ -93,10 +93,10 @@ module axfdi_depacketizer #(
 
    //module port  assignment CREDIT_MGR
    assign depktr_crdtmgr_rtn_valid = s_credit_rtn_en | s_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
-   assign depktr_crdtmgr_credit_vcn = s_flit_credit_rtn_vcn;
-   assign depktr_crdtmgr_credit_cnt = s_flit_credit_rtn_cnt;
+   assign depktr_crdtmgr_credit_vcn = r_flit_credit_rtn_vcn;
+   assign depktr_crdtmgr_credit_cnt = r_flit_credit_rtn_cnt;
    assign depktr_crdtmgr_credit_rx_incr = s_write_req_en & s_read_req_en;
-   assign depktr_crdtmgr_rx_vcn = s_flit_vcn;
+   assign depktr_crdtmgr_rx_vcn = r_flit_vcn;
 
    //module port assignment port router
    assign depktr_portrtr_axi_data = r_flit_data_line[1727:704];
@@ -131,6 +131,7 @@ module axfdi_depacketizer #(
    assign s_flit_burst_len = (flit_rx_data_valid) ? flit_rx_data[28:21] : '0;
    assign s_flit_burst_type = (flit_rx_data_valid) ? flit_rx_data[30:29] : '0;
    assign s_flit_burst_size = (flit_rx_data_valid) ? flit_rx_data[33:31] : '0;
+   assign s_flit_resp = (flit_rx_data_valid) ? flit_rx_data[35:34] : '0;
    assign s_flit_credit_rtn_vcn = (flit_rx_data_valid) ? flit_rx_data[37:36] : '0;
    assign s_flit_credit_rtn_cnt = (flit_rx_data_valid) ? flit_rx_data[43:38] : '0;
    assign s_flit_wstrb_present = (flit_rx_data_valid) ? flit_rx_data[44] : '0;
@@ -203,6 +204,26 @@ module axfdi_depacketizer #(
               r_write_resp_en <= s_write_resp_en;
               r_read_resp_en <= s_read_resp_en;
               r_credit_rtn_en <= s_credit_rtn_en;
+           end // if (flit_rx_data_valid)
+           if (portrtr_depktr_read_done) begin
+              r_flit_vcn <= '0;
+              r_flit_txn_id <= '0;
+              r_flit_eop <= 1'b0;
+              r_flit_sop <= 1'b0;
+              r_flit_port_id <= '0;
+              r_flit_burst_len <= '0;
+              r_flit_burst_type <= '0;
+              r_flit_burst_size <= '0;
+              r_flit_resp <= '0;
+              r_flit_credit_rtn_vcn <= '0;
+              r_flit_credit_rtn_cnt <= '0;
+              r_flit_addr <= '0;
+              r_flit_wstrb_b0 <= '0;
+              r_flit_data_line <= '0;
+              r_write_req_en <= '0;
+              r_read_req_en <= '0;
+              r_write_resp_en <= '0;
+              r_read_resp_en <='0;
            end
         end
      end // else: !if(!por_n)
