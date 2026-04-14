@@ -6,5 +6,7 @@ The specification about the implementation can be found: [AXI-FDI SPEC](https://
 
 ## Block Diagram:
 The design supports bi-directional data flow between the AXI and FDI interface. 
+
+### Block Diagram:
 ![Block Diagram](https://github.com/sevyamm/Busbridges/blob/master/docs/Block_Diagram.png)
 
