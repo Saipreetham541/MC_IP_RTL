@@ -1,5 +1,5 @@
 module axfdi_completion_tracker #(
- parameter trakcer_depth = 256,
+ parameter tracker_depth = 256,
  parameter txn_id_w = 8
 )
 (
@@ -28,23 +28,79 @@ module axfdi_completion_tracker #(
       logic       vcn;
       logic [txn_id_w-1:0] txn_id;
       logic       data_valid;
-      }completion_tracker[0:trakcer_depth-1];
+      }completion_tracker[0:tracker_depth-1];
+
+   logic          tx_d_found, tx_d_index;
+   localparam int unsigned entry_idx_w = (tracker_depth > 1) ? $clog2(tracker_depth) : 1;
+
+   logic                   rx_d_hit, rx_d_index;
+   logic                   r_rx_resp_port_id, s_rx_resp_port_id;
 
 
+
+   //loop to check for the free slot to assign value to the tracker
    always_comb begin
-      for
+      tx_d_found = 0;
+      for (int i=0;i<tracker_depth;i++) begin
+         if (!completion_tracker[i].data_valid && !tx_d_found) begin
+            tx_d_found = 1;
+            tx_d_index = i[entry_idx_w-1:0];
+         end
+      end
+   end
+
+   //loop to find data in the completion_tracker
+   always_comb begin
+      rx_d_hit = 0;
+      for (int i=0; i<tracker_depth; i++) begin
+         if (rx_resp_valid &&
+             completion_tracker[i].data_valid &&
+             completion_tracker[i].vcn == rx_vcn &&
+             completion_tracker[i].txn_id == rx_txn_id &&
+             !rx_d-hit) begin
+            rx_d_hit = 1'b1;
+            s_rx_resp_port_id = completion_tracker[i].port_id;
+            rx_d_index = i[entry_idx_w-1:0];
+         end
+      end
    end
 
 
    always_ff @(posedge fdi_clk or negedge por_n)
+     int unsigned idx;
      if (!por_n) begin
-        for (idx=0;)
-     end
-     else begin
+        for (idx=0; idx < tracker_depth; idx++) begin
+           completion_tracker[idx].port_id <= 1'b0;
+           completion_tracker[idx].vcn <= 1'b0;
+           completion_tracker[idx].data_valid <= 1'b0;
+           completion_tracker[idx].txn_id <= '0;
+        end
+     end else begin
         if (!fdi_rst_n) begin
-        end
-        else begin
+           for (idx=0; idx < tracker_depth; idx++) begin
+              completion_tracker[idx].port_id <= 1'b0;
+              completion_tracker[idx].vcn <= 1'b0;
+              completion_tracker[idx].data_valid <= 1'b0;
+              completion_tracker[idx].txn_id <= '0;
+           end
+        end else begin
+           if (tx_d_found && tx_txn_valid) begin
+              completion_tracker[tx_d_index].port_id <= tx_port_id;
+              completion_tracker[tx_d_index].vcn <= tx_vcn;
+              completion_tracker[tx_d_index].data_valid <= 1'b1;
+              completion_tracker[tx_d_index].txn_id <= tx_txn_id;
+           end
+           if (rx_d_hit) begin
+              r_rx_resp_port_id <= s_rx_resp_port_id;
+              r_rx_resp_port_id_valid <= 1'b1;
+              completion_tracker[rx_d_index].port_id <= '0;
+              completion_tracker[rx_d_index].vcn <= '0;
+              completion_tracker[rx_d_index].data_valid <= '0;
+              completion_tracker[rx_d_index].txn_id <= '0;
+           end else begin
+              r_rx_resp_port_id <= '0;
+              r_rx_resp_port_id_valid <= '0;
+           end
         end
      end
-
 endmodule // axfdi_completion_tracker
