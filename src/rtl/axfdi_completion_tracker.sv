@@ -23,7 +23,7 @@ module axfdi_completion_tracker #(
  input logic                tx_txn_valid
 );
 
-   typedef struct packed {
+    struct packed {
       logic       port_id;
       logic       vcn;
       logic [txn_id_w-1:0] txn_id;
@@ -35,8 +35,12 @@ module axfdi_completion_tracker #(
 
    logic                   rx_d_hit, rx_d_index;
    logic                   r_rx_resp_port_id, s_rx_resp_port_id;
+   logic                   r_rx_resp_port_id_valid;
+   logic                   r_tx_write_done;
 
-
+   assign rx_resp_port_id = r_rx_resp_port_id;
+   assign rx_resp_port_id_valid = r_rx_resp_port_id_valid;
+   assign tx_write_done = r_tx_write_done;
 
    //loop to check for the free slot to assign value to the tracker
    always_comb begin
@@ -57,7 +61,7 @@ module axfdi_completion_tracker #(
              completion_tracker[i].data_valid &&
              completion_tracker[i].vcn == rx_vcn &&
              completion_tracker[i].txn_id == rx_txn_id &&
-             !rx_d-hit) begin
+             !rx_d_hit) begin
             rx_d_hit = 1'b1;
             s_rx_resp_port_id = completion_tracker[i].port_id;
             rx_d_index = i[entry_idx_w-1:0];
@@ -67,9 +71,11 @@ module axfdi_completion_tracker #(
 
 
    always_ff @(posedge fdi_clk or negedge por_n)
-     int unsigned idx;
      if (!por_n) begin
-        for (idx=0; idx < tracker_depth; idx++) begin
+        r_rx_resp_port_id_valid <= 1'b0;
+        r_rx_resp_port_id <= '0;
+        r_tx_write_done <= 1'b0;
+        for (int idx=0; idx < tracker_depth; idx++) begin
            completion_tracker[idx].port_id <= 1'b0;
            completion_tracker[idx].vcn <= 1'b0;
            completion_tracker[idx].data_valid <= 1'b0;
@@ -77,7 +83,10 @@ module axfdi_completion_tracker #(
         end
      end else begin
         if (!fdi_rst_n) begin
-           for (idx=0; idx < tracker_depth; idx++) begin
+           r_rx_resp_port_id_valid <= 1'b0;
+           r_rx_resp_port_id <= '0;
+           r_tx_write_done <= 1'b0;
+           for (int idx=0; idx < tracker_depth; idx++) begin
               completion_tracker[idx].port_id <= 1'b0;
               completion_tracker[idx].vcn <= 1'b0;
               completion_tracker[idx].data_valid <= 1'b0;

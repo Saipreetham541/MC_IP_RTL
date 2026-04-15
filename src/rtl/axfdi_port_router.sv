@@ -27,7 +27,7 @@ module axfdi_port_router #(
   input logic [axi_addr_w-1:0]       depktr_portrtr_axi_addr,
   input logic [axi_wstrb_w-1:0]      depktr_portrtr_axi_wstrb,
   input logic                        depktr_portrtr_flit_eop,
-  input logic                        depktr_portrtr_flit_sop,
+  //input logic                        depktr_portrtr_flit_sop,
   output logic                       portrtr_depktr_read_done, //indicating port router has performed read
   input logic                        depktr_portrtr_write_req_valid,
   input logic                        depktr_portrtr_read_req_valid,
@@ -122,6 +122,7 @@ module axfdi_port_router #(
       if(!por_n) begin
       end else begin
          if (!fdi_rst_n) begin
+            r_port0
          end else begin //write request
             if (depktr_portrtr_write_req_valid) begin
                if (depktr_portrtr_port_id == 1'b0) begin
