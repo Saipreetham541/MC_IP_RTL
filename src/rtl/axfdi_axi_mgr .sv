@@ -261,8 +261,8 @@ end
 
 // R channel 
 assign rready = !R_buf_full;
-assign R_cdc_data  = {rdata,rid,rresp,rlast};
-assign R_cdc_wr_en = rvalid && rready;
+assign R_buf_din  = {rdata,rid,rresp,rlast};
+assign R_buf_wr_en = rvalid && rready;
 
 assign R_buf_rd_en = ~R_buf_empty & ~R_cdc_full;
 assign R_cdc_data  = R_buf_dout;
