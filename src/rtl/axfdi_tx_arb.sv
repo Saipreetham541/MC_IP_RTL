@@ -136,7 +136,7 @@ assign reload = (cpl_cnt_next == 0) && (np_cnt_next == 0);
 end
 
 
-    // perent state logc
+    // persent state logic
     always_ff @( posedge fdi_clk  ) begin
         if (!fdi_rst_n) begin
             cs <= IDLE;
@@ -147,7 +147,7 @@ end
        
     end
    
-    // next state logc
+    // next state logic
     always_comb begin
         ns = cs;
          if (crd_rtn) begin
