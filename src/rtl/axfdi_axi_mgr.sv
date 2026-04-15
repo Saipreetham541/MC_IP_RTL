@@ -79,6 +79,13 @@ logic                                AR_buf_rd_en;
 logic                                AR_buf_full;
 logic                                AR_buf_empty;
 
+logic [1034:0]                       R_buf_din;
+logic [1034:0]                       R_buf_dout;
+logic                                R_buf_wr_en;
+logic                                R_buf_rd_en;
+logic                                R_buf_full;
+logic                                R_buf_empty;
+
  // AW buffer signals
 logic [60:0]                         AW_buf_din;
 logic [60:0]                         AW_buf_dout;
@@ -322,4 +329,7 @@ TX_BUFF  #(.DEPTH(256), .DATA_WIDTH(1035)) axfdi_r_reassem (
 
 
 endmodule
+
+
+
 
