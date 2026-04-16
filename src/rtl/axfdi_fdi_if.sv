@@ -2,7 +2,6 @@
 
 module axfdi_fdi_if #(
   parameter fdi_flit_width = 2048
-
 )(
   //clock and reset wires
   input logic                       fdi_clk,
@@ -52,7 +51,7 @@ module axfdi_fdi_if #(
                                             ST_wait_remote,
                                             ST_req_active,
                                             ST_credit_init,
-                                            ST_TX_RX,
+                                            ST_TX_RX
                                            }CS,NS;
 
    //wires

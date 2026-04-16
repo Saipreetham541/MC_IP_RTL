@@ -25,7 +25,7 @@ module axfdi_depacketizer #(
   output logic [1:0]                depktr_portrtr_axi_resp,
   output logic [39:0]               depkrt_portrtr_axi_addr,
   output logic [127:0]              depktr_portrtr_axi_wstrb,
-//  input logic                       portrtr_depktr_bakpres, //backpressure from the port router
+  input logic                       portrtr_depktr_bakpres, //backpressure from the port router
   input logic                       portrtr_depktr_read_done, //indicating port router has performed read
   output logic                      depktr_portrtr_write_req_valid,
   output logic                      depktr_portrtr_read_req_valid,
