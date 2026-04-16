@@ -67,6 +67,7 @@ module axfdi_tx_arb
 
 
      opcode  s_txn_type;
+     opcode  r_txn_type;
      opcode  s_last_req;
      opcode  r_last_req;
      opcode  s_last_resp;
@@ -83,6 +84,7 @@ module axfdi_tx_arb
 
 
      VCN  s_vcn_sel;
+     VCN  r_vcn_sel;
 
 
     // arbiter fsm
@@ -136,7 +138,7 @@ assign reload = (cpl_cnt_next == 0) && (np_cnt_next == 0);
 end
 
 
-    // persent state logic
+    // perent state logc
     always_ff @( posedge fdi_clk  ) begin
         if (!fdi_rst_n) begin
             cs <= IDLE;
@@ -147,13 +149,14 @@ end
        
     end
    
-    // next state logic
+    // next state logc
     always_comb begin
         ns = cs;
          if (crd_rtn) begin
-            crd_rtn_valid = 1;
+            ns = IDLE;
          end
         else begin
+            if (eop)begin
             case (cs)
                 IDLE:begin
                     if(cpl_txn_vaild)begin
@@ -184,12 +187,16 @@ end
                 default: ns = IDLE;
             endcase
         end
+        end
+        else begin
+            ns = cs;
+        end
     end
 
 
     always_comb begin
-        s_txn_type =  txn_type ;
-        s_vcn_sel = vcn_sel;
+        s_txn_type =  r_txn_type ;
+        s_vcn_sel = r_vcn_sel;
         s_last_resp = r_last_resp;
         s_last_req = r_last_req;
 
@@ -200,32 +207,32 @@ end
                 s_vcn_sel = VCN_CPL;
             end
             CPL:begin
-                 s_vcn_sel = CPL;
-                if((write_resp_vaild && r_last_req != WRITE_RESP)|| (write_resp_vaild && !read_resp_vaild))begin
+                 s_vcn_sel = VCN_CPL;
+                if((write_resp_vaild && r_last_resp != WRITE_RESP)|| (write_resp_vaild && !read_resp_vaild))begin
                     s_txn_type = WRITE_RESP;
-                    s_last_req = WRITE_RESP;
+                    s_last_resp = WRITE_RESP;
                    
                 end
-                else if ((read_resp_vaild && r_last_req != READ_RESP)|| (read_resp_vaild && !write_resp_vaild )) begin
+                else if ((read_resp_vaild && r_last_resp != READ_RESP)|| (read_resp_vaild && !write_resp_vaild )) begin
                     s_txn_type = READ_RESP;
-                    s_last_req = READ_RESP;
+                    s_last_resp = READ_RESP;
                 end
             end
             NP:begin
-                 s_vcn_sel = NP;
-                if((write_req_vaild && r_last_resp != WRITE_REQ) || (write_req_vaild && !read_req_vaild))begin
+                 s_vcn_sel = VCN_NP;
+                if((write_req_vaild && r_last_req != WRITE_REQ) || (write_req_vaild && !read_req_vaild))begin
                     s_txn_type = WRITE_REQ;
-                    s_last_resp = WRITE_REQ;
+                    s_last_req = WRITE_REQ;
                    
                 end
                 else if ((read_req_vaild && r_last_req != READ_REQ) ||  (read_req_vaild && !write_req_vaild)) begin
                     s_txn_type = READ_REQ;
-                    s_last_resp = READ_REQ;
+                    s_last_req = READ_REQ;
                 end
             end
             default: begin
-            s_txn_type =  txn_type ;
-            s_vcn_sel = vcn_sel;
+            s_txn_type =  r_txn_type ;
+            s_vcn_sel = r_vcn_sel;
             s_last_resp = r_last_resp;
             s_last_req = r_last_req;
             end
@@ -235,26 +242,29 @@ end
 
     always_ff @( posedge fdi_clk ) begin
         if(!fdi_rst_n)begin
-            txn_type <= NOP;
-            vcn_sel <= VCN_CPL;
+            r_txn_type <= NOP;
+            r_vcn_sel <= VCN_CPL;
             r_last_resp <= READ_REQ;
             r_last_req <= READ_RESP;
         end
         else begin
+            port_id_o <= port_id_i;
             if(crd_rtn_valid)begin 
-            txn_type <= CREDIT_RTN;
+            r_txn_type <= CREDIT_RTN;
             end 
             else begin
-            txn_type <= s_txn_type;
-            vcn_sel <= s_vcn_sel;
+            r_txn_type <= s_txn_type;
+            r_vcn_sel <= s_vcn_sel;
             end
             r_last_resp <= s_last_resp;
             r_last_req <= s_last_req;
-            port_id_o <= port_id_i;
+            
         end
     end
 
-
+   assign crd_rtn_valid = crd_rtn;
+   assign txn_type = r_txn_type;
+   assign vcn_sel = r_vcn_sel;
 endmodule
 
 
