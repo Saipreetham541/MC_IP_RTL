@@ -1,4 +1,18 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Sevya Multimedia
+// Engineer: Aravind P S <aravind.prasannanpillai@sevyamm.com>
 //
+// Create Date: 2026-04-17 00:38
+// File Name: axfdi_fdi_if.sv
+// Project Name: AXFDI Bridge
+// Description: Flit Die-to-Die Interface
+//
+// Last Updated: 2026-04-17 00:38
+//
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
+
 
 module axfdi_fdi_if #(
   parameter fdi_flit_width = 2048
@@ -41,7 +55,7 @@ module axfdi_fdi_if #(
   input logic                       fdi_crdtmgr_rx_trdy,
   output logic                      fdi_depktr_rx_sop,
   output logic                      fdi_depktr_rx_eop,
-
+  
   //credit signals
   output logic                      credit_init_req,
   input logic                       credit_init_done
@@ -189,7 +203,7 @@ module axfdi_fdi_if #(
            else NS = ST_TX_RX;
         end
         default: NS=ST_wait_remote;
-      endcase
+      endcase 
    end // always _comb
 
 endmodule

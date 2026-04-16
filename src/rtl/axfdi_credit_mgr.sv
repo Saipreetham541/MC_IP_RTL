@@ -1,3 +1,18 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Sevya Multimedia
+// Engineer: Aravind P S <aravind.prasannanpillai@sevyamm.com>
+//
+// Create Date: 2026-04-17 00:35
+// File Name: axfdi_credit_mgr.sv
+// Project Name: AXFDI Bridge
+// Description: Credit Manager Module
+//
+// Last Updated: 2026-04-17 00:35
+//
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
+
 module axfdi_credit_mgr #(
     parameter credit_size = 6,
     parameter rtn_vcn_w = 2,

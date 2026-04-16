@@ -1,3 +1,20 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Sevya Multimedia
+// Engineer: Aravind P S <aravind.prasannanpillai@sevyamm.com>
+//
+// Create Date: 2026-04-17 00:37
+// File Name: axfdi_completion_tracker.sv
+// Project Name: AXFDI Bridge
+// Description: Completion Tracker module
+//
+// Last Updated: 2026-04-17 00:37
+//
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
 module axfdi_completion_tracker #(
  parameter tracker_depth = 256,
  parameter txn_id_w = 8
@@ -36,7 +53,12 @@ module axfdi_completion_tracker #(
 
    logic                   rx_d_hit;
    logic [entry_idx_w-1:0] rx_d_index;
-   logic                   r_rx_resp_port_id, s_rx_resp_port_id;
+   logic                   r_rx_resp_port_id, s_rx_resp_port_idSymbol’s value as variable is void: timescaleuser-full-nameSymbol’s value as variable is void: <user-mail-addressSymbol’s value as variable is void: >(format-time-string "%Y-%m-%d %H:%M")Symbol’s value as variable is void: //(file-name-base (or buffer-file-name ""))Symbol’s value as variable is void: //(file-name-base (or buffer-file-name ""))` ();
+
+
+
+                           endmodule
+;
    logic                   r_rx_resp_port_id_valid;
    logic                   r_tx_write_done;
 

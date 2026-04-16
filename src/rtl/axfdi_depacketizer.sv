@@ -1,3 +1,18 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Sevya Multimedia
+// Engineer: Aravind P S <aravind.prasannanpillai@sevyamm.com>
+//
+// Create Date: 2026-04-17 00:40
+// File Name: axfdi_depacketizer.sv
+// Project Name: AXFDI Bridge
+// Description: Port router
+//
+// Last Updated: 2026-04-17 00:40
+//
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
+
 module axfdi_depacketizer #(
    parameter fdi_flit_width = 2048,
    parameter axi_data_width = 1024

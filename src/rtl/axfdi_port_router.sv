@@ -1,3 +1,18 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Sevya Multimedia
+// Engineer: Aravind P S <aravind.prasannanpillai@sevyamm.com>
+//
+// Create Date: 2026-04-17 00:39
+// File Name: axfdi_port_router.sv
+// Project Name: AXFDI Bridge
+// Description: port router module
+//
+// Last Updated: 2026-04-17 00:39
+//
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
+
 module axfdi_port_router #(
   parameter axi_data_w = 1024,
   parameter axi_burst_len_w = 8,

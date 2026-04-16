@@ -1,3 +1,18 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Sevya Multimedia
+// Engineer: Aravind P S <aravind.prasannanpillai@sevyamm.com>
+//
+// Create Date: 2026-04-17 00:40
+// File Name: axfdi_bridge.sv
+// Project Name: AXFDI Bridge
+// Description: Top file Bridge
+//
+// Last Updated: 2026-04-17 00:40
+//
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
+
 module axfdi_bridge
 #(
   parameter axi_addr_w = 40,
