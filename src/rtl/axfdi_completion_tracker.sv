@@ -30,10 +30,12 @@ module axfdi_completion_tracker #(
       logic       data_valid;
       }completion_tracker[0:tracker_depth-1];
 
-   logic          tx_d_found, tx_d_index;
+   logic          tx_d_found;
+   logic [entry_idx_w-1:0] tx_d_index;
    localparam int unsigned entry_idx_w = (tracker_depth > 1) ? $clog2(tracker_depth) : 1;
 
-   logic                   rx_d_hit, rx_d_index;
+   logic                   rx_d_hit;
+   logic [entry_idx_w-1:0] rx_d_index;
    logic                   r_rx_resp_port_id, s_rx_resp_port_id;
    logic                   r_rx_resp_port_id_valid;
    logic                   r_tx_write_done;
@@ -45,6 +47,7 @@ module axfdi_completion_tracker #(
    //loop to check for the free slot to assign value to the tracker
    always_comb begin
       tx_d_found = 0;
+      tx_d_index = '0;
       for (int i=0;i<tracker_depth;i++) begin
          if (!completion_tracker[i].data_valid && !tx_d_found) begin
             tx_d_found = 1;
@@ -56,6 +59,7 @@ module axfdi_completion_tracker #(
    //loop to find data in the completion_tracker
    always_comb begin
       rx_d_hit = 0;
+      rx_d_index = '0;
       for (int i=0; i<tracker_depth; i++) begin
          if (rx_resp_valid &&
              completion_tracker[i].data_valid &&
