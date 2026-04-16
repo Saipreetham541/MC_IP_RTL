@@ -42,14 +42,14 @@ module axfdi_port_merge (
    logic read_resp_1;
 
    assign write_req_0 = ~AW_cdc_fifo_empty_0 & ~W_cdc_fifo_empty_0;
-   assign read_req_0 = AR_cdc_fifo_empty_0;
+   assign read_req_0 = ~AR_cdc_fifo_empty_0;
    assign write_resp_0 = ~B_cdc_fifo_empty_0;
-   assign read_resp_0 = R_cdc_fifo_empty_0;
+   assign read_resp_0 = ~R_cdc_fifo_empty_0;
    
    assign write_req_1 = ~AW_cdc_fifo_empty_1 & ~W_cdc_fifo_empty_1;
-   assign read_req_1 = AR_cdc_fifo_empty_1;
+   assign read_req_1 = ~AR_cdc_fifo_empty_1;
    assign write_resp_1 = ~B_cdc_fifo_empty_1;
-   assign read_resp_1 = R_cdc_fifo_empty_1;
+   assign read_resp_1 = ~R_cdc_fifo_empty_1;
 
   assign port0_data = write_req_0 | read_req_0 | write_resp_0 | read_resp_0;
   assign port1_data = write_req_1 | read_req_1 | write_resp_1 | read_resp_1;
@@ -196,18 +196,27 @@ end
         read_resp_vaild <= 0;
     end
     else begin
-        if(last_port)begin
-        write_req_vaild <= write_req_1;
-        read_req_vaild <= read_req_1;
-        write_resp_vaild <= write_resp_1;
-        read_resp_vaild <= read_resp_1;
-        end
-        else begin
-        write_req_vaild <= write_req_0;
-        read_req_vaild <= read_req_0;
-        write_resp_vaild <= write_resp_0;
-        read_resp_vaild <= read_resp_0;
-        end
+       else begin
+        case (cs)
+            SEND_P0:begin
+            write_req_vaild <= write_req_0;
+            read_req_vaild <= read_req_0;
+            write_resp_vaild <= write_resp_0;
+            read_resp_vaild <= read_resp_0;
+            end 
+            SEND_P1:begin
+            write_req_vaild <= write_req_1;
+            read_req_vaild <= read_req_1;
+            write_resp_vaild <= write_resp_1;
+            read_resp_vaild <= read_resp_1;
+            end
+            default: begin
+            write_req_vaild <= write_req_0;
+            read_req_vaild <= read_req_0;
+            write_resp_vaild <= write_resp_0;
+            read_resp_vaild <= read_resp_0;
+            end
+        endcase
     end
     
    end
