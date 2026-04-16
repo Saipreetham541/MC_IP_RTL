@@ -67,7 +67,7 @@ module axfdi_port_router #(
   input logic                        port1_cdc_b_d_full,
   output logic [cdc_r_d_w-1:0]       port1_cdc_r_d,
   output logic                       port1_cdc_r_d_wr_en,
-  input logic                        port1_cdc_r_d_full,
+  input logic                        port1_cdc_r_d_full
  );
 
 
@@ -120,9 +120,48 @@ module axfdi_port_router #(
  
     always_ff@(posedge fdi_clk or negedge fdi_rst_n)
       if(!por_n) begin
+            r_port0_cdc_aw_d_valid <= 1'b0;
+            r_port0_cdc_aw_d <= '0;
+            r_port1_cdc_aw_d_valid <= 1'b0;
+            r_port1_cdc_aw_d <= '0;
+            r_port0_cdc_w_d_valid <= 1'b0;
+            r_port0_cdc_w_d <= '0;
+            r_port1_cdc_w_d_valid <= 1'b0;
+            r_port1_cdc_w_d <= '0;
+            r_port0_cdc_ar_d_valid <= 1'b0;
+            r_port0_cdc_ar_d <= '0;
+            r_port1_cdc_ar_d_valid <= 1'b0;
+            r_port1_cdc_ar_d <= '0;
+            r_port0_cdc_b_d_valid <= 1'b0;
+            r_port0_cdc_b_d <= '0;
+            r_port1_cdc_b_d_valid <= 1'b0;
+            r_port1_cdc_b_d <= '0;
+            r_port0_cdc_r_d_valid <= 1'b0;
+            r_port0_cdc_r_d <= '0;
+            r_port1_cdc_r_d_valid <= 1'b0;
+            r_port1_cdc_r_d <= '0;
       end else begin
          if (!fdi_rst_n) begin
-            r_port0
+            r_port0_cdc_aw_d_valid <= 1'b0;
+            r_port0_cdc_aw_d <= '0;
+            r_port1_cdc_aw_d_valid <= 1'b0;
+            r_port1_cdc_aw_d <= '0;
+            r_port0_cdc_w_d_valid <= 1'b0;
+            r_port0_cdc_w_d <= '0;
+            r_port1_cdc_w_d_valid <= 1'b0;
+            r_port1_cdc_w_d <= '0;
+            r_port0_cdc_ar_d_valid <= 1'b0;
+            r_port0_cdc_ar_d <= '0;
+            r_port1_cdc_ar_d_valid <= 1'b0;
+            r_port1_cdc_ar_d <= '0;
+            r_port0_cdc_b_d_valid <= 1'b0;
+            r_port0_cdc_b_d <= '0;
+            r_port1_cdc_b_d_valid <= 1'b0;
+            r_port1_cdc_b_d <= '0;
+            r_port0_cdc_r_d_valid <= 1'b0;
+            r_port0_cdc_r_d <= '0;
+            r_port1_cdc_r_d_valid <= 1'b0;
+            r_port1_cdc_r_d <= '0;
          end else begin //write request
             if (depktr_portrtr_write_req_valid) begin
                if (depktr_portrtr_port_id == 1'b0) begin

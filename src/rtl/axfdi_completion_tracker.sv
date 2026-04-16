@@ -60,6 +60,7 @@ module axfdi_completion_tracker #(
    always_comb begin
       rx_d_hit = 0;
       rx_d_index = '0;
+      s_rx_resp_port_id = '0;
       for (int i=0; i<tracker_depth; i++) begin
          if (rx_resp_valid &&
              completion_tracker[i].data_valid &&

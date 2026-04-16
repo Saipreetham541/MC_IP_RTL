@@ -34,6 +34,7 @@ module axfdi_fdi_if #(
   input logic                       flit_tx_data_valid,
   input logic                       fdi_depktr_tx_sop,
   input logic                       fdi_depktr_tx_eop,
+  output logic                      fdi_tx_ready,
 
   output logic [fdi_flit_width-1:0] flit_rx_data,
   output logic                      flit_rx_data_valid,
@@ -44,7 +45,7 @@ module axfdi_fdi_if #(
   //credit signals
   output logic                      credit_init_req,
   input logic                       credit_init_done
-);
+  );
 
    //statemachine states
    enum                             logic [2:0] {
@@ -112,6 +113,8 @@ module axfdi_fdi_if #(
    assign fdi_depktr_rx_eop = r_fdi_pl_endofpkt;
    assign fdi_depktr_rx_sop = r_fdi_pl_startofpkt;
 
+   //packetizer signal
+   assign fdi_tx_ready = fdi_pl_trdy;
    //initial credit iniitalization
    assign credit_init_req =  r_credit_rtn_req_en;
 
@@ -156,16 +159,17 @@ module axfdi_fdi_if #(
       s_credit_rtn_req_en = 1'b0;
       s_fdi_trans_en = 1'b0;
       s_fdi_lp_state_req = '0;
+      s_fdi_lp_state_req = '0;
       case(CS)
         ST_wait_remote: begin
            s_fdi_lp_state_req = 3'h1;
-           s_fdi_tran_en =  1'b0;
+           s_fdi_trans_en =  1'b0;
            if (fdi_pl_inband_pres) NS = ST_req_active;
            else NS = ST_wait_remote;
         end
         ST_req_active: begin
            s_fdi_lp_state_req = 3'h2;
-           s_fdi_tran_en =  1'b0;
+           s_fdi_trans_en =  1'b0;
            if (fdi_pl_state_sts == 3'h2) // unitlll the link is active
              NS = ST_credit_init;
            else
@@ -174,17 +178,18 @@ module axfdi_fdi_if #(
         ST_credit_init: begin
            s_fdi_lp_state_req = 3'h2;
            s_credit_rtn_req_en = 1'b1;
-           s_fdi_tran_en =  1'b1;
+           s_fdi_trans_en =  1'b1;
            if (credit_init_done) NS = ST_TX_RX;
            else NS = ST_credit_init;
         end
         ST_TX_RX: begin
            s_fdi_lp_state_req = 3'h2;
-           s_fdi_tran_en =  1'b1;
+           s_fdi_trans_en =  1'b1;
            if (fdi_pl_state_sts != 3'h2) NS = ST_wait_remote;
+           else NS = ST_TX_RX;
         end
-        default: begin
-        end
-        endcase
-   end
+        default: NS=ST_wait_remote;
+      endcase
+   end // always _comb
+
 endmodule

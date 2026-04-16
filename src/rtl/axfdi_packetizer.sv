@@ -7,66 +7,73 @@ module axfdi_packetizer  #(
     parameter AW_AR_DATA_W = 61,
     parameter W_DATA_W = 1153,
     parameter R_DATA_W = 1035,
-    parameter B_DATA_W = 10
+    parameter B_DATA_W = 10,
+    parameter txn_id_w = 8
 )(
-    input  logic        fdi_clk,
-    input  logic        fdi_rst_n,
+    input logic                       fdi_clk,
+    input logic                       fdi_rst_n,
 
     // Arbiter
-    input  logic [2:0]  txn_type,
-    input  logic [vcn_w-1:0] vcn_sel,
-    input  logic        port_id_i,
+    input logic [2:0]                 txn_type,
+    input logic [vcn_w-1:0]           vcn_sel,
+    input logic                       port_id_i,
 
     // -------- CREDIT MANAGER --------
-    input  logic                   credit_rtn_opcode_en,
-    input  logic [credit_size-1:0] rx_credit_rtn_cnt,
-    input  logic [rtn_vcn_w-1:0]   rx_credit_rtn_vcn,
-    input  logic                   credit_rtn_piggy_en,
+    input logic                       credit_rtn_opcode_en,
+    input logic [credit_size-1:0]     rx_credit_rtn_cnt,
+    input logic [rtn_vcn_w-1:0]       rx_credit_rtn_vcn,
+    input logic                       credit_rtn_piggy_en,
 
-    output logic [vcn_w-1:0]       tx_credit_vcn,
-    output logic                   tx_credit_decr_flag,
+    output logic [vcn_w-1:0]          tx_credit_vcn,
+    output logic                      tx_credit_decr_flag,
 
-    output logic                   pending_tx_available,
-    output logic                   credit_rtn_done,
+    output logic                      pending_tx_available,
+    output logic                      credit_rtn_done,
 
     // -------- PORT 0 --------
-    input  logic [AW_AR_DATA_W-1:0]    aw_fifo0_data,
-    output logic           aw_fifo0_rd_en,
+    input logic [AW_AR_DATA_W-1:0]    aw_fifo0_data,
+    output logic                      aw_fifo0_rd_en,
 
-    input  logic [W_DATA_W-1:0]  w_fifo0_data,
-    output logic           w_fifo0_rd_en,
+    input logic [W_DATA_W-1:0]        w_fifo0_data,
+    output logic                      w_fifo0_rd_en,
 
-    input  logic [AW_AR_DATA_W-1:0]    ar_fifo0_data,
-    output logic           ar_fifo0_rd_en,
+    input logic [AW_AR_DATA_W-1:0]    ar_fifo0_data,
+    output logic                      ar_fifo0_rd_en,
 
-    input  logic [R_DATA_W-1:0]  r_fifo0_data,
-    output logic           r_fifo0_rd_en,
+    input logic [R_DATA_W-1:0]        r_fifo0_data,
+    output logic                      r_fifo0_rd_en,
 
-    input  logic [B_DATA_W-1:0]     b_fifo0_data,
-    output logic           b_fifo0_rd_en,
+    input logic [B_DATA_W-1:0]        b_fifo0_data,
+    output logic                      b_fifo0_rd_en,
 
     // -------- PORT 1 --------
-    input  logic  [AW_AR_DATA_W-1:0]   aw_fifo1_data,
-    output logic           aw_fifo1_rd_en,
+    input logic [AW_AR_DATA_W-1:0]    aw_fifo1_data,
+    output logic                      aw_fifo1_rd_en,
 
-    input  logic [W_DATA_W-1:0]  w_fifo1_data,
-    output logic           w_fifo1_rd_en,
+    input logic [W_DATA_W-1:0]        w_fifo1_data,
+    output logic                      w_fifo1_rd_en,
 
-    input  logic [AW_AR_DATA_W-1:0]    ar_fifo1_data,
-    output logic           ar_fifo1_rd_en,
+    input logic [AW_AR_DATA_W-1:0]    ar_fifo1_data,
+    output logic                      ar_fifo1_rd_en,
 
-    input  logic [R_DATA_W-1:0]  r_fifo1_data,
-    output logic           r_fifo1_rd_en,
+    input logic [R_DATA_W-1:0]        r_fifo1_data,
+    output logic                      r_fifo1_rd_en,
 
-    input  logic [B_DATA_W-1:0]     b_fifo1_data,
-    output logic           b_fifo1_rd_en,
+    input logic [B_DATA_W-1:0]        b_fifo1_data,
+    output logic                      b_fifo1_rd_en,
+    //---------Completion tracker---------------
 
+    output logic                       tx_vcn,
+    output logic [txn_id_w-1:0]        tx_txn_id,
+    output logic                       tx_port_id,
+    input logic                      tx_write_done,
+    output logic                       tx_txn_valid,
     // -------- FDI --------
     output logic [FDI_FLIT_WIDTH-1:0] flit_tx_data,
     output logic                      flit_tx_valid,
     output logic                      fdi_tx_sop,
     output logic                      fdi_tx_eop,
-    input  logic                      fdi_tx_ready
+    input logic                       fdi_tx_ready
 );
 
     typedef enum logic [2:0] {
