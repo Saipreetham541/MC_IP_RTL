@@ -26,6 +26,8 @@ module axfdi_tx_arb
     input logic    crd_rtn,
    
     //ouptut to the packetizer
+
+
     output logic   [2:0] txn_type,
     output logic   [1:0] vcn_sel,
     output logic        port_id_o
@@ -106,7 +108,7 @@ always_comb begin
 
 
     if (eop) begin
-        case (vcn_sel)
+        case (r_vcn_sel)
             VCN_CPL: if (cpl_cnt > 0)
                         cpl_cnt_next = cpl_cnt - 1;
 
@@ -149,14 +151,9 @@ end
        
     end
    
-    // next state logc
+    // next state logic
     always_comb begin
         ns = cs;
-         if (crd_rtn) begin
-            ns = IDLE;
-         end
-        else begin
-            if (eop)begin
             case (cs)
                 IDLE:begin
                     if(cpl_txn_vaild)begin
@@ -169,28 +166,27 @@ end
 
 
                 CPL:begin
+                    if(eop)begin
                     if (cpl_txn_vaild && (cpl_cnt >= np_cnt)) begin
                         ns = CPL;
                     end
                     else if (np_txn_vaild) begin
                         ns = NP;
                     end
+                    end
                 end
                 NP: begin
+                    if(eop)begin
                     if(cpl_txn_vaild)begin
                         ns = CPL;
                     end
                     else begin
                         ns = IDLE;
                     end
+                    end
                 end
                 default: ns = IDLE;
             endcase
-        end
-        end
-        else begin
-            ns = cs;
-        end
     end
 
 
@@ -199,6 +195,11 @@ end
         s_vcn_sel = r_vcn_sel;
         s_last_resp = r_last_resp;
         s_last_req = r_last_req;
+
+        if (crd_rtn && (cs == IDLE || eop)) begin
+        s_txn_type = CREDIT_RTN;
+        s_vcn_sel  = VCN_CPL;
+        end
 
 
         case (cs)
@@ -244,8 +245,8 @@ end
         if(!fdi_rst_n)begin
             r_txn_type <= NOP;
             r_vcn_sel <= VCN_CPL;
-            r_last_resp <= READ_REQ;
-            r_last_req <= READ_RESP;
+            r_last_req <= READ_REQ;
+            r_last_resp <= READ_RESP;
         end
         else begin
             port_id_o <= port_id_i;
