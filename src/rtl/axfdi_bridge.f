@@ -1,0 +1,13 @@
+      TX_BUFF.sv
+      axfdi_axi_mgr.sv
+      axfdi_axi_sub.sv
+      axfdi_completion_tracker.sv
+      axfdi_credit_mgr.sv
+      axfdi_depacketizer.sv
+      axfdi_fdi_if.sv
+      axfdi_packetizer.sv
+      axfdi_port_merge.sv
+      axfdi_port_router.sv
+      axfdi_tx_arb.sv
+      cdc_fifo.sv
+      axfdi_bridge.sv

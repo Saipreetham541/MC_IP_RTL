@@ -15,47 +15,58 @@
 
 module axfdi_depacketizer #(
    parameter fdi_flit_width = 2048,
-   parameter axi_data_width = 1024
+   parameter axi_data_w = 1024,
+   parameter axi_burst_len_w = 8,
+   parameter axi_burst_type_w = 2,
+   parameter axi_burst_size_w = 3,
+   parameter axi_resp_w = 2,
+   parameter axi_addr_w = 40,
+   parameter axi_wstrb_w = 128,
+   parameter axi_id_w = 8
 )(
 //clock and reset
-  input logic                       fdi_clk,
-  input logic                       fdi_rst_n,
-  input logic                       por_n, //global reset
+  input logic                         fdi_clk,
+  input logic                         fdi_rst_n,
+  input logic                         por_n, //global reset
 
-  input [fdi_flit_width-1:0]        flit_rx_data,
-  input                             flit_rx_data_valid,
+  input logic [fdi_flit_width-1:0]    flit_rx_data,
+  input logic                         flit_rx_data_valid,
+  input logic                         fdi_depktr_rx_startofpkt,
+  input logic                         fdi_depktr_rx_endofpkt,
+  output logic                        fdi_depktr_rx_trdy,
+
 
   //signals to the credit manager
-  output logic [1:0]                depktr_crdtmgr_credit_vcn,//credit_rtn_vcn
-  output logic [5:0]                depktr_crdtmgr_credit_cnt,
-  output logic                      depktr_crdtmgr_rtn_valid,
-  output logic                      depktr_crdtmgr_credit_rx_incr,
-  output logic [2:0]                depktr_crdtmgr_rx_vcn, //vcn from header
+  output logic [1:0]                  depktr_crdtmgr_credit_vcn,//credit_rtn_vcn
+  output logic [5:0]                  depktr_crdtmgr_credit_cnt,
+  output logic                        depktr_crdtmgr_rtn_valid,
+  output logic                        depktr_crdtmgr_credit_rx_incr,
+  output logic [2:0]                  depktr_crdtmgr_rx_vcn, //vcn from header
 
   //signals to the port router
-  output logic [axi_data_width-1:0] depktr_portrtr_axi_data,
-  output logic [7:0]                depktr_portrtr_axi_burst_len,
-  output logic [1:0]                depktr_portrtr_axi_burst_type,
-  output logic [2:0]                depktr_portrt_axi_burst_size,
-  output logic [1:0]                depktr_portrtr_axi_resp,
-  output logic [39:0]               depkrt_portrtr_axi_addr,
-  output logic [127:0]              depktr_portrtr_axi_wstrb,
-  input logic                       portrtr_depktr_bakpres, //backpressure from the port router
-  input logic                       portrtr_depktr_read_done, //indicating port router has performed read
-  output logic                      depktr_portrtr_write_req_valid,
-  output logic                      depktr_portrtr_read_req_valid,
-  output logic                      depktr_portrtr_write_resp_valid,
-  output logic                      depktr_portrtr_read_resp_valid,
-  output logic                      depktr_portrtr_port_id,
-  output logic [7:0]                depktr_portrtr_txn_id,
-
-
+  output logic [axi_data_w-1:0]       depktr_portrtr_axi_data,
+  output logic [axi_burst_len_w-1:0]  depktr_portrtr_axi_burst_len,
+  output logic [axi_burst_type_w-1:0] depktr_portrtr_axi_burst_type,
+  output logic [axi_burst_size_w-1:0] depktr_portrtr_axi_burst_size,
+  output logic [axi_resp_w-1:0]       depktr_portrtr_axi_resp,
+  output logic [axi_addr_w-1:0]       depktr_portrtr_axi_addr,
+  output logic [axi_wstrb_w-1:0]      depktr_portrtr_axi_wstrb,
+  //input logic                       portrtr_depktr_bakpres, //backpressure from the port router
+  output logic                        depktr_portrtr_flit_endofpkt,
+  output logic                        depktr_portrtr_flit_startofpkt,
+  input logic                         portrtr_depktr_read_done, //indicating port router has performed read
+  output logic                        depktr_portrtr_write_req_valid,
+  output logic                        depktr_portrtr_read_req_valid,
+  output logic                        depktr_portrtr_write_resp_valid,
+  output logic                        depktr_portrtr_read_resp_valid,
+  output logic                        depktr_portrtr_port_id,
+  output logic [7:0]                  depktr_portrtr_txn_id,
   //signals completion tracker
-  output logic                      depktr_cmpltkr_resp_valid,
-  output logic                      depktr_cmpltkr_vcn,
-  output logic [7:0]                depktr_cmpltkr_txn_id,
-  input logic                       cmpltkr_depktr_port_id,
-  input logic                       cmpltkr_depktr_port_id_valid
+  output logic                        depktr_cmpltkr_resp_valid,
+  output logic                        depktr_cmpltkr_vcn,
+  output logic [7:0]                  depktr_cmpltkr_txn_id,
+  input logic                         cmpltkr_depktr_port_id,
+  input logic                         cmpltkr_depktr_port_id_valid
 
 );
    logic [2:0] s_flit_vcn;
@@ -117,9 +128,9 @@ module axfdi_depacketizer #(
    assign depktr_portrtr_axi_data = r_flit_data_line[1727:704];
    assign depktr_portrtr_axi_burst_len = r_flit_burst_len;
    assign depktr_portrtr_axi_burst_type = r_flit_burst_type;
-   assign depktr_portrt_axi_burst_size = r_flit_burst_size;
+   assign depktr_portrtr_axi_burst_size = r_flit_burst_size;
    assign depktr_portrtr_axi_resp = r_flit_resp;
-   assign depkrt_portrtr_axi_addr = r_flit_addr;
+   assign depktr_portrtr_axi_addr = r_flit_addr;
    assign depktr_portrtr_axi_wstrb = r_flit_wstrb_b0;
    assign depktr_portrtr_write_req_valid = r_write_req_en;
    assign depktr_portrtr_read_req_valid = r_read_req_en;
@@ -129,6 +140,11 @@ module axfdi_depacketizer #(
                                    (r_write_resp_en && r_read_resp_en) ? cmpltkr_depktr_port_id:
                                    1'b0;
    assign depktr_portrtr_txn_id = r_flit_txn_id;
+
+   //assign startofkt and endofpkt
+   assign depktr_portrtr_flit_endofpkt = fdi_depktr_rx_endofpkt;
+   assign depktr_portrtr_flit_startofpkt = fdi_depktr_rx_startofpkt;
+
 
    //module port assignment Completion tracker
 

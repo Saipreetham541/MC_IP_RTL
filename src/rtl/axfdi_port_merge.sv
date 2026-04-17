@@ -196,7 +196,6 @@ end
         read_resp_vaild <= 0;
     end
     else begin
-       else begin
         case (cs)
             SEND_P0:begin
             write_req_vaild <= write_req_0;

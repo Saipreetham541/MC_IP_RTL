@@ -46,15 +46,15 @@ module axfdi_fdi_if #(
   //to the DUT
   input logic [fdi_flit_width-1:0]  flit_tx_data,
   input logic                       flit_tx_data_valid,
-  input logic                       fdi_depktr_tx_sop,
-  input logic                       fdi_depktr_tx_eop,
+  input logic                       fdi_pktr_tx_sop,
+  input logic                       fdi_pktr_tx_eop,
   output logic                      fdi_tx_ready,
 
   output logic [fdi_flit_width-1:0] flit_rx_data,
   output logic                      flit_rx_data_valid,
-  input logic                       fdi_crdtmgr_rx_trdy,
-  output logic                      fdi_depktr_rx_sop,
-  output logic                      fdi_depktr_rx_eop,
+  input logic                       fdi_depktr_rx_trdy,
+  output logic                      fdi_depktr_rx_startofpkt,
+  output logic                      fdi_depktr_rx_endofpkt,
   
   //credit signals
   output logic                      credit_init_req,
@@ -107,8 +107,8 @@ module axfdi_fdi_if #(
           if (flit_tx_data_valid && fdi_pl_trdy) begin
              r_fdi_lp_data <= flit_tx_data;
              r_fdi_lp_irdy <= 1'b1;  //??
-             r_fdi_lp_startofpkt <= fdi_depktr_tx_sop;
-             r_fdi_lp_endofpkt <= fdi_depktr_tx_eop;
+             r_fdi_lp_startofpkt <= fdi_pktr_tx_sop;
+             r_fdi_lp_endofpkt <= fdi_pktr_tx_eop;
           end
        end // else: !if(!fdi_rstn)
 
@@ -121,11 +121,11 @@ module axfdi_fdi_if #(
 
 
    //module assign on the RX side
-   assign fdi_lp_trdy = fdi_crdtmgr_rx_trdy;
+   assign fdi_lp_trdy = fdi_depktr_rx_trdy;
    assign flit_rx_data_valid = r_flit_rx_data_valid;
    assign flit_rx_data = r_fdi_pl_data;
-   assign fdi_depktr_rx_eop = r_fdi_pl_endofpkt;
-   assign fdi_depktr_rx_sop = r_fdi_pl_startofpkt;
+   assign fdi_depktr_rx_endofpkt = r_fdi_pl_endofpkt;
+   assign fdi_depktr_rx_startofpkt = r_fdi_pl_startofpkt;
 
    //packetizer signal
    assign fdi_tx_ready = fdi_pl_trdy;
@@ -141,7 +141,7 @@ module axfdi_fdi_if #(
         r_flit_rx_data_valid <= 1'b1;
      end
      else begin
-        if (fdi_pl_irdy && fdi_crdtmgr_rx_trdy && fdi_pl_valid && r_fdi_trans_en) begin
+        if (fdi_pl_irdy && fdi_depktr_rx_trdy && fdi_pl_valid && r_fdi_trans_en) begin
            r_fdi_pl_data <= fdi_pl_data;
            r_fdi_pl_startofpkt <= fdi_pl_startofpkt;
            r_fdi_pl_endofpkt <= fdi_pl_endofpkt;

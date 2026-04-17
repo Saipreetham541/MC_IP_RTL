@@ -126,7 +126,7 @@ module axfdi_bridge
   //write data signals
   output logic [axi_data_w-1:0]   PORT0_MGR_wdata,
   output logic [axi_wstrb_w-1:0]  PORT0_MGR_wstrb,
-  input logic                     PORT0_MGR_wlast,
+  output logic                     PORT0_MGR_wlast,
   output logic                    PORT0_MGR_wvalid,
   input logic                     PORT0_MGR_wready,
   //write response signals
@@ -161,7 +161,7 @@ module axfdi_bridge
   //write data signals
   output logic [axi_data_w-1:0]   PORT1_MGR_wdata,
   output logic [axi_wstrb_w-1:0]  PORT1_MGR_wstrb,
-  input logic                     PORT1_MGR_wlast,
+  output logic                     PORT1_MGR_wlast,
   output logic                    PORT1_MGR_wvalid,
   input logic                     PORT1_MGR_wready,
   //write response signals
@@ -214,9 +214,9 @@ module axfdi_bridge
    logic                          s_flit_tx_ready;
    logic [fdi_data_w-1:0]         s_flit_rx_data;
    logic                          s_flit_rx_data_valid;
-   logic                          s_fdi_crdtmgr_rx_trdy;
-   logic                          s_fdi_depktr_rx_sop;
-   logic                          s_fdi_depktr_rx_eop;
+   logic                          s_fdi_depktr_rx_trdy;
+   logic                          s_fdi_depktr_rx_startofpkt;
+   logic                          s_fdi_depktr_rx_endofpkt;
    logic                          s_credit_init_req;
    logic                          s_credit_init_done;
 
@@ -228,7 +228,9 @@ module axfdi_bridge
    logic [axi_resp_w-1:0]         s_depktr_portrtr_axi_resp;
    logic [axi_addr_w-1:0]         s_depktr_portrtr_axi_addr;
    logic [axi_wstrb_w-1:0]        s_depktr_portrtr_axi_wstrb;
-   logic                          s_depktr_portrtr_flit_eop;
+   logic                          s_;
+   logic                          s_depktr_portrtr_flit_endofpkt;
+   logic                          s_depktr_portrtr_flit_startofpkt;
 
    logic                          s_portrtr_depktr_read_done; //indicating port router has performed read
    logic                          s_depktr_portrtr_write_req_valid;
@@ -409,7 +411,7 @@ module axfdi_bridge
    axfdi_fdi_if
      #(
        .fdi_flit_width(2048)
-       )u_axfdi_if
+       )u_axfdi_fdi_if
        (
         //clock and reset wires
         .fdi_clk(fdi_clk_i),
@@ -442,9 +444,9 @@ module axfdi_bridge
 
         .flit_rx_data(s_flit_rx_data),
         .flit_rx_data_valid(s_flit_rx_data_valid),
-        .fdi_crdtmgr_rx_trdy(s_fdi_crdtmgr_rx_trdy),
-        .fdi_depktr_rx_sop(s_fdi_depktr_rx_sop),
-        .fdi_depktr_rx_eop(s_fdi_depktr_rx_eop),
+        .fdi_depktr_rx_trdy(s_fdi_depktr_rx_trdy),
+        .fdi_depktr_rx_startofpkt(s_fdi_depktr_rx_startofpkt),
+        .fdi_depktr_rx_endofpkt(s_fdi_depktr_rx_endofpkt),
 
         .credit_init_req(s_credit_init_req),
         .credit_init_done(s_credit_init_done)
@@ -479,8 +481,8 @@ module axfdi_bridge
         .depktr_portrtr_axi_resp(s_depktr_portrtr_axi_resp),
         .depktr_portrtr_axi_addr(s_depktr_portrtr_axi_addr),
         .depktr_portrtr_axi_wstrb(s_depktr_portrtr_axi_wstrb),
-        .depktr_portrtr_flit_eop(s_depktr_portrtr_flit_eop),
-        .depktr_portrtr_flit_sop(s_depktr_portrtr_flit_sop),
+        .depktr_portrtr_flit_endofpkt(s_depktr_portrtr_flit_endofpkt),
+        .depktr_portrtr_flit_startofpkt(s_depktr_portrtr_flit_startofpkt),
         .portrtr_depktr_read_done(s_portrtr_depktr_read_done), //indicating port router has performed read
         .depktr_portrtr_write_req_valid(s_depktr_portrtr_write_req_valid),
         .depktr_portrtr_read_req_valid(s_depktr_portrtr_read_req_valid),
@@ -543,7 +545,7 @@ module axfdi_bridge
       //signals from packetizer
       .tx_vcn(s_pktr_cmpltkr_tx_vcn),
       .tx_txn_id(s_pktr_cmpltkr_tx_txn_id),
-      .tx_txn_id(s_pktr_cmpltkr_tx_port_id),
+      .tx_port_id(s_pktr_cmpltkr_tx_port_id),
       .tx_write_done(s_pktr_cmpltkr_tx_write_done),
       .tx_txn_valid(s_pktr_cmpltkr_tx_txn_valid)
       );
@@ -552,7 +554,7 @@ module axfdi_bridge
      #(
        .credit_size(credit_size),
        .rtn_vcn_w(rtn_vcn_w),
-       .vcn_w(vcn_W)
+       .vcn_w(vcn_w)
        )u_axfdi_credit_mgr
        (
         .fdi_clk(fdi_clk_i),
@@ -590,7 +592,14 @@ module axfdi_bridge
    axfdi_depacketizer
      #(
        .fdi_flit_width(fdi_data_w),
-       .axi_data_width(axi_data_w)
+       .axi_data_w(axi_data_w),
+       .axi_burst_len_w (axi_len_w),
+       .axi_burst_type_w (axi_burst_w),
+       .axi_burst_size_w (axi_size_w),
+       .axi_resp_w(axi_resp_w),
+       .axi_addr_w(axi_addr_w),
+       .axi_wstrb_w(axi_wstrb_w),
+       .axi_id_w(axi_id_w)
        ) u_axfdi_depacketizer
        (
         //clock and reset
@@ -600,6 +609,9 @@ module axfdi_bridge
 
         .flit_rx_data(s_flit_rx_data),
         .flit_rx_data_valid(s_flit_rx_data_valid),
+        .fdi_depktr_rx_startofpkt(s_fdi_depktr_rx_startofpkt),
+        .fdi_depktr_rx_endofpkt(s_fdi_depktr_rx_endofpkt),
+        .fdi_depktr_rx_trdy(s_fdi_depktr_rx_trdy),
 
         //signals to the credit manager
         .depktr_crdtmgr_credit_vcn(s_depktr_crdtmgr_credit_vcn),//credit_rtn_vcn
@@ -616,7 +628,8 @@ module axfdi_bridge
         .depktr_portrtr_axi_resp(s_depktr_portrtr_axi_resp),
         .depktr_portrtr_axi_addr(s_depktr_portrtr_axi_addr),
         .depktr_portrtr_axi_wstrb(s_depktr_portrtr_axi_wstrb),
-        .depktr_portrtr_flit_sop(s_depktr_portrtr_flit_sop),
+        .depktr_portrtr_flit_startofpkt(s_depktr_portrtr_flit_startofpkt),
+        .depktr_portrtr_flit_endofpkt(s_depktr_portrtr_flit_endofpkt),
         .portrtr_depktr_read_done(s_portrtr_depktr_read_done), //indicating port router has performed read
         .depktr_portrtr_write_req_valid(s_depktr_portrtr_write_req_valid),
         .depktr_portrtr_read_req_valid(s_depktr_portrtr_read_req_valid),
@@ -1429,7 +1442,7 @@ module axfdi_bridge
         //signals to completion tracker
         .tx_vcn(s_pktr_cmpltkr_tx_vcn),
         .tx_txn_id(s_pktr_cmpltkr_tx_txn_id),
-        .tx_txn_id(s_pktr_cmpltkr_tx_port_id),
+        .tx_port_id(s_pktr_cmpltkr_tx_port_id),
         .tx_write_done(s_pktr_cmpltkr_tx_write_done),
         .tx_txn_valid(s_pktr_cmpltkr_tx_txn_valid),
 

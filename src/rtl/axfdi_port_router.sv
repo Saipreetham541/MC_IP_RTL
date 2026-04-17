@@ -41,8 +41,8 @@ module axfdi_port_router #(
   input logic [axi_resp_w-1:0]       depktr_portrtr_axi_resp,
   input logic [axi_addr_w-1:0]       depktr_portrtr_axi_addr,
   input logic [axi_wstrb_w-1:0]      depktr_portrtr_axi_wstrb,
-  input logic                        depktr_portrtr_flit_eop,
-  input logic                        depktr_portrtr_flit_sop,
+  input logic                        depktr_portrtr_flit_endofpkt,
+  input logic                        depktr_portrtr_flit_startofpkt,
   output logic                       portrtr_depktr_read_done, //indicating port router has performed read
   input logic                        depktr_portrtr_write_req_valid,
   input logic                        depktr_portrtr_read_req_valid,
@@ -189,7 +189,7 @@ module axfdi_port_router #(
                   r_port0_cdc_w_d_valid <= 1'b1;
                   r_port0_cdc_w_d <= {depktr_portrtr_axi_data,
                                      depktr_portrtr_axi_wstrb,
-                                    depktr_portrtr_flit_eop};
+                                    depktr_portrtr_flit_endofpkt};
                end else if (depktr_portrtr_port_id == 1'b1) begin
                   r_port1_cdc_aw_d_valid <= 1'b1;
                   r_port1_cdc_aw_d <= {depktr_portrtr_txn_id,
@@ -200,7 +200,7 @@ module axfdi_port_router #(
                   r_port1_cdc_w_d_valid <= 1'b1;
                   r_port1_cdc_w_d <= {depktr_portrtr_axi_data,
                                      depktr_portrtr_axi_wstrb,
-                                    depktr_portrtr_flit_eop};
+                                    depktr_portrtr_flit_endofpkt};
                end
             end else begin // if (depktr_portrtr_write_req_valid)
                r_port0_cdc_aw_d_valid <= 1'b0;
@@ -256,13 +256,13 @@ module axfdi_port_router #(
                  r_port0_cdc_r_d <= {depktr_portrtr_axi_data,
                                      depktr_portrtr_txn_id,
                                      depktr_portrtr_axi_resp,
-                                     depktr_portrtr_flit_eop};
+                                     depktr_portrtr_flit_endofpkt};
                end else if (depktr_portrtr_port_id == 1'b1) begin
                   r_port1_cdc_r_d_valid <= 1'b1;
                   r_port1_cdc_r_d <= {depktr_portrtr_axi_data,
                                       depktr_portrtr_txn_id,
                                       depktr_portrtr_axi_resp,
-                                      depktr_portrtr_flit_eop};
+                                      depktr_portrtr_flit_endofpkt};
                end
             end else begin // if (depktr_portrtr_write_req_valid)
                r_port0_cdc_r_d_valid <= 1'b0;
