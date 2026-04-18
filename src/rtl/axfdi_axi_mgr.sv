@@ -7,68 +7,68 @@ module  axfdi_axi_mgr  #(
     parameter AXI_ID_W   = 8
 ) (
     // clock and reset
-    input  logic                    axi_clk,
-    input  logic                    axi_rst_n,
+    input logic                   axi_clk,
+    input logic                   axi_rst_n,
 
     // Write Address Channel
-    output  logic [AXI_ADDR_W-1:0]  awaddr,
-    output  logic [AXI_ID_W-1:0]    awid,
-    output  logic [7:0]              awlen,
-    output  logic [2:0]              awsize,
-    output  logic [1:0]              awburst,
-    output  logic                    awvalid,
-    input   logic                    awready,
+    output logic [AXI_ADDR_W-1:0] awaddr,
+    output logic [AXI_ID_W-1:0]   awid,
+    output logic [7:0]            awlen,
+    output logic [2:0]            awsize,
+    output logic [1:0]            awburst,
+    output logic                  awvalid,
+    input logic                   awready,
 
     // Write Data Channel
-    output  logic [AXI_DATA_W-1:0]  wdata,
-    output  logic [127:0]            wstrb,
-    output  logic                    wlast,
-    output  logic                    wvalid,
-    input   logic                    wready,
+    output logic [AXI_DATA_W-1:0] wdata,
+    output logic [127:0]          wstrb,
+    output logic                  wlast,
+    output logic                  wvalid,
+    input logic                   wready,
 
     // Write Response Channel
     input logic [AXI_ID_W-1:0]    bid,
-    input logic [1:0]              bresp,
-    input logic                    bvalid,
-    output  logic                    bready,
+    input logic [1:0]             bresp,
+    input logic                   bvalid,
+    output logic                  bready,
 
     // Read Address Channel
-    output  logic [AXI_ADDR_W-1:0]  araddr,
-    output  logic [AXI_ID_W-1:0]    arid,
-    output  logic [7:0]              arlen,
-    output  logic [2:0]              arsize,
-    output  logic [1:0]              arburst,
-    output  logic                    arvalid,
-    input   logic                    arready,
+    output logic [AXI_ADDR_W-1:0] araddr,
+    output logic [AXI_ID_W-1:0]   arid,
+    output logic [7:0]            arlen,
+    output logic [2:0]            arsize,
+    output logic [1:0]            arburst,
+    output logic                  arvalid,
+    input logic                   arready,
 
     // Read Data Channel
     input logic [AXI_DATA_W-1:0]  rdata,
     input logic [AXI_ID_W-1:0]    rid,
-    input logic [1:0]              rresp,
-    input logic                    rlast,
-    input logic                    rvalid,
-    output   logic                    rready, 
+    input logic [1:0]             rresp,
+    input logic                   rlast,
+    input logic                   rvalid,
+    output logic                  rready,
 
     // CDC to mng 
-   input  logic [60:0]             AW_cdc_data,
-   input  logic                    AW_cdc_empty,
-   output logic                    AW_cdc_rd_en,
+    input logic [60:0]            AW_cdc_data,
+    input logic                   AW_cdc_empty,
+    output logic                  AW_cdc_rd_en,
 
-   input  logic [1152:0]             W_cdc_data,
-   input  logic                      W_cdc_empty,
-   output logic                      W_cdc_rd_en,
+    input logic [1152:0]          W_cdc_data,
+    input logic                   W_cdc_empty,
+    output logic                  W_cdc_rd_en,
 
-   input  logic [60:0]               AR_cdc_data,
-   input  logic                      AR_cdc_empty,
-   output logic                      AR_cdc_rd_en,
+    input logic [60:0]            AR_cdc_data,
+    input logic                   AR_cdc_empty,
+    output logic                  AR_cdc_rd_en,
 
-   output  logic [1034:0]            R_cdc_data,
-   input  logic                      R_cdc_full,
-   output logic                      R_cdc_wr_en,
+    output logic [1034:0]         R_cdc_data,
+    input logic                   R_cdc_full,
+    output logic                  R_cdc_wr_en,
 
-   output  logic [9:0]               B_cdc_data,
-   input  logic                      B_cdc_full,
-   output logic                      B_cdc_wr_en
+    output logic [9:0]            B_cdc_data,
+    input logic                   B_cdc_full,
+    output logic                  B_cdc_wr_en
 );
 
     

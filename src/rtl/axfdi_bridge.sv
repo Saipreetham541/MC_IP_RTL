@@ -52,11 +52,11 @@ module axfdi_bridge
   input logic [axi_size_w-1:0]    PORT0_SUB_awsize,
   input logic [axi_burst_w-1:0]   PORT0_SUB_awburst,
   input logic                     PORT0_SUB_awvalid,
-  output logic                    PORT0_SUB_awread,
+  output logic                    PORT0_SUB_awready,
   //write data signals
   input logic [axi_data_w-1:0]    PORT0_SUB_wdata,
   input logic [axi_wstrb_w-1:0]   PORT0_SUB_wstrb,
-  output logic                    PORT0_SUB_wlast,
+  input logic                    PORT0_SUB_wlast,
   input logic                     PORT0_SUB_wvalid,
   output logic                    PORT0_SUB_wready,
   //write response signals
@@ -87,11 +87,11 @@ module axfdi_bridge
   input logic [axi_size_w-1:0]    PORT1_SUB_awsize,
   input logic [axi_burst_w-1:0]   PORT1_SUB_awburst,
   input logic                     PORT1_SUB_awvalid,
-  output logic                    PORT1_SUB_awread,
+  output logic                    PORT1_SUB_awready,
   //write data signals
   input logic [axi_data_w-1:0]    PORT1_SUB_wdata,
   input logic [axi_wstrb_w-1:0]   PORT1_SUB_wstrb,
-  output logic                    PORT1_SUB_wlast,
+  input logic                     PORT1_SUB_wlast,
   input logic                     PORT1_SUB_wvalid,
   output logic                    PORT1_SUB_wready,
   //write response signals
@@ -126,7 +126,7 @@ module axfdi_bridge
   //write data signals
   output logic [axi_data_w-1:0]   PORT0_MGR_wdata,
   output logic [axi_wstrb_w-1:0]  PORT0_MGR_wstrb,
-  output logic                     PORT0_MGR_wlast,
+  output logic                    PORT0_MGR_wlast,
   output logic                    PORT0_MGR_wvalid,
   input logic                     PORT0_MGR_wready,
   //write response signals
@@ -161,7 +161,7 @@ module axfdi_bridge
   //write data signals
   output logic [axi_data_w-1:0]   PORT1_MGR_wdata,
   output logic [axi_wstrb_w-1:0]  PORT1_MGR_wstrb,
-  output logic                     PORT1_MGR_wlast,
+  output logic                    PORT1_MGR_wlast,
   output logic                    PORT1_MGR_wvalid,
   input logic                     PORT1_MGR_wready,
   //write response signals
@@ -222,13 +222,13 @@ module axfdi_bridge
 
    //From depacker to port router
    logic [axi_data_w-1:0]         s_depktr_portrtr_axi_data;
-   logic [axi_len_w-1:0]    s_depktr_portrtr_axi_burst_len;
-   logic [axi_burst_w-1:0]   s_depktr_portrtr_axi_burst_type;
-   logic [axi_size_w-1:0]   s_depktr_portrtr_axi_burst_size;
+   logic [axi_len_w-1:0]          s_depktr_portrtr_axi_burst_len;
+   logic [axi_burst_w-1:0]        s_depktr_portrtr_axi_burst_type;
+   logic [axi_size_w-1:0]         s_depktr_portrtr_axi_burst_size;
    logic [axi_resp_w-1:0]         s_depktr_portrtr_axi_resp;
    logic [axi_addr_w-1:0]         s_depktr_portrtr_axi_addr;
    logic [axi_wstrb_w-1:0]        s_depktr_portrtr_axi_wstrb;
-   logic                          s_;
+   logic                          s_portrtr_depktr_bakpres;
    logic                          s_depktr_portrtr_flit_endofpkt;
    logic                          s_depktr_portrtr_flit_startofpkt;
 
@@ -250,7 +250,7 @@ module axfdi_bridge
    logic                          s_depktr_cmpltkr_resp_valid;
    logic                          s_depktr_cmpltkr_vcn;
    logic [7:0]                    s_depktr_cmpltkr_txn_id;
-   logic                         s_cmpltkr_depktr_port_id;
+   logic                          s_cmpltkr_depktr_port_id;
    logic                          s_cmpltkr_depktr_port_id_valid;
 
    //from Packetizer to credit maanger
@@ -263,21 +263,27 @@ module axfdi_bridge
 
    logic                          s_pending_tx_available;
    logic                          s_credit_rtn_done;
+   //packetizer to completion tracker
+   logic                          s_pktr_cmpltkr_tx_vcn;
+   logic [axi_id_w-1:0]           s_pktr_cmpltkr_tx_txn_id;
+   logic                          s_pktr_cmpltkr_tx_port_id;
+   logic                          s_pktr_cmpltkr_tx_write_done;
+   logic                          s_pktr_cmpltkr_tx_txn_valid;
    //TX side signals
    //from arbitar
    logic [2:0]                    s_arb_txn_type;
    logic [vcn_w-1:0]              s_arb_vcn_sel;
-   logic                          s_arb_port_id_i;
+   logic                          s_arb_port_id;
    logic                          s_fdi_pktr_eop;
 
    logic                          s_tx_vc_cpl_credit_ind;
    logic                          s_tx_vc_np_credit_ind;
 
-   logic                   s_portmrg_arb_port_id;
-   logic                   s_portmrg_arb_write_req_vaild;
-   logic                   s_portmrg_arb_read_req_vaild;
-   logic                   s_portmrg_arb_write_resp_vaild;
-   logic                   s_portmrg_arb_read_resp_vaild;
+   logic                          s_portmrg_arb_port_id;
+   logic                          s_portmrg_arb_write_req_vaild;
+   logic                          s_portmrg_arb_read_req_vaild;
+   logic                          s_portmrg_arb_write_resp_vaild;
+   logic                          s_portmrg_arb_read_resp_vaild;
 
 
 
@@ -285,127 +291,127 @@ module axfdi_bridge
    logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_aw_d;
    logic                          s_port0_sub_cdc_aw_d_wr_en;
    logic                          s_port0_sub_cdc_aw_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_aw_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_aw_d_rd_en;
+   logic                          s_port0_sub_cdc_aw_d_empty;
+   logic                          s_port0_sub_cdc_aw_d_rd_en;
    logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_aw_d_out;
    logic [cdc_w_d_w-1:0]          s_port0_sub_cdc_w_d;
    logic                          s_port0_sub_cdc_w_d_wr_en;
    logic                          s_port0_sub_cdc_w_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_w_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_w_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_w_d_out;
+   logic                          s_port0_sub_cdc_w_d_empty;
+   logic                          s_port0_sub_cdc_w_d_rd_en;
+   logic [cdc_w_d_w-1:0]          s_port0_sub_cdc_w_d_out;
    logic [cdc_ar_d_w-1:0]         s_port0_sub_cdc_ar_d;
    logic                          s_port0_sub_cdc_ar_d_wr_en;
    logic                          s_port0_sub_cdc_ar_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_ar_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_ar_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_ar_d_out;
+   logic                          s_port0_sub_cdc_ar_d_empty;
+   logic                          s_port0_sub_cdc_ar_d_rd_en;
+   logic [cdc_ar_d_w-1:0]         s_port0_sub_cdc_ar_d_out;
    logic [cdc_b_d_w-1:0]          s_port0_sub_cdc_b_d;
    logic                          s_port0_sub_cdc_b_d_wr_en;
    logic                          s_port0_sub_cdc_b_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_b_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_b_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_b_d_out;
+   logic                          s_port0_sub_cdc_b_d_empty;
+   logic                          s_port0_sub_cdc_b_d_rd_en;
+   logic [cdc_b_d_w-1:0]          s_port0_sub_cdc_b_d_out;
    logic [cdc_r_d_w-1:0]          s_port0_sub_cdc_r_d;
    logic                          s_port0_sub_cdc_r_d_wr_en;
    logic                          s_port0_sub_cdc_r_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_r_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_r_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port0_sub_cdc_r_d_out;
+   logic                          s_port0_sub_cdc_r_d_empty;
+   logic                          s_port0_sub_cdc_r_d_rd_en;
+   logic [cdc_r_d_w-1:0]          s_port0_sub_cdc_r_d_out;
    //port0 CDC signals MGR0
    logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_aw_d;
    logic                          s_port0_mgr_cdc_aw_d_wr_en;
    logic                          s_port0_mgr_cdc_aw_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_aw_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_aw_d_rd_en;
+   logic                          s_port0_mgr_cdc_aw_d_empty;
+   logic                          s_port0_mgr_cdc_aw_d_rd_en;
    logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_aw_d_out;
    logic [cdc_w_d_w-1:0]          s_port0_mgr_cdc_w_d;
    logic                          s_port0_mgr_cdc_w_d_wr_en;
    logic                          s_port0_mgr_cdc_w_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_w_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_w_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_w_d_out;
+   logic                          s_port0_mgr_cdc_w_d_empty;
+   logic                          s_port0_mgr_cdc_w_d_rd_en;
+   logic [cdc_w_d_w-1:0]         s_port0_mgr_cdc_w_d_out;
    logic [cdc_ar_d_w-1:0]         s_port0_mgr_cdc_ar_d;
    logic                          s_port0_mgr_cdc_ar_d_wr_en;
    logic                          s_port0_mgr_cdc_ar_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_ar_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_ar_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_ar_d_out;
+   logic                          s_port0_mgr_cdc_ar_d_empty;
+   logic                          s_port0_mgr_cdc_ar_d_rd_en;
+   logic [cdc_ar_d_w-1:0]         s_port0_mgr_cdc_ar_d_out;
    logic [cdc_b_d_w-1:0]          s_port0_mgr_cdc_b_d;
    logic                          s_port0_mgr_cdc_b_d_wr_en;
    logic                          s_port0_mgr_cdc_b_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_b_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_b_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_b_d_out;
+   logic                          s_port0_mgr_cdc_b_d_empty;
+   logic                          s_port0_mgr_cdc_b_d_rd_en;
+   logic [cdc_b_d_w-1:0]          s_port0_mgr_cdc_b_d_out;
    logic [cdc_r_d_w-1:0]          s_port0_mgr_cdc_r_d;
    logic                          s_port0_mgr_cdc_r_d_wr_en;
    logic                          s_port0_mgr_cdc_r_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_r_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_r_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port0_mgr_cdc_r_d_out;
+   logic                          s_port0_mgr_cdc_r_d_empty;
+   logic                          s_port0_mgr_cdc_r_d_rd_en;
+   logic [cdc_r_d_w-1:0]          s_port0_mgr_cdc_r_d_out;
 
   //port1 CDC signals SUB signal
    logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_aw_d;
    logic                          s_port1_sub_cdc_aw_d_wr_en;
    logic                          s_port1_sub_cdc_aw_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_aw_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_aw_d_rd_en;
+   logic                          s_port1_sub_cdc_aw_d_empty;
+   logic                          s_port1_sub_cdc_aw_d_rd_en;
    logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_aw_d_out;
    logic [cdc_w_d_w-1:0]          s_port1_sub_cdc_w_d;
    logic                          s_port1_sub_cdc_w_d_wr_en;
    logic                          s_port1_sub_cdc_w_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_w_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_w_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_w_d_out;
+   logic                          s_port1_sub_cdc_w_d_empty;
+   logic                          s_port1_sub_cdc_w_d_rd_en;
+   logic [cdc_w_d_w-1:0]          s_port1_sub_cdc_w_d_out;
    logic [cdc_ar_d_w-1:0]         s_port1_sub_cdc_ar_d;
    logic                          s_port1_sub_cdc_ar_d_wr_en;
    logic                          s_port1_sub_cdc_ar_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_ar_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_ar_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_ar_d_out;
+   logic                          s_port1_sub_cdc_ar_d_empty;
+   logic                          s_port1_sub_cdc_ar_d_rd_en;
+   logic [cdc_ar_d_w-1:0]         s_port1_sub_cdc_ar_d_out;
    logic [cdc_b_d_w-1:0]          s_port1_sub_cdc_b_d;
    logic                          s_port1_sub_cdc_b_d_wr_en;
    logic                          s_port1_sub_cdc_b_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_b_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_b_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_b_d_out;
+   logic                          s_port1_sub_cdc_b_d_empty;
+   logic                          s_port1_sub_cdc_b_d_rd_en;
+   logic [cdc_b_d_w-1:0]          s_port1_sub_cdc_b_d_out;
    logic [cdc_r_d_w-1:0]          s_port1_sub_cdc_r_d;
    logic                          s_port1_sub_cdc_r_d_wr_en;
    logic                          s_port1_sub_cdc_r_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_r_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_r_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port1_sub_cdc_r_d_out;
+   logic                          s_port1_sub_cdc_r_d_empty;
+   logic                          s_port1_sub_cdc_r_d_rd_en;
+   logic [cdc_r_d_w-1:0]          s_port1_sub_cdc_r_d_out;
    //PORT1 CDC signals MGR
    logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_aw_d;
    logic                          s_port1_mgr_cdc_aw_d_wr_en;
    logic                          s_port1_mgr_cdc_aw_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_aw_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_aw_d_rd_en;
+   logic                          s_port1_mgr_cdc_aw_d_empty;
+   logic                          s_port1_mgr_cdc_aw_d_rd_en;
    logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_aw_d_out;
    logic [cdc_w_d_w-1:0]          s_port1_mgr_cdc_w_d;
    logic                          s_port1_mgr_cdc_w_d_wr_en;
    logic                          s_port1_mgr_cdc_w_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_w_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_w_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_w_d_out;
+   logic                          s_port1_mgr_cdc_w_d_empty;
+   logic                          s_port1_mgr_cdc_w_d_rd_en;
+   logic                          s_port1_mgr_cdc_w_d_out;
    logic [cdc_ar_d_w-1:0]         s_port1_mgr_cdc_ar_d;
    logic                          s_port1_mgr_cdc_ar_d_wr_en;
    logic                          s_port1_mgr_cdc_ar_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_ar_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_ar_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_ar_d_out;
+   logic                          s_port1_mgr_cdc_ar_d_empty;
+   logic                          s_port1_mgr_cdc_ar_d_rd_en;
+   logic [cdc_ar_d_w-1:0]         s_port1_mgr_cdc_ar_d_out;
    logic [cdc_b_d_w-1:0]          s_port1_mgr_cdc_b_d;
    logic                          s_port1_mgr_cdc_b_d_wr_en;
    logic                          s_port1_mgr_cdc_b_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_b_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_b_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_b_d_out;
+   logic                          s_port1_mgr_cdc_b_d_empty;
+   logic                          s_port1_mgr_cdc_b_d_rd_en;
+   logic [cdc_b_d_w-1:0]          s_port1_mgr_cdc_b_d_out;
    logic [cdc_r_d_w-1:0]          s_port1_mgr_cdc_r_d;
    logic                          s_port1_mgr_cdc_r_d_wr_en;
    logic                          s_port1_mgr_cdc_r_d_full;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_r_d_empty;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_r_d_rd_en;
-   logic [cdc_aw_d_w-1:0]         s_port1_mgr_cdc_r_d_out;
+   logic                          s_port1_mgr_cdc_r_d_empty;
+   logic                          s_port1_mgr_cdc_r_d_rd_en;
+   logic [cdc_r_d_w-1:0]          s_port1_mgr_cdc_r_d_out;
 
 
    axfdi_fdi_if
@@ -481,6 +487,7 @@ module axfdi_bridge
         .depktr_portrtr_axi_resp(s_depktr_portrtr_axi_resp),
         .depktr_portrtr_axi_addr(s_depktr_portrtr_axi_addr),
         .depktr_portrtr_axi_wstrb(s_depktr_portrtr_axi_wstrb),
+        .portrtr_depktr_bakpres(s_portrtr_depktr_bakpres),
         .depktr_portrtr_flit_endofpkt(s_depktr_portrtr_flit_endofpkt),
         .depktr_portrtr_flit_startofpkt(s_depktr_portrtr_flit_startofpkt),
         .portrtr_depktr_read_done(s_portrtr_depktr_read_done), //indicating port router has performed read
@@ -562,7 +569,7 @@ module axfdi_bridge
         .por_n(por_n_i),
         //signls to the depacketizer for the returned crdit
         .tx_credit_rtn_vcn(s_depktr_crdtmgr_credit_vcn),
-        .tx_credit_rtn_cnt(s_depktr_crdtmgr_rtn_cnt),
+        .tx_credit_rtn_cnt(s_depktr_crdtmgr_credit_cnt),
         .tx_credit_rtn_valid(s_depktr_crdtmgr_rtn_valid),
         //upon receiving flit increment the rx_consumed credit count
         .rx_credit_cnsmd_incr_flag(s_depktr_crdtmgr_credit_rx_incr),
@@ -599,7 +606,10 @@ module axfdi_bridge
        .axi_resp_w(axi_resp_w),
        .axi_addr_w(axi_addr_w),
        .axi_wstrb_w(axi_wstrb_w),
-       .axi_id_w(axi_id_w)
+       .axi_id_w(axi_id_w),
+       .credit_size(credit_size),
+       .rtn_vcn_w(rtn_vcn_w),
+       .vcn_w(vcn_w)
        ) u_axfdi_depacketizer
        (
         //clock and reset
@@ -628,6 +638,7 @@ module axfdi_bridge
         .depktr_portrtr_axi_resp(s_depktr_portrtr_axi_resp),
         .depktr_portrtr_axi_addr(s_depktr_portrtr_axi_addr),
         .depktr_portrtr_axi_wstrb(s_depktr_portrtr_axi_wstrb),
+        .portrtr_depktr_bakpres(s_portrtr_depktr_bakpres),
         .depktr_portrtr_flit_startofpkt(s_depktr_portrtr_flit_startofpkt),
         .depktr_portrtr_flit_endofpkt(s_depktr_portrtr_flit_endofpkt),
         .portrtr_depktr_read_done(s_portrtr_depktr_read_done), //indicating port router has performed read
@@ -697,15 +708,15 @@ module axfdi_bridge
         .rready(PORT0_MGR_rready),
 
         // CDC to mng
-        .AW_cdc_data(s_port0_mgr_cdc_aw_d),
+        .AW_cdc_data(s_port0_mgr_cdc_aw_d_out),
         .AW_cdc_empty(s_port0_mgr_cdc_aw_d_empty),
         .AW_cdc_rd_en(s_port0_mgr_cdc_aw_d_rd_en),
 
-        .W_cdc_data(s_port0_mgr_cdc_w_d),
+        .W_cdc_data(s_port0_mgr_cdc_w_d_out),
         .W_cdc_empty(s_port0_mgr_cdc_w_d_empty),
         .W_cdc_rd_en(s_port0_mgr_cdc_w_d_rd_en),
 
-        .AR_cdc_data(s_port0_mgr_cdc_ar_d),
+        .AR_cdc_data(s_port0_mgr_cdc_ar_d_out),
         .AR_cdc_empty(s_port0_mgr_cdc_ar_d_empty),
         .AR_cdc_rd_en(s_port0_mgr_cdc_ar_d_rd_en),
 
@@ -771,15 +782,15 @@ module axfdi_bridge
 
 
         // CDC to mng
-        .AW_cdc_data(s_port1_mgr_cdc_aw_d),
+        .AW_cdc_data(s_port1_mgr_cdc_aw_d_out),
         .AW_cdc_empty(s_port1_mgr_cdc_aw_d_empty),
         .AW_cdc_rd_en(s_port1_mgr_cdc_aw_d_rd_en),
 
-        .W_cdc_data(s_port1_mgr_cdc_w_d),
+        .W_cdc_data(s_port1_mgr_cdc_w_d_out),
         .W_cdc_empty(s_port1_mgr_cdc_w_d_empty),
         .W_cdc_rd_en(s_port1_mgr_cdc_w_d_rd_en),
 
-        .AR_cdc_data(s_port1_mgr_cdc_ar_d),
+        .AR_cdc_data(s_port1_mgr_cdc_ar_d_out),
         .AR_cdc_empty(s_port1_mgr_cdc_ar_d_empty),
         .AR_cdc_rd_en(s_port1_mgr_cdc_ar_d_rd_en),
 
@@ -858,11 +869,11 @@ module axfdi_bridge
 
         // CDC FIFO ports — RX side
         .B_cdc_empty(s_port0_sub_cdc_b_d_empty),
-        .B_cdc_data(s_port0_sub_cdc_b_d),     // {bid,bresp}
+        .B_cdc_data(s_port0_sub_cdc_b_d_out),     // {bid,bresp}
         .B_cdc_rd_en(s_port0_sub_cdc_b_d_rd_en),
 
         .R_cdc_empty(s_port0_sub_cdc_r_d_empty),
-        .R_cdc_data(s_port0_sub_cdc_r_d),     // {rdata,rid,rresp,rlast}
+        .R_cdc_data(s_port0_sub_cdc_r_d_out),     // {rdata,rid,rresp,rlast}
         .R_cdc_rd_en(s_port0_sub_cdc_r_d_rd_en)
         );
 
@@ -923,7 +934,7 @@ module axfdi_bridge
         .AW_cdc_wr_en(s_port1_sub_cdc_aw_d_wr_en),
         .W_cdc_full(s_port1_sub_cdc_w_d_full),
         .W_cdc_data(s_port1_sub_cdc_w_d),     // {wdata,wstrb,wlast}
-        .W_cdc_wr_en(s_port1_sub_cdc_w_d),
+        .W_cdc_wr_en(s_port1_sub_cdc_w_d_wr_en),
 
         .AR_cdc_full(s_port1_sub_cdc_ar_d_full),
         .AR_cdc_data(s_port1_sub_cdc_ar_d),    // {arid,arlen,arburst,arsize,araddr}
@@ -931,11 +942,11 @@ module axfdi_bridge
 
         // CDC FIFO ports — RX side
         .B_cdc_empty(s_port1_sub_cdc_b_d_empty),
-        .B_cdc_data(s_port1_sub_cdc_b_d),     // {bid,bresp}
+        .B_cdc_data(s_port1_sub_cdc_b_d_out),     // {bid,bresp}
         .B_cdc_rd_en(s_port1_sub_cdc_b_d_rd_en),
 
         .R_cdc_empty(s_port1_sub_cdc_r_d_empty),
-        .R_cdc_data(s_port1_sub_cdc_r_d),     // {rdata,rid,rresp,rlast}
+        .R_cdc_data(s_port1_sub_cdc_r_d_out),     // {rdata,rid,rresp,rlast}
         .R_cdc_rd_en(s_port1_sub_cdc_r_d_rd_en)
         );
    //CDC FIFO sub0)tx_aw
@@ -1409,35 +1420,35 @@ module axfdi_bridge
         .pending_tx_available(s_pending_tx_available),
         .credit_rtn_done(s_credit_rtn_done),
     // -------- PORT 0 --------
-        .aw_fifo0_data(s_port0_sub_cdc_aw_d),
+        .aw_fifo0_data(s_port0_sub_cdc_aw_d_out),
         .aw_fifo0_rd_en(s_port0_sub_cdc_aw_d_rd_en),
 
-        .w_fifo0_data(s_port0_sub_cdc_w_d),
+        .w_fifo0_data(s_port0_sub_cdc_w_d_out),
         .w_fifo0_rd_en(s_port0_sub_cdc_w_d_rd_en),
 
-        .ar_fifo0_data(s_port0_sub_cdc_ar_d),
+        .ar_fifo0_data(s_port0_sub_cdc_ar_d_out),
         .ar_fifo0_rd_en(s_port0_sub_cdc_ar_d_rd_en),
 
-        .r_fifo0_data(s_port0_mgr_cdc_r_d),
+        .r_fifo0_data(s_port0_mgr_cdc_r_d_out),
         .r_fifo0_rd_en(s_port0_mgr_cdc_r_d_rd_en),
 
-        .b_fifo0_data(s_port0_mgr_cdc_b_d),
+        .b_fifo0_data(s_port0_mgr_cdc_b_d_out),
         .b_fifo0_rd_en(s_port0_mgr_cdc_b_d_rd_en),
 
     // -------- PORT 1 --------
-        .aw_fifo1_data(s_port1_sub_cdc_aw_d),
+        .aw_fifo1_data(s_port1_sub_cdc_aw_d_out),
         .aw_fifo1_rd_en(s_port1_sub_cdc_aw_d_rd_en),
 
-        .w_fifo1_data(s_port1_sub_cdc_w_d),
+        .w_fifo1_data(s_port1_sub_cdc_w_d_out),
         .w_fifo1_rd_en(s_port1_sub_cdc_w_d_rd_en),
 
-        .ar_fifo1_data(s_port1_sub_cdc_r_d),
+        .ar_fifo1_data(s_port1_sub_cdc_ar_d_out),
         .ar_fifo1_rd_en(s_port1_sub_cdc_ar_d_rd_en),
 
-        .r_fifo1_data(s_port1_mgr_cdc_r_d),
-        .r_fifo1_rd_en(s_port1_mgr_cdc_r_d),
+        .r_fifo1_data(s_port1_mgr_cdc_r_d_out),
+        .r_fifo1_rd_en(s_port1_mgr_cdc_r_d_rd_en),
 
-        .b_fifo1_data(s_port1_mgr_cdc_b_d),
+        .b_fifo1_data(s_port1_mgr_cdc_b_d_out),
         .b_fifo1_rd_en(s_port1_mgr_cdc_b_d_rd_en),
         //signals to completion tracker
         .tx_vcn(s_pktr_cmpltkr_tx_vcn),

@@ -22,7 +22,10 @@ module axfdi_depacketizer #(
    parameter axi_resp_w = 2,
    parameter axi_addr_w = 40,
    parameter axi_wstrb_w = 128,
-   parameter axi_id_w = 8
+   parameter axi_id_w = 8,
+   parameter credit_size = 6,
+   parameter rtn_vcn_w = 2,
+   parameter vcn_w = 3
 )(
 //clock and reset
   input logic                         fdi_clk,
@@ -37,11 +40,11 @@ module axfdi_depacketizer #(
 
 
   //signals to the credit manager
-  output logic [1:0]                  depktr_crdtmgr_credit_vcn,//credit_rtn_vcn
-  output logic [5:0]                  depktr_crdtmgr_credit_cnt,
+  output logic [rtn_vcn_w-1:0]        depktr_crdtmgr_credit_vcn,//credit_rtn_vcn
+  output logic [credit_size-1:0]      depktr_crdtmgr_credit_cnt,
   output logic                        depktr_crdtmgr_rtn_valid,
   output logic                        depktr_crdtmgr_credit_rx_incr,
-  output logic [2:0]                  depktr_crdtmgr_rx_vcn, //vcn from header
+  output logic [vcn_w-1:0]            depktr_crdtmgr_rx_vcn, //vcn from header
 
   //signals to the port router
   output logic [axi_data_w-1:0]       depktr_portrtr_axi_data,
@@ -51,7 +54,7 @@ module axfdi_depacketizer #(
   output logic [axi_resp_w-1:0]       depktr_portrtr_axi_resp,
   output logic [axi_addr_w-1:0]       depktr_portrtr_axi_addr,
   output logic [axi_wstrb_w-1:0]      depktr_portrtr_axi_wstrb,
-  //input logic                       portrtr_depktr_bakpres, //backpressure from the port router
+  input logic                         portrtr_depktr_bakpres, //backpressure from the port router
   output logic                        depktr_portrtr_flit_endofpkt,
   output logic                        depktr_portrtr_flit_startofpkt,
   input logic                         portrtr_depktr_read_done, //indicating port router has performed read
@@ -60,65 +63,65 @@ module axfdi_depacketizer #(
   output logic                        depktr_portrtr_write_resp_valid,
   output logic                        depktr_portrtr_read_resp_valid,
   output logic                        depktr_portrtr_port_id,
-  output logic [7:0]                  depktr_portrtr_txn_id,
+  output logic [axi_id_w-1:0]         depktr_portrtr_txn_id,
   //signals completion tracker
   output logic                        depktr_cmpltkr_resp_valid,
   output logic                        depktr_cmpltkr_vcn,
-  output logic [7:0]                  depktr_cmpltkr_txn_id,
+  output logic [axi_id_w-1:0]         depktr_cmpltkr_txn_id,
   input logic                         cmpltkr_depktr_port_id,
   input logic                         cmpltkr_depktr_port_id_valid
-
 );
-   logic [2:0] s_flit_vcn;
-   logic       s_flit_sop;
-   logic       s_flit_eop;
-   logic [3:0] s_flit_opcode;
-   logic [7:0] s_flit_txn_id;
-   logic       s_flit_port_id;
-   logic [7:0] s_flit_burst_len;
-   logic [1:0] s_flit_burst_type;
-   logic [2:0] s_flit_burst_size;
-   logic [1:0] s_flit_resp;
-   logic [1:0] s_flit_credit_rtn_vcn;
-   logic [5:0] s_flit_credit_rtn_cnt;
-   logic       s_flit_wstrb_present;
-   logic [39:0] s_flit_addr;
-   logic [127:0] s_flit_wstrb_b0;
-   logic [1727:0] s_flit_data_line;
 
-   logic [2:0] r_flit_vcn;
-   logic       r_flit_sop;
-   logic       r_flit_eop;
-   logic [3:0] r_flit_opcode;
-   logic [7:0] r_flit_txn_id;
-   logic       r_flit_port_id;
-   logic [7:0] r_flit_burst_len;
-   logic [1:0] r_flit_burst_type;
-   logic [2:0] r_flit_burst_size;
-   logic [1:0] r_flit_resp;
-   logic [1:0] r_flit_credit_rtn_vcn;
-   logic [5:0] r_flit_credit_rtn_cnt;
-   logic       r_flit_wstrb_present;
-   logic [39:0] r_flit_addr;
-   logic [127:0] r_flit_wstrb_b0;
-   logic [1727:0] r_flit_data_line;
+   logic [2:0]                        s_flit_vcn;
+   logic                              s_flit_sop;
+   logic                              s_flit_eop;
+   logic [3:0]                        s_flit_opcode;
+   logic [7:0]                        s_flit_txn_id;
+   logic                              s_flit_port_id;
+   logic [7:0]                        s_flit_burst_len;
+   logic [1:0]                        s_flit_burst_type;
+   logic [2:0]                        s_flit_burst_size;
+   logic [1:0]                        s_flit_resp;
+   logic [1:0]                        s_flit_credit_rtn_vcn;
+   logic [5:0]                        s_flit_credit_rtn_cnt;
+   logic                              s_flit_wstrb_present;
+   logic [39:0]                       s_flit_addr;
+   logic [127:0]                      s_flit_wstrb_b0;
+   logic [1727:0]                     s_flit_data_line;
+
+   logic [2:0]                        r_flit_vcn;
+   logic                              r_flit_sop;
+   logic                              r_flit_eop;
+   logic [3:0]                        r_flit_opcode;
+   logic [7:0]                        r_flit_txn_id;
+   logic                              r_flit_port_id;
+   logic [7:0]                        r_flit_burst_len;
+   logic [1:0]                        r_flit_burst_type;
+   logic [2:0]                        r_flit_burst_size;
+   logic [1:0]                        r_flit_resp;
+   logic [1:0]                        r_flit_credit_rtn_vcn;
+   logic [5:0]                        r_flit_credit_rtn_cnt;
+   logic                              r_flit_wstrb_present;
+   logic [39:0]                       r_flit_addr;
+   logic [127:0]                      r_flit_wstrb_b0;
+   logic [1727:0]                     r_flit_data_line;
 
 
    //opcode enable signal
-   logic          s_write_req_en;
-   logic          s_read_req_en;
-   logic          s_write_resp_en;
-   logic          s_read_resp_en;
-   logic          s_credit_rtn_en;
-   logic          s_nop_en;
-   logic          r_write_req_en;
-   logic          r_read_req_en;
-   logic          r_write_resp_en;
-   logic          r_read_resp_en;
-   logic          r_credit_rtn_en;
+   logic                              s_write_req_en;
+   logic                              s_read_req_en;
+   logic                              s_write_resp_en;
+   logic                              s_read_resp_en;
+   logic                              s_credit_rtn_en;
+   logic                              s_nop_en;
+   logic                              r_write_req_en;
+   logic                              r_read_req_en;
+   logic                              r_write_resp_en;
+   logic                              r_read_resp_en;
+   logic                              r_credit_rtn_en;
 
    //module port  assignment CREDIT_MGR
-   assign depktr_crdtmgr_rtn_valid = s_credit_rtn_en | s_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
+   assign depktr_crdtmgr_rtn_valid = r_credit_rtn_en | r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
    assign depktr_crdtmgr_credit_vcn = r_flit_credit_rtn_vcn;
    assign depktr_crdtmgr_credit_cnt = r_flit_credit_rtn_cnt;
    assign depktr_crdtmgr_credit_rx_incr = s_write_req_en & s_read_req_en;
@@ -144,8 +147,7 @@ module axfdi_depacketizer #(
    //assign startofkt and endofpkt
    assign depktr_portrtr_flit_endofpkt = fdi_depktr_rx_endofpkt;
    assign depktr_portrtr_flit_startofpkt = fdi_depktr_rx_startofpkt;
-
-
+   assign fdi_depktr_rx_trdy  = portrtr_depktr_bakpres;
    //module port assignment Completion tracker
 
    assign depktr_cmpltkr_resp_valid = s_read_resp_en & s_write_resp_en;

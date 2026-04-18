@@ -41,6 +41,7 @@ module axfdi_port_router #(
   input logic [axi_resp_w-1:0]       depktr_portrtr_axi_resp,
   input logic [axi_addr_w-1:0]       depktr_portrtr_axi_addr,
   input logic [axi_wstrb_w-1:0]      depktr_portrtr_axi_wstrb,
+  output logic                       portrtr_depktr_bakpres, //backpressure from the port router
   input logic                        depktr_portrtr_flit_endofpkt,
   input logic                        depktr_portrtr_flit_startofpkt,
   output logic                       portrtr_depktr_read_done, //indicating port router has performed read
@@ -109,7 +110,11 @@ module axfdi_port_router #(
    logic                             r_port1_cdc_r_d_valid;
 
 
-
+   assign portrtr_depktr_bakpres = port0_cdc_aw_d_full & port0_cdc_w_d_full &
+                                   port0_cdc_ar_d_full & port0_cdc_b_d_full &
+                                   port0_cdc_r_d_full & port1_cdc_aw_d_full &
+                                   port1_cdc_w_d_full & port1_cdc_ar_d_full &
+                                   port1_cdc_b_d_full & port1_cdc_r_d_full;
    assign port1_cdc_aw_d = r_port1_cdc_aw_d;
    assign port1_cdc_aw_d_wr_en = r_port1_cdc_aw_d_valid & !port1_cdc_aw_d_full;
    assign port1_cdc_w_d = r_port1_cdc_w_d;
