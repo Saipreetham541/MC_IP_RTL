@@ -19,8 +19,8 @@ module axfdi_fdi_if #(
 )(
   //clock and reset wires
   input logic                       fdi_clk,
-  input logic                       fdi_rst_n,
   input logic                       por_n,
+  input logic                       fdi_rst_n,
 
   //TX side
   output logic [fdi_flit_width-1:0] fdi_lp_data,
@@ -68,10 +68,18 @@ module axfdi_fdi_if #(
                                             ST_credit_init,
                                             ST_TX_RX
                                            }CS,NS;
+   typedef enum                     logic [2:0] {
+                                                 RESET = 3'h0,
+                                                 INIT = 3'h1,
+                                                 ACTIVE = 3'h2,
+                                                 IDLE = 3'h3,
+                                                 RECOVERY = 3'h4
+                                                 }link_state;
+
 
    //wires
-   logic [2:0]                      s_fdi_lp_state_req;
-   logic                            s_fdi_lp_linkerror;
+   link_state                       s_fdi_lp_state_req;
+   //logic                            s_fdi_lp_linkerror;
 
 
    logic [fdi_flit_width-1:0]        r_fdi_lp_data;
@@ -79,7 +87,7 @@ module axfdi_fdi_if #(
    logic                             r_fdi_lp_valid;
    logic                             r_fdi_lp_startofpkt;
    logic                             r_fdi_lp_endofpkt;
-   logic [2:0]                       r_fdi_lp_state_req;
+   link_state                        r_fdi_lp_state_req;
 
 
    //RX side regs
@@ -97,31 +105,40 @@ module axfdi_fdi_if #(
    logic                             s_fdi_trans_en;
    logic                             r_fdi_trans_en;
         
-   always_ff@(posedge fdi_clk or negedge fdi_rst_n)
-     if (!fdi_rst_n) begin
+   always_ff@(posedge fdi_clk or negedge por_n)
+     if (!por_n) begin
         r_fdi_lp_irdy <= 1'b0;
-        r_fdi_lp_valid = 1'b0;
+        r_fdi_lp_valid <= 1'b0;
         r_fdi_lp_data <= 'h0;
      end
        else begin
-          if (flit_tx_data_valid && fdi_pl_trdy) begin
+          if (!fdi_rst_n) begin
+             r_fdi_lp_irdy <= 1'b0;
+             r_fdi_lp_valid <= 1'b0;
+             r_fdi_lp_data <= 'h0;
+          end
+          else if (flit_tx_data_valid && fdi_pl_trdy && r_fdi_trans_en) begin
              r_fdi_lp_data <= flit_tx_data;
+             r_fdi_lp_valid <= flit_tx_data_valid;
              r_fdi_lp_irdy <= 1'b1;  //??
              r_fdi_lp_startofpkt <= fdi_pktr_tx_sop;
              r_fdi_lp_endofpkt <= fdi_pktr_tx_eop;
           end
        end // else: !if(!fdi_rstn)
 
-   //module assign on the TX side
+   //module assign on the local protocol to adapter
    assign fdi_lp_data = r_fdi_lp_data;
    assign fdi_lp_irdy = r_fdi_lp_irdy;
-   assign fdi_lp_valid = flit_tx_data_valid;
+   assign fdi_lp_valid = r_fdi_lp_valid;
    assign fdi_lp_startofpkt = r_fdi_lp_startofpkt;
    assign fdi_lp_endofpkt = r_fdi_lp_endofpkt;
+   assign fdi_lp_trdy = r_fdi_lp_trdy;
+   assign fdi_lp_state_req = r_fdi_lp_state_req;
 
+   //drive link erro
+   assign fdi_lp_linkerror = 1'b0;
 
-   //module assign on the RX side
-   assign fdi_lp_trdy = fdi_depktr_rx_trdy;
+   //module assign on the to the bridge on the RX side
    assign flit_rx_data_valid = r_flit_rx_data_valid;
    assign flit_rx_data = r_fdi_pl_data;
    assign fdi_depktr_rx_endofpkt = r_fdi_pl_endofpkt;
@@ -133,15 +150,20 @@ module axfdi_fdi_if #(
    assign credit_init_req =  r_credit_rtn_req_en;
 
 
-   always_ff@(posedge fdi_clk or negedge fdi_rst_n)
-     if (!fdi_rst_n) begin
+   always_ff@(posedge fdi_clk or negedge por_n)
+     if (!por_n) begin
            r_fdi_pl_data <= '0;
            r_fdi_pl_startofpkt <= 1'b0;
            r_fdi_pl_endofpkt <= 1'b0;
-        r_flit_rx_data_valid <= 1'b1;
+        r_flit_rx_data_valid <= 1'b0;
      end
      else begin
-        if (fdi_pl_irdy && fdi_depktr_rx_trdy && fdi_pl_valid && r_fdi_trans_en) begin
+        if (!fdi_rst_n) begin
+           r_fdi_lp_irdy <= 1'b0;
+           r_fdi_lp_valid <= 1'b0;
+           r_fdi_lp_data <= 'h0;
+        end
+        else if (fdi_pl_irdy && fdi_depktr_rx_trdy && fdi_pl_valid && r_fdi_trans_en) begin
            r_fdi_pl_data <= fdi_pl_data;
            r_fdi_pl_startofpkt <= fdi_pl_startofpkt;
            r_fdi_pl_endofpkt <= fdi_pl_endofpkt;
@@ -154,35 +176,38 @@ module axfdi_fdi_if #(
         CS <= ST_wait_remote;
         r_fdi_trans_en <= 1'b0;
         r_credit_rtn_req_en <= 1'b0;
+        r_fdi_lp_state_req <= IDLE;
      end
      else begin
         if (!fdi_rst_n) begin
            CS <= ST_wait_remote;
            r_fdi_trans_en <= 1'b0;
            r_credit_rtn_req_en <= 1'b0;
+           r_fdi_lp_state_req <= IDLE;
+           r_fdi_lp_trdy <= fdi_depktr_rx_trdy;
         end
         else begin
            CS <= NS;
            r_fdi_trans_en <= s_fdi_trans_en;
            r_credit_rtn_req_en <= s_credit_rtn_req_en;
+           r_fdi_lp_state_req <= s_fdi_lp_state_req;
+           r_fdi_lp_trdy <= fdi_depktr_rx_trdy;
         end
      end
 
    always_comb begin
-      s_fdi_lp_state_req = 3'h0;
+      s_fdi_lp_state_req = IDLE;
       s_credit_rtn_req_en = 1'b0;
       s_fdi_trans_en = 1'b0;
-      s_fdi_lp_state_req = '0;
-      s_fdi_lp_state_req = '0;
       case(CS)
         ST_wait_remote: begin
-           s_fdi_lp_state_req = 3'h1;
+           s_fdi_lp_state_req = INIT;
            s_fdi_trans_en =  1'b0;
            if (fdi_pl_inband_pres) NS = ST_req_active;
            else NS = ST_wait_remote;
         end
         ST_req_active: begin
-           s_fdi_lp_state_req = 3'h2;
+           s_fdi_lp_state_req = ACTIVE;
            s_fdi_trans_en =  1'b0;
            if (fdi_pl_state_sts == 3'h2) // unitlll the link is active
              NS = ST_credit_init;
@@ -190,14 +215,14 @@ module axfdi_fdi_if #(
              NS = ST_req_active;
         end
         ST_credit_init: begin
-           s_fdi_lp_state_req = 3'h2;
+           s_fdi_lp_state_req = ACTIVE;
            s_credit_rtn_req_en = 1'b1;
            s_fdi_trans_en =  1'b1;
            if (credit_init_done) NS = ST_TX_RX;
            else NS = ST_credit_init;
         end
         ST_TX_RX: begin
-           s_fdi_lp_state_req = 3'h2;
+           s_fdi_lp_state_req = ACTIVE;
            s_fdi_trans_en =  1'b1;
            if (fdi_pl_state_sts != 3'h2) NS = ST_wait_remote;
            else NS = ST_TX_RX;

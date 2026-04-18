@@ -31,7 +31,7 @@ module axfdi_depacketizer #(
   input logic                         fdi_clk,
   input logic                         fdi_rst_n,
   input logic                         por_n, //global reset
-
+  //to the FDI interface
   input logic [fdi_flit_width-1:0]    flit_rx_data,
   input logic                         flit_rx_data_valid,
   input logic                         fdi_depktr_rx_startofpkt,
@@ -84,7 +84,7 @@ module axfdi_depacketizer #(
    logic [1:0]                        s_flit_resp;
    logic [1:0]                        s_flit_credit_rtn_vcn;
    logic [5:0]                        s_flit_credit_rtn_cnt;
-   logic                              s_flit_wstrb_present;
+   //logic                              s_flit_wstrb_present;
    logic [39:0]                       s_flit_addr;
    logic [127:0]                      s_flit_wstrb_b0;
    logic [1727:0]                     s_flit_data_line;
@@ -92,7 +92,7 @@ module axfdi_depacketizer #(
    logic [2:0]                        r_flit_vcn;
    logic                              r_flit_sop;
    logic                              r_flit_eop;
-   logic [3:0]                        r_flit_opcode;
+   //logic [3:0]                        r_flit_opcode;
    logic [7:0]                        r_flit_txn_id;
    logic                              r_flit_port_id;
    logic [7:0]                        r_flit_burst_len;
@@ -101,7 +101,7 @@ module axfdi_depacketizer #(
    logic [1:0]                        r_flit_resp;
    logic [1:0]                        r_flit_credit_rtn_vcn;
    logic [5:0]                        r_flit_credit_rtn_cnt;
-   logic                              r_flit_wstrb_present;
+   //logic                              r_flit_wstrb_present;
    logic [39:0]                       r_flit_addr;
    logic [127:0]                      r_flit_wstrb_b0;
    logic [1727:0]                     r_flit_data_line;
@@ -124,7 +124,7 @@ module axfdi_depacketizer #(
    assign depktr_crdtmgr_rtn_valid = r_credit_rtn_en | r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
    assign depktr_crdtmgr_credit_vcn = r_flit_credit_rtn_vcn;
    assign depktr_crdtmgr_credit_cnt = r_flit_credit_rtn_cnt;
-   assign depktr_crdtmgr_credit_rx_incr = s_write_req_en & s_read_req_en;
+   assign depktr_crdtmgr_credit_rx_incr = !portrtr_depktr_bakpres & (r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en); //?
    assign depktr_crdtmgr_rx_vcn = r_flit_vcn;
 
    //module port assignment port router
@@ -150,7 +150,7 @@ module axfdi_depacketizer #(
    assign fdi_depktr_rx_trdy  = portrtr_depktr_bakpres;
    //module port assignment Completion tracker
 
-   assign depktr_cmpltkr_resp_valid = s_read_resp_en & s_write_resp_en;
+   assign depktr_cmpltkr_resp_valid = s_read_resp_en | s_write_resp_en;
    assign depktr_cmpltkr_vcn = s_flit_vcn[0];
    assign depktr_cmpltkr_txn_id = s_flit_txn_id;
 
@@ -167,7 +167,7 @@ module axfdi_depacketizer #(
    assign s_flit_resp = (flit_rx_data_valid) ? flit_rx_data[35:34] : '0;
    assign s_flit_credit_rtn_vcn = (flit_rx_data_valid) ? flit_rx_data[37:36] : '0;
    assign s_flit_credit_rtn_cnt = (flit_rx_data_valid) ? flit_rx_data[43:38] : '0;
-   assign s_flit_wstrb_present = (flit_rx_data_valid) ? flit_rx_data[44] : '0;
+   //assign s_flit_wstrb_present = (flit_rx_data_valid) ? flit_rx_data[44] : '0;
    assign s_flit_addr = (flit_rx_data_valid) ? flit_rx_data[84:45] : '0;
    assign s_flit_wstrb_b0 = (flit_rx_data_valid) ? flit_rx_data[255:128]: '0;
    assign s_flit_data_line = (flit_rx_data_valid) ? flit_rx_data[1983:256]: '0;
