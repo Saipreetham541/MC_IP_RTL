@@ -248,7 +248,7 @@ always_ff @(posedge axi_clk) begin
         rresp  <= 2'b00;
         rlast  <= 1'b0;
         r_cdc_pending  <= 1'b0;
-        r_load_pending <= 1'b0;
+        r_hold_vaild <= 1'b0;
     end else begin
         R_cdc_rd_en <= 1'b0;
         r_buf_wen <= 1'b0;
@@ -272,12 +272,12 @@ always_ff @(posedge axi_clk) begin
             rresp  <= r_buf_dout[2:1];
             rid    <= r_buf_dout[10:3];
             rdata  <= r_buf_dout[1034:11];
-            r_load_pending <= 1'b0;
+            r_hold_vaild <= 1'b0;
         end else if (rvalid && rready) begin
             rvalid <= 1'b0;
         end else if (!r_buf_empty && !rvalid) begin
             r_buf_ren    <= 1'b1;
-            r_load_pending <= 1'b1;
+            r_hold_vaild <= 1'b1;
         end
     end
 end
