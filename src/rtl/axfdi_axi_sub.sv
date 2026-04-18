@@ -232,7 +232,7 @@ end
 
 
 logic r_cdc_pending;
-logic r_load_pending;
+logic r_hold_vaild;
 
 // R channel
 assign R_buf_din   = R_cdc_data;
@@ -266,7 +266,7 @@ always_ff @(posedge axi_clk) begin
         end
 
         
-        if (r_load_pending) begin
+        if (r_hold_vaild) begin
             rvalid <= 1'b1;
             rlast  <= r_buf_dout[0];
             rresp  <= r_buf_dout[2:1];
