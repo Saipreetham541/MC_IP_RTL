@@ -2,310 +2,285 @@
    Clock Domain : AXI 500Mhz
 */
 
-module axfdi_axi_sub #(                                  
-    parameter AXI_DATA_W = 1024,
-    parameter AXI_ADDR_W = 40,
-    parameter AXI_ID_W   = 8
-) (
-    // clock and reset
-    input  logic                    axi_clk,
-    input  logic                    axi_rst_n,
+module axfdi_axi_sub #(
+  parameter AXI_DATA_W = 1024,
+  parameter AXI_ADDR_W = 40,
+  parameter AXI_ID_W   = 8,
+  parameter AW_DEPTH   = 32,
+  parameter W_DEPTH    = 64,
+  parameter AR_DEPTH   = 32,
+  parameter AW_W = AXI_ID_W + 8 + 2 + 3 + AXI_ADDR_W,
+  parameter W_W  = AXI_DATA_W + 128 + 1,
+  parameter AR_W = AXI_ID_W + 8 + 2 + 3 + AXI_ADDR_W,
+  parameter B_W  = AXI_ID_W + 2,
+  parameter R_W  = AXI_DATA_W + AXI_ID_W + 2 + 1
+)(
+  input  logic                   axi_clk,
+  input  logic                   axi_rst_n,
 
-    // Write Address Channel
-    input  logic [AXI_ADDR_W-1:0]  awaddr,
-    input  logic [AXI_ID_W-1:0]    awid,
-    input  logic [7:0]              awlen,
-    input  logic [2:0]              awsize,
-    input  logic [1:0]              awburst,
-    input  logic                    awvalid,
-    output logic                    awready,
+  // AXI SUB Write Address
+  input  logic [AXI_ADDR_W-1:0]  awaddr,
+  input  logic [AXI_ID_W-1:0]    awid,
+  input  logic [7:0]             awlen,
+  input  logic [2:0]             awsize,
+  input  logic [1:0]             awburst,
+  input  logic                   awvalid,
+  output logic                   awready,
 
-    // Write Data Channel
-    input  logic [AXI_DATA_W-1:0]  wdata,
-    input  logic [127:0]            wstrb,
-    input  logic                    wlast,
-    input  logic                    wvalid,
-    output logic                    wready,
+  // AXI SUB Write Data
+  input  logic [AXI_DATA_W-1:0]  wdata,
+  input  logic [127:0]           wstrb,
+  input  logic                   wlast,
+  input  logic                   wvalid,
+  output logic                   wready,
 
-    // Write Response Channel
-    output logic [AXI_ID_W-1:0]    bid,
-    output logic [1:0]              bresp,
-    output logic                    bvalid,
-    input  logic                    bready,
+  // AXI SUB Write Response (
+  output logic [AXI_ID_W-1:0]   bid,
+  output logic [1:0]             bresp,
+  output logic                   bvalid,
+  input  logic                   bready,
 
-    // Read Address Channel
-    input  logic [AXI_ADDR_W-1:0]  araddr,
-    input  logic [AXI_ID_W-1:0]    arid,
-    input  logic [7:0]              arlen,
-    input  logic [2:0]              arsize,
-    input  logic [1:0]              arburst,
-    input  logic                    arvalid,
-    output logic                    arready,
+  // AXI SUB Read Address
+  input  logic [AXI_ADDR_W-1:0]  araddr,
+  input  logic [AXI_ID_W-1:0]    arid,
+  input  logic [7:0]             arlen,
+  input  logic [2:0]             arsize,
+  input  logic [1:0]             arburst,
+  input  logic                   arvalid,
+  output logic                   arready,
 
-    // Read Data Channel
-    output logic [AXI_DATA_W-1:0]  rdata,
-    output logic [AXI_ID_W-1:0]    rid,
-    output logic [1:0]              rresp,
-    output logic                    rlast,
-    output logic                    rvalid,
-    input  logic                    rready,         
+  // AXI SUB Read Data 
+  output logic [AXI_DATA_W-1:0]  rdata,
+  output logic [AXI_ID_W-1:0]   rid,
+  output logic [1:0]             rresp,
+  output logic                   rlast,
+  output logic                   rvalid,
+  input  logic                   rready,
 
-    // CDC FIFO ports — TX side 
-    input  logic                    AW_cdc_full,
-    output logic [60:0]             AW_cdc_data,    // {awid,awlen,awburst,awsize,awaddr}
-    output logic                    AW_cdc_wr_en,   
-    input  logic                    W_cdc_full,
-    output logic [1152:0]           W_cdc_data,     // {wdata,wstrb,wlast}
-    output logic                    W_cdc_wr_en,
+  // TX CDC outputs 
+  input  logic                   AW_cdc_full,
+  output logic                   AW_cdc_wr_en,
+  output logic [AW_W-1:0]        AW_cdc_data,
 
-    input  logic                    AR_cdc_full,
-    output logic [60:0]             AR_cdc_data,    // {arid,arlen,arburst,arsize,araddr}
-    output logic                    AR_cdc_wr_en,
+  input  logic                   W_cdc_full,
+  output logic                   W_cdc_wr_en,
+  output logic [W_W-1:0]         W_cdc_data,
 
-    // CDC FIFO ports — RX side 
-    input  logic                    B_cdc_empty,
-    input  logic [9:0]              B_cdc_data,     // {bid,bresp}
-    output logic                    B_cdc_rd_en,
+  input  logic                   AR_cdc_full,
+  output logic                   AR_cdc_wr_en,
+  output logic [AR_W-1:0]        AR_cdc_data,
 
-    input  logic                    R_cdc_empty,
-    input  logic [1034:0]           R_cdc_data,     // {rdata,rid,rresp,rlast}
-    output logic                    R_cdc_rd_en
+  // B channel output 
+  output logic                   B_cdc_rd_en,
+  input  logic [B_W-1:0]         B_cdc_data, 
+  input  logic                   B_cdc_empty,
+
+  //  R channel
+  output logic                   R_cdc_rd_en,
+  input  logic [R_W-1:0]         R_cdc_data,
+  input  logic                   R_cdc_empty
 );
 
+  // AW TX buffer signals 
+  logic [AW_W-1:0]  aw_buf_din, aw_buf_dout;
+  logic             aw_buf_wen, aw_buf_ren;
+  logic             aw_buf_full, aw_buf_empty;
 
-   // AW buffer signals
-logic [60:0]    AW_buf_din;
-logic [60:0]    AW_buf_dout;
-logic           AW_buf_wr_en;
-logic           AW_buf_rd_en;
-logic           AW_buf_full;
-logic           AW_buf_empty;
+  //  W TX buffer signals 
+  logic [W_W-1:0]   w_buf_din, w_buf_dout;
+  logic             w_buf_wen, w_buf_ren;
+  logic             w_buf_full, w_buf_empty;
 
-// W buffer signals
-logic [1152:0]  W_buf_din;
-logic [1152:0]  W_buf_dout;
-logic           W_buf_wr_en;
-logic           W_buf_rd_en;
-logic           W_buf_full;
-logic           W_buf_empty;
+  // AR TX buffer signals
+  logic [AR_W-1:0]  ar_buf_din, ar_buf_dout;
+  logic             ar_buf_wen, ar_buf_ren;
+  logic             ar_buf_full, ar_buf_empty;
 
-// AR buffer signals
-logic [60:0]    AR_buf_din;
-logic [60:0]    AR_buf_dout;
-logic           AR_buf_wr_en;
-logic           AR_buf_rd_en;
-logic           AR_buf_full;
-logic           AR_buf_empty;
+  // R RX buffer signals 
+  logic [R_W-1:0]   r_buf_din, r_buf_dout;
+  logic             r_buf_wen, r_buf_ren;
+  logic             r_buf_full, r_buf_empty;
 
-// B buffer signals 
-logic [9:0]     B_din;
-logic           B_hold_valid;
+  //reg for the write and read en
+  logic             AW_cdc_wr_en_r;
+  logic [AW_W-1:0]  AW_cdc_data_r;
+  logic             W_cdc_wr_en_r;
+  logic [W_W-1:0]   W_cdc_data_r;
+  logic             AR_cdc_wr_en_r;
+  logic [AR_W-1:0]  AR_cdc_data_r;
+  logic [B_W-1:0]   B_din;
 
-// R buffer signals 
-logic [1034:0]  R_buf_din;
-logic [1034:0]  R_buf_dout;
-logic           R_buf_wr_en;
-logic           R_buf_rd_en;
-logic           R_buf_full;
-logic           R_buf_empty;
+  // AW channel
+  assign aw_buf_din = {awid, awlen, awburst, awsize, awaddr};
+  assign awready    = ~aw_buf_full;
+  assign aw_buf_wen = awvalid & awready;
 
+  TX_BUFF #(.DEPTH(AW_DEPTH), .DATA_WIDTH(AW_W)) u_aw_buf (
+    .clk(axi_clk), .rst_n(axi_rst_n),
+    .w_en(aw_buf_wen), .r_en(aw_buf_ren),
+    .data_in(aw_buf_din), .data_out(aw_buf_dout),
+    .full(aw_buf_full), .empty(aw_buf_empty)
+  );
 
-// AW channel signals AXI- Buffer
-assign awready      = ~AW_buf_full;
-assign AW_buf_din   = {awid, awlen, awburst, awsize, awaddr};
-assign AW_buf_wr_en = awvalid & awready;  
+  // W channel
+  assign w_buf_din  = {wdata, wstrb, wlast};
+  assign wready     = ~w_buf_full;
+  assign w_buf_wen  = wvalid & wready;
 
-// W channel Signal AXI- Buffer
-assign wready      = ~W_buf_full;
-assign W_buf_din   = {wdata, wstrb, wlast};   
-assign W_buf_wr_en = wvalid & wready;
+  TX_BUFF #(.DEPTH(W_DEPTH), .DATA_WIDTH(W_W)) u_w_buf (
+    .clk(axi_clk), .rst_n(axi_rst_n),
+    .w_en(w_buf_wen), .r_en(w_buf_ren),
+    .data_in(w_buf_din), .data_out(w_buf_dout),
+    .full(w_buf_full), .empty(w_buf_empty)
+  );
 
-// AR channel Signal AXI- Buffer
-assign arready      = ~AR_buf_full;
-assign AR_buf_din   = {arid, arlen, arburst, arsize, araddr};
-assign AR_buf_wr_en = arvalid & arready;
+  //  AW+W Pair 
+  wire pair_aw_w = ~aw_buf_empty & ~w_buf_empty
+                 & ~AW_cdc_full  & ~W_cdc_full;
 
-
-
-typedef enum logic [1:0] {
-    IDLE    = 2'b00,    
-    SEND_AW = 2'b01,    
-    SEND_W  = 2'b10     
-} pair_fsm;
-
-pair_fsm  pair_state;     
-pair_fsm  pair_next; 
+  assign aw_buf_ren = pair_aw_w;
+  assign w_buf_ren  = pair_aw_w;
 
 
-
-always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk or negedge axi_rst_n) begin
     if (!axi_rst_n) begin
-        pair_state <= IDLE;
+      AW_cdc_wr_en_r <= '0;
+      AW_cdc_data_r <= '0;
+      W_cdc_wr_en_r  <= '0;
+      W_cdc_data_r  <= '0;
     end else begin
-        pair_state <= pair_next;    
+      AW_cdc_wr_en_r <= pair_aw_w & ~AW_cdc_full;
+      AW_cdc_data_r <= aw_buf_dout;
+      W_cdc_wr_en_r  <= pair_aw_w & ~W_cdc_full;
+      W_cdc_data_r  <= w_buf_dout;
     end
-end
+  end
 
-always_comb begin
-    pair_next    = pair_state;
-    AW_buf_rd_en = 1'b0;
-    W_buf_rd_en  = 1'b0;
+  assign AW_cdc_wr_en = AW_cdc_wr_en_r;
+  assign AW_cdc_data = AW_cdc_data_r;
+  assign W_cdc_wr_en  = W_cdc_wr_en_r;
+  assign W_cdc_data  = W_cdc_data_r;
 
-    case (pair_state)
+  // AR Channel
+  assign ar_buf_din = {arid, arlen, arburst, arsize, araddr};
+  assign arready    = ~ar_buf_full;
+  assign ar_buf_wen = arvalid & arready;
 
-        IDLE: begin
-            // AW and W pair
-            if (!AW_buf_empty && !W_buf_empty) begin
-                pair_next = SEND_AW;
-            end
-        end
+  TX_BUFF #(.DEPTH(AR_DEPTH), .DATA_WIDTH(AR_W)) u_ar_buf (
+    .clk(axi_clk), .rst_n(axi_rst_n),
+    .w_en(ar_buf_wen), .r_en(ar_buf_ren),
+    .data_in(ar_buf_din), .data_out(ar_buf_dout),
+    .full(ar_buf_full), .empty(ar_buf_empty)
+  );
 
-        SEND_AW: begin
-            if (!AW_cdc_full) begin
-                AW_buf_rd_en = 1'b1;    
-                pair_next    = SEND_W;  
-            end
-        end
+  assign ar_buf_ren = ~ar_buf_empty & ~AR_cdc_full;
 
-        SEND_W: begin
-            if (!W_buf_empty && !W_cdc_full) begin
-                W_buf_rd_en = 1'b1;     
-                if (W_buf_dout[0] == 1'b1) begin
-                    // wlast == 1  next sate is idel
-                    pair_next = IDLE;
-                end
-                else pair_next = SEND_W ;
-            end
-        end
+  always_ff @(posedge axi_clk or negedge axi_rst_n) begin
+    if (!axi_rst_n) begin
+      AR_cdc_wr_en_r <= '0;
+      AR_cdc_data_r <= '0;
+    end else begin
+      AR_cdc_wr_en_r <= ar_buf_ren & ~AR_cdc_full;
+      AR_cdc_data_r <= ar_buf_dout;
+    end
+  end
 
-        default: pair_next = IDLE;
+  assign AR_cdc_wr_en = AR_cdc_wr_en_r;
+  assign AR_cdc_data = AR_cdc_data_r;
+  
+  // B Channel
+  
+  logic B_hold_valid;
+  logic b_cdc_pending;
 
-    endcase
-end
-
-// AW info into the cdc fifo
-assign AW_cdc_data  = AW_buf_dout;
-assign AW_cdc_wr_en = AW_buf_rd_en;    
-
-// W info into the cdc fifo
-assign W_cdc_data   = W_buf_dout;
-assign W_cdc_wr_en  = W_buf_rd_en;
-
-// AR info into the cdc fifo
-assign AR_buf_rd_en = ~AR_buf_empty & ~AR_cdc_full;
-assign AR_cdc_data  = AR_buf_dout;
-assign AR_cdc_wr_en = AR_buf_rd_en;
-
-
-// b channel
-assign B_cdc_rd_en = ~B_cdc_empty & ~B_hold_valid;
-
-
+  
 always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin
-        bvalid      <= 1'b0;
-        bid         <= 8'h0;
-        bresp       <= 2'b00;
-        B_din       <= 10'h00;
-        B_hold_valid<= 0    ;
+        B_cdc_rd_en   <= 1'b0;
+        bvalid       <= 1'b0;
+        bid          <= '0;
+        bresp        <= 2'b00;
+        B_din        <= '0;
+        B_hold_valid <= 1'b0;
+        b_cdc_pending <= 1'b0;
     end else begin
-         
-        if (B_cdc_rd_en) begin
-            B_din       <= B_cdc_data;
-            B_hold_valid <= 1;
+        B_cdc_rd_en <= 1'b0;
+
+        if (!b_cdc_pending) begin
+            if (!B_cdc_empty && !B_hold_valid) begin
+                B_cdc_rd_en   <= 1'b1;
+                b_cdc_pending <= 1'b1;
+            end
+        end else begin
+            B_din        <= B_cdc_data;
+            B_hold_valid <= 1'b1;
+            b_cdc_pending <= 1'b0;
         end
 
-       
         if (B_hold_valid) begin
-            bvalid <= 1;
+            bvalid <= 1'b1;
             bid    <= B_din[9:2];
             bresp  <= B_din[1:0];
         end
 
-        
         if (bvalid && bready) begin
-            bvalid       <= 0;
-            B_hold_valid <= 0;
+            bvalid       <= 1'b0;
+            B_hold_valid <= 1'b0;
         end
     end
 end
 
+
+logic r_cdc_pending;
+logic r_load_pending;
+
 // R channel
-assign R_cdc_rd_en = ~R_cdc_empty & ~R_buf_full;
 assign R_buf_din   = R_cdc_data;
-assign R_buf_wr_en = R_cdc_rd_en;
 
 always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin
-        rvalid      <= 1'b0;
-        rdata       <= '0;
-        rid         <= '0;
-        rresp       <= 2'b00;
-        rlast       <= 1'b0;
-        R_buf_rd_en <= 1'b0;
+        R_cdc_rd_en   <= 1'b0;
+       
+        r_buf_ren   <= 1'b0;
+        rvalid <= 1'b0;
+        rdata  <= '0;
+        rid    <= '0;
+        rresp  <= 2'b00;
+        rlast  <= 1'b0;
+        r_cdc_pending  <= 1'b0;
+        r_load_pending <= 1'b0;
     end else begin
-        R_buf_rd_en <= 1'b0;    
+        R_cdc_rd_en <= 1'b0;
+        r_buf_wen <= 1'b0;
+       
 
-        if (!R_buf_empty && !rvalid) begin
-            rvalid      <= 1'b1;
-            rlast       <= R_buf_dout[0];
-            rresp       <= R_buf_dout[2:1];
-            rid         <= R_buf_dout[10:3];
-            rdata       <= R_buf_dout[1034:11];
-            R_buf_rd_en <= 1'b1;
+      
+        if (!r_cdc_pending) begin
+            if (!R_cdc_empty && !r_buf_full) begin
+                R_cdc_rd_en   <= 1'b1;
+                r_cdc_pending <= 1'b1;
+            end
+        end else if (!r_buf_full) begin
+            r_buf_ren   <= 1'b1;
+            r_cdc_pending <= 1'b0;
+        end
+
+        
+        if (r_load_pending) begin
+            rvalid <= 1'b1;
+            rlast  <= r_buf_dout[0];
+            rresp  <= r_buf_dout[2:1];
+            rid    <= r_buf_dout[10:3];
+            rdata  <= r_buf_dout[1034:11];
+            r_load_pending <= 1'b0;
         end else if (rvalid && rready) begin
             rvalid <= 1'b0;
+        end else if (!r_buf_empty && !rvalid) begin
+            r_buf_ren    <= 1'b1;
+            r_load_pending <= 1'b1;
         end
     end
 end
 
-// TX Buffers
-TX_BUFF #(.DEPTH(32), .DATA_WIDTH(61)) axfdi_aw_buf  (
-    .clk      (axi_clk),
-    .rst_n    (axi_rst_n),
-    .w_en     (AW_buf_wr_en),
-    .data_in  (AW_buf_din),
-    .r_en     (AW_buf_rd_en),
-    .data_out (AW_buf_dout),
-    .full     (AW_buf_full),
-    .empty    (AW_buf_empty)
-);
-
-TX_BUFF  #(.DEPTH(64), .DATA_WIDTH(1153)) axfdi_w_buf (  
-    .clk      (axi_clk),
-    .rst_n    (axi_rst_n),
-    .w_en     (W_buf_wr_en),
-    .data_in  (W_buf_din),
-    .r_en     (W_buf_rd_en),
-    .data_out (W_buf_dout),
-    .full     (W_buf_full),
-    .empty    (W_buf_empty)
-);
-
-TX_BUFF  #(.DEPTH(32), .DATA_WIDTH(61)) axfdi_ar_buf (
-    .clk      (axi_clk),
-    .rst_n    (axi_rst_n),
-    .w_en     (AR_buf_wr_en),
-    .data_in  (AR_buf_din),
-    .r_en     (AR_buf_rd_en),
-    .data_out (AR_buf_dout),
-    .full     (AR_buf_full),
-    .empty    (AR_buf_empty)
-);
-
-
-// RX buff for R channel
-TX_BUFF #(.DEPTH(256), .DATA_WIDTH(1035)) R_RX_buff (
-    .clk      (axi_clk),
-    .rst_n    (axi_rst_n),
-    .w_en     (R_buf_wr_en),
-    .data_in  (R_buf_din),
-    .r_en     (R_buf_rd_en),
-    .data_out (R_buf_dout),
-    .full     (R_buf_full),         
-    .empty    (R_buf_empty)
-);
-
-
-    
 endmodule
+
