@@ -1,5 +1,7 @@
-/* Module Name : axfdi_axi_sub 
+/* Module Name: axfdi_axi_sub
    Clock Domain : AXI 500Mhz
+   Engineer  : Vishwa Patwrai
+   Company : Sevya Multimedia Technologies Pvt. Ltd.
 */
 
 module axfdi_axi_sub #(
@@ -142,7 +144,7 @@ module axfdi_axi_sub #(
   assign w_buf_ren  = pair_aw_w;
 
 
-  always_ff @(posedge axi_clk or negedge axi_rst_n) begin
+  always_ff @(posedge axi_clk ) begin
     if (!axi_rst_n) begin
       AW_cdc_wr_en_r <= '0;
       AW_cdc_data_r <= '0;
@@ -175,7 +177,7 @@ module axfdi_axi_sub #(
 
   assign ar_buf_ren = ~ar_buf_empty & ~AR_cdc_full;
 
-  always_ff @(posedge axi_clk or negedge axi_rst_n) begin
+  always_ff @(posedge axi_clk ) begin
     if (!axi_rst_n) begin
       AR_cdc_wr_en_r <= '0;
       AR_cdc_data_r <= '0;
@@ -232,11 +234,10 @@ end
 
 
 logic r_cdc_pending;
-logic r_hold_vaild;
+logic r_load_pending;
 
 // R channel
-   //aravind: not using this signal anywhere
-//assign R_buf_din   = R_cdc_data;
+assign r_buf_din   = R_cdc_data;
 
 always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin
@@ -249,7 +250,7 @@ always_ff @(posedge axi_clk) begin
         rresp  <= 2'b00;
         rlast  <= 1'b0;
         r_cdc_pending  <= 1'b0;
-        r_hold_vaild <= 1'b0;
+        r_load_pending <= 1'b0;
     end else begin
         R_cdc_rd_en <= 1'b0;
         r_buf_wen <= 1'b0;
@@ -267,21 +268,28 @@ always_ff @(posedge axi_clk) begin
         end
 
         
-        if (r_hold_vaild) begin
+        if (r_load_pending) begin
             rvalid <= 1'b1;
             rlast  <= r_buf_dout[0];
             rresp  <= r_buf_dout[2:1];
             rid    <= r_buf_dout[10:3];
             rdata  <= r_buf_dout[1034:11];
-            r_hold_vaild <= 1'b0;
+            r_load_pending <= 1'b0;
         end else if (rvalid && rready) begin
             rvalid <= 1'b0;
         end else if (!r_buf_empty && !rvalid) begin
             r_buf_ren    <= 1'b1;
-            r_hold_vaild <= 1'b1;
+            r_load_pending <= 1'b1;
         end
     end
 end
+
+TX_BUFF #(.DEPTH(256), .DATA_WIDTH(R_W)) u_r_buf (
+    .clk(axi_clk), .rst_n(axi_rst_n),
+    .w_en(r_buf_wen), .r_en(r_buf_ren),
+    .data_in(r_buf_din), .data_out(r_buf_dout),
+    .full(r_buf_full), .empty(r_buf_empty)
+  );
 
 endmodule
 
