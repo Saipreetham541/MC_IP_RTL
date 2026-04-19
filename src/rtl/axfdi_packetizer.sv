@@ -27,7 +27,7 @@ module axfdi_packetizer  #(
     output logic [vcn_w-1:0]          tx_credit_vcn,
     output logic                      tx_credit_decr_flag,
 
-    output logic                      pending_tx_available,
+    //output logic                      pending_tx_available,
     output logic                      credit_rtn_done,
 
     // -------- PORT 0 --------
@@ -114,13 +114,13 @@ module axfdi_packetizer  #(
    
     // TX AVAILABLE
     
-    always_comb begin
+   /* always_comb begin
         pending_tx_available =
             WRITE_REQ ||
             READ_REQ ||
             WRITE_RESP ||
             READ_RESP;
-    end
+    end */
 
     
     // START CONDITION
@@ -156,8 +156,10 @@ module axfdi_packetizer  #(
     always_comb begin
         next_state = state;
         case (state)
-            IDLE: if (start_txn) next_state = HEADER;
-            HEADER: if (fdi_tx_ready) next_state = IDLE;
+          IDLE: if (start_txn) next_state = HEADER;
+          HEADER: if (fdi_tx_ready) next_state = IDLE;
+          //aravind: added default state
+          default: next_state = state;
         endcase
     end
 
@@ -166,7 +168,7 @@ module axfdi_packetizer  #(
     
     always_comb begin
         tx_credit_decr_flag = 0;
-        tx_credit_vcn       = 4'b0;
+        tx_credit_vcn       = 3'b0;
 
         if (state == HEADER && !credit_rtn_opcode_en) begin
             tx_credit_decr_flag = 1;
@@ -197,7 +199,8 @@ module axfdi_packetizer  #(
             flit_tx_data[5:3]  = vcn_sel;
             flit_tx_data[6]    = 1;
             flit_tx_data[7]    = 1;
-            flit_tx_data[11:8] = credit_rtn_opcode_en ? CREDIT_RTN : txn_type;
+           //concated to match the size
+            flit_tx_data[11:8] = (credit_rtn_opcode_en) ? {1'b0,CREDIT_RTN} : {1'b0,txn_type};
             flit_tx_data[12]   = port_id_i;
 
             // CREDIT FIELDS 
@@ -219,7 +222,8 @@ module axfdi_packetizer  #(
                         flit_tx_data[30:29] = aw_data[17:16];
                         flit_tx_data[33:31] = aw_data[20:18];
                         flit_tx_data[84:45] = aw_data[60:21];
-                        flit_tx_data[1983:256] = w_data[1023:0];
+                       //width mismatch: aravind
+                        flit_tx_data[1983:256] = {w_data[1023:0], 704'b0}; //aravind
                     end
 
                     READ_REQ: begin
@@ -238,9 +242,15 @@ module axfdi_packetizer  #(
                     READ_RESP: begin
                         flit_tx_data[20:13] = r_data[7:0];
                         flit_tx_data[35:34] = r_data[9:8];
-                        flit_tx_data[1983:256] = r_data[1023:0];
+                       //width mismatch: aravind
+                        flit_tx_data[1983:256] = {r_data[1023:0], 704'b0};//aravind
                     end
-
+                  //added default statement :aravind
+                  default: begin
+                     flit_tx_data[20:13] = '0;
+                        flit_tx_data[35:34] = '0;
+                        flit_tx_data[1983:256] = '0;
+                  end
                 endcase
             end
         end

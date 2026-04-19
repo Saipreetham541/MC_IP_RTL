@@ -104,25 +104,32 @@ module axfdi_fdi_if #(
    //FDI interface control flag
    logic                             s_fdi_trans_en;
    logic                             r_fdi_trans_en;
-        
+
+
+   //TXside data sending
    always_ff@(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
         r_fdi_lp_irdy <= 1'b0;
         r_fdi_lp_valid <= 1'b0;
         r_fdi_lp_data <= 'h0;
+        r_fdi_lp_startofpkt <= 1'b0;
+        r_fdi_lp_endofpkt <= 1'b0;
      end
        else begin
           if (!fdi_rst_n) begin
              r_fdi_lp_irdy <= 1'b0;
              r_fdi_lp_valid <= 1'b0;
              r_fdi_lp_data <= 'h0;
+             r_fdi_lp_startofpkt <= 1'b0;
+             r_fdi_lp_endofpkt <= 1'b0;
           end
-          else if (flit_tx_data_valid && fdi_pl_trdy && r_fdi_trans_en) begin
+          else begin
              r_fdi_lp_data <= flit_tx_data;
              r_fdi_lp_valid <= flit_tx_data_valid;
-             r_fdi_lp_irdy <= 1'b1;  //??
              r_fdi_lp_startofpkt <= fdi_pktr_tx_sop;
              r_fdi_lp_endofpkt <= fdi_pktr_tx_eop;
+             if (r_fdi_trans_en) r_fdi_lp_irdy <= 1'b1;  //??
+             else r_fdi_lp_irdy <= 1'b0;
           end
        end // else: !if(!fdi_rstn)
 
@@ -149,7 +156,7 @@ module axfdi_fdi_if #(
    //initial credit iniitalization
    assign credit_init_req =  r_credit_rtn_req_en;
 
-
+   // RX side data recieving
    always_ff@(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
            r_fdi_pl_data <= '0;
@@ -159,15 +166,22 @@ module axfdi_fdi_if #(
      end
      else begin
         if (!fdi_rst_n) begin
-           r_fdi_lp_irdy <= 1'b0;
-           r_fdi_lp_valid <= 1'b0;
-           r_fdi_lp_data <= 'h0;
+           r_fdi_pl_data <= '0;
+           r_fdi_pl_startofpkt <= 1'b0;
+           r_fdi_pl_endofpkt <= 1'b0;
+        r_flit_rx_data_valid <= 1'b0;
         end
-        else if (fdi_pl_irdy && fdi_depktr_rx_trdy && fdi_pl_valid && r_fdi_trans_en) begin
+        else if (fdi_pl_irdy && r_fdi_lp_trdy && fdi_pl_valid && r_fdi_trans_en) begin
            r_fdi_pl_data <= fdi_pl_data;
            r_fdi_pl_startofpkt <= fdi_pl_startofpkt;
            r_fdi_pl_endofpkt <= fdi_pl_endofpkt;
            r_flit_rx_data_valid <= 1'b1;
+        end
+        else begin
+           r_fdi_pl_data <= 0;
+           r_fdi_pl_startofpkt <= 1'b0;
+           r_fdi_pl_endofpkt <= 1'b0;
+           r_flit_rx_data_valid <= 1'b0;
         end
      end // else: !if(!fdi_rstn)
 
@@ -176,15 +190,16 @@ module axfdi_fdi_if #(
         CS <= ST_wait_remote;
         r_fdi_trans_en <= 1'b0;
         r_credit_rtn_req_en <= 1'b0;
-        r_fdi_lp_state_req <= IDLE;
+        r_fdi_lp_state_req <= RESET;
+        r_fdi_lp_trdy <= 1'b0;
      end
      else begin
         if (!fdi_rst_n) begin
            CS <= ST_wait_remote;
            r_fdi_trans_en <= 1'b0;
            r_credit_rtn_req_en <= 1'b0;
-           r_fdi_lp_state_req <= IDLE;
-           r_fdi_lp_trdy <= fdi_depktr_rx_trdy;
+           r_fdi_lp_state_req <= RESET;
+           r_fdi_lp_trdy <= 1'b0;
         end
         else begin
            CS <= NS;

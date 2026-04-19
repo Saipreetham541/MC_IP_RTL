@@ -29,7 +29,7 @@ module axfdi_tx_arb
 
 
     output logic   [2:0] txn_type,
-    output logic   [1:0] vcn_sel,
+    output logic   [2:0] vcn_sel,
     output logic        port_id_o
 );
     //vcn for arbitration
@@ -115,6 +115,11 @@ always_comb begin
 
             VCN_NP : if (np_cnt > 0)
                         np_cnt_next = np_cnt - 1;
+          //added default statement:
+            default: begin
+               cpl_cnt_next = cpl_cnt_next;
+               np_cnt_next = np_cnt_next;
+            end
         endcase
     end
 end
@@ -148,7 +153,6 @@ end
         else begin
             cs <= ns;
         end
-       
     end
    
     // next state logic
@@ -265,7 +269,8 @@ end
 
    assign crd_rtn_valid = crd_rtn;
    assign txn_type = r_txn_type;
-   assign vcn_sel = r_vcn_sel;
+   //to match the width just added 0 to the msb
+   assign vcn_sel = {1'b0,r_vcn_sel};
 endmodule
 
 

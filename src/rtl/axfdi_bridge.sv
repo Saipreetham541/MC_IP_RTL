@@ -393,7 +393,7 @@ module axfdi_bridge
    logic                          s_port1_mgr_cdc_w_d_full;
    logic                          s_port1_mgr_cdc_w_d_empty;
    logic                          s_port1_mgr_cdc_w_d_rd_en;
-   logic                          s_port1_mgr_cdc_w_d_out;
+   logic [cdc_w_d_w-1:0]          s_port1_mgr_cdc_w_d_out;
    logic [cdc_ar_d_w-1:0]         s_port1_mgr_cdc_ar_d;
    logic                          s_port1_mgr_cdc_ar_d_wr_en;
    logic                          s_port1_mgr_cdc_ar_d_full;
@@ -1357,8 +1357,9 @@ module axfdi_bridge
       .write_req_vaild(s_portmrg_arb_write_req_vaild),
       .read_req_vaild(s_portmrg_arb_read_req_vaild),
       .write_resp_vaild(s_portmrg_arb_write_resp_vaild),
-      .read_resp_vaild(s_portmrg_arb_read_resp_vaild)
+      .read_resp_vaild(s_portmrg_arb_read_resp_vaild),
       // output logic  [1:0] vcn_sel  // 00 - NP , 01 - CPL , 10 -  VC_NP_HI  , 11 -VC_CPL_HI
+      .pending_tx_available(s_pending_tx_available)
       );
 
  
@@ -1417,7 +1418,6 @@ module axfdi_bridge
         .tx_credit_vcn(s_tx_credit_vcn),
         .tx_credit_decr_flag(s_tx_credit_decr_flag),
 
-        .pending_tx_available(s_pending_tx_available),
         .credit_rtn_done(s_credit_rtn_done),
     // -------- PORT 0 --------
         .aw_fifo0_data(s_port0_sub_cdc_aw_d_out),

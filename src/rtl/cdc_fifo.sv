@@ -1,10 +1,10 @@
 module cdc_fifo#(parameter data_w=8,depth=8,addr_w=$clog2(depth))(
 input clk_wr,clk_rd,rst,wr_en,rd_en,
-input [data_w:0] data_in,
-output reg [data_w:0] data_out,
+input [data_w-1:0] data_in,
+output reg [data_w-1:0] data_out,
 output full,empty
 );
-reg [data_w:0] mem [0:depth-1];
+reg [data_w-1:0] mem [0:depth-1];
 reg [addr_w:0]wr_ptr,rd_ptr;//MSB is a wrap bit,[MSB-1:0] is used for addressing
 wire [addr_w:0] wr_ptr_gray,rd_ptr_gray;
 reg [addr_w:0]ff_wr1,ff_wr2,ff_rd1,ff_rd2;

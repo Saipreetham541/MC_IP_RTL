@@ -124,7 +124,7 @@ module axfdi_depacketizer #(
    assign depktr_crdtmgr_rtn_valid = r_credit_rtn_en | r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
    assign depktr_crdtmgr_credit_vcn = r_flit_credit_rtn_vcn;
    assign depktr_crdtmgr_credit_cnt = r_flit_credit_rtn_cnt;
-   assign depktr_crdtmgr_credit_rx_incr = !portrtr_depktr_bakpres & (r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en); //?
+   assign depktr_crdtmgr_credit_rx_incr = (portrtr_depktr_read_done) ? 1'b1 : 1'b0; //?
    assign depktr_crdtmgr_rx_vcn = r_flit_vcn;
 
    //module port assignment port router
@@ -147,7 +147,7 @@ module axfdi_depacketizer #(
    //assign startofkt and endofpkt
    assign depktr_portrtr_flit_endofpkt = fdi_depktr_rx_endofpkt;
    assign depktr_portrtr_flit_startofpkt = fdi_depktr_rx_startofpkt;
-   assign fdi_depktr_rx_trdy  = portrtr_depktr_bakpres;
+   assign fdi_depktr_rx_trdy  = !portrtr_depktr_bakpres;
    //module port assignment Completion tracker
 
    assign depktr_cmpltkr_resp_valid = s_read_resp_en | s_write_resp_en;

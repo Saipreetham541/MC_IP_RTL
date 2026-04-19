@@ -235,7 +235,8 @@ logic r_cdc_pending;
 logic r_hold_vaild;
 
 // R channel
-assign R_buf_din   = R_cdc_data;
+   //aravind: not using this signal anywhere
+//assign R_buf_din   = R_cdc_data;
 
 always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin

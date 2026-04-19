@@ -21,9 +21,10 @@ module axfdi_port_merge (
     output logic    write_req_vaild,
     output logic    read_req_vaild,
     output logic    write_resp_vaild,
-    output logic    read_resp_vaild
+    output logic    read_resp_vaild,
    // output logic  [1:0] vcn_sel  // 00 - NP , 01 - CPL , 10 -  VC_NP_HI  , 11 -VC_CPL_HI 
-
+    //flag to the credit manager indicating pending tx available
+    output logic pending_tx_available
 
 );
 
@@ -54,7 +55,7 @@ module axfdi_port_merge (
   assign port0_data = write_req_0 | read_req_0 | write_resp_0 | read_resp_0;
   assign port1_data = write_req_1 | read_req_1 | write_resp_1 | read_resp_1;
 
-
+   assign pending_tx_available = port0_data | port1_data;
    
    typedef enum logic [1:0] {
     IDLE    = 2'b00,    
