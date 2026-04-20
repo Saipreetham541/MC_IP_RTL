@@ -1,6 +1,8 @@
 /* Module Name: TX_BUFF
    Clock Domain : AXI 625Mhz
    Engineer  : Vishwa Patwrai
+   Project Name: AXFDI Bridge
+   Description: Flit Die-to-Die Interface
    Company : Sevya Multimedia Technologies Pvt. Ltd.
 */
 module TX_BUFF #(parameter DEPTH=8, DATA_WIDTH=8) (
