@@ -1,3 +1,9 @@
+/* Module Name: axfdi_port_merge
+   Clock Domain : FDI 625Mhz
+   Engineer  : Vishwa Patwrai
+   Company : Sevya Multimedia Technologies Pvt. Ltd.
+*/
+
 module axfdi_port_merge (
     input logic     fdi_clk,
     input logic     fdi_rst_n,
