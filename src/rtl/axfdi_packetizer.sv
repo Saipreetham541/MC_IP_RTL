@@ -1,5 +1,8 @@
-// Code your design here
-
+/* Module Name: axfdi_axi_sub
+   Clock Domain : FDI 625Mhz
+   Engineer  : Vishwa Patwrai
+   Company : Sevya Multimedia Technologies Pvt. Ltd.
+*/
 
 module axfdi_packetizer  #(
     parameter FDI_FLIT_WIDTH = 2048,
