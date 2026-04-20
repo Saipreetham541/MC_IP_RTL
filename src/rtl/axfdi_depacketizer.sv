@@ -169,7 +169,7 @@ module axfdi_depacketizer #(
    assign s_flit_credit_rtn_cnt = (flit_rx_data_valid) ? flit_rx_data[43:38] : '0;
    //assign s_flit_wstrb_present = (flit_rx_data_valid) ? flit_rx_data[44] : '0;
    assign s_flit_addr = (flit_rx_data_valid) ? flit_rx_data[84:45] : '0;
-   assign s_flit_wstrb_b0 = (flit_rx_data_valid) ? flit_rx_data[255:128]: '0;
+   assign s_flit_wstrb_b0 = (flit_rx_data_valid && flit_rx_data[44]!=1'b1) ? 128'b1: '0;
    assign s_flit_data_line = (flit_rx_data_valid) ? flit_rx_data[1983:256]: '0;
 
  always_ff @(posedge fdi_clk or negedge por_n)

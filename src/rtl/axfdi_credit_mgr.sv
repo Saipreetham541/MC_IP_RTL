@@ -55,8 +55,8 @@ module axfdi_credit_mgr #(
    localparam                    rx_credit_cnsmd_thrshld = 16;
 
    //TX credits
-   logic [credit_size-1:0]         tx_vc_cpl_credit_cnt;
-   logic [credit_size-1:0]         tx_vc_np_credit_cnt;
+   logic [credit_size-1:0]         r_tx_vc_cpl_credit_cnt;
+   logic [credit_size-1:0]         r_tx_vc_np_credit_cnt;
 
    logic [credit_size-1:0]         rx_cpl_credit_cnsmd;
    logic [credit_size-1:0]         rx_np_credit_cnsmd;
@@ -84,9 +84,12 @@ module axfdi_credit_mgr #(
 
 
 
-   assign credit_init_done = r_rx_cpl_credit_init_done & r_rx_np_credit_init_done;
-   assign tx_vc_cpl_credit_ind = (tx_vc_cpl_credit_cnt == 0) ? 1'b1 : 1'b0;
-   assign tx_vc_np_credit_ind = (tx_vc_np_credit_cnt == 0) ? 1'b1 : 1'b0;
+   assign credit_init_done = ((r_tx_vc_cpl_credit_cnt !=0) &&
+                              (r_tx_vc_np_credit_cnt!=0) &&
+                              r_rx_cpl_credit_init_done &&
+                              r_rx_np_credit_init_done) ? 1'b1 : 1'b0;
+   assign tx_vc_cpl_credit_ind = (r_tx_vc_cpl_credit_cnt != 0) ? 1'b1 : 1'b0;
+   assign tx_vc_np_credit_ind = (r_tx_vc_np_credit_cnt != 0) ? 1'b1 : 1'b0;
 
 
    assign s_rx_cpl_credit_cnsmd_rtn_flag = (rx_cpl_credit_cnsmd >= rx_credit_cnsmd_thrshld) ? 1'b1 : 1'b0;
@@ -100,9 +103,17 @@ module axfdi_credit_mgr #(
 
    always_ff @(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
+        r_rx_cpl_credit_init <= '0;
+        r_rx_np_credit_init <= '0;
+        r_rx_cpl_credit_init_en <= 1'b0;
+        r_rx_np_credit_init_en <= 1'b0;
      end
      else begin
         if (!fdi_rst_n) begin
+           r_rx_cpl_credit_init <= '0;
+           r_rx_np_credit_init <= '0;
+           r_rx_cpl_credit_init_en <= 1'b0;
+           r_rx_np_credit_init_en <= 1'b0;
         end
         else begin
            if(credit_init_req) begin
@@ -123,6 +134,10 @@ module axfdi_credit_mgr #(
         r_rx_credit_rtn_vcn <= '0;
         r_rx_cpl_credit_cnsmd_rtn_done <= 1'b0;
         r_rx_np_credit_cnsmd_rtn_done <= 1'b0;
+        r_rx_cpl_credit_cnsmd_rtn_flag <= 1'b0;
+        r_rx_np_credit_cnsmd_rtn_flag <= 1'b0;
+        r_rx_cpl_credit_init_done <= 1'b0;
+        r_rx_np_credit_init_done <= 1'b0;
      end
      else begin
         if (!fdi_rst_n) begin
@@ -130,6 +145,10 @@ module axfdi_credit_mgr #(
            r_rx_credit_rtn_vcn <= '0;
            r_rx_cpl_credit_cnsmd_rtn_done <= 1'b0;
            r_rx_np_credit_cnsmd_rtn_done <= 1'b0;
+           r_rx_cpl_credit_cnsmd_rtn_flag <= 1'b0;
+           r_rx_np_credit_cnsmd_rtn_flag <= 1'b0;
+           r_rx_cpl_credit_init_done <= 1'b0;
+           r_rx_np_credit_init_done <= 1'b0;
         end
         else begin
            //if (credit_init_req) begin
@@ -169,8 +188,8 @@ module axfdi_credit_mgr #(
               r_rx_np_credit_cnsmd_rtn_flag <= s_rx_np_credit_cnsmd_rtn_flag;
            end
            else begin
-              r_rx_cpl_credit_cnsmd_rtn_flag <= 1'b1;
-              r_rx_np_credit_cnsmd_rtn_flag <= 1'b1;
+              r_rx_cpl_credit_cnsmd_rtn_flag <= 1'b0;
+              r_rx_np_credit_cnsmd_rtn_flag <= 1'b0;
               r_rx_cpl_credit_cnsmd_rtn_done <= 1'b0;
               r_rx_np_credit_cnsmd_rtn_done <= 1'b0;
            end
@@ -180,22 +199,22 @@ module axfdi_credit_mgr #(
    //tracking the TX credits
    always_ff@(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
-        tx_vc_np_credit_cnt <= 0;
-        tx_vc_cpl_credit_cnt <= 0;
+        r_tx_vc_np_credit_cnt <= 0;
+        r_tx_vc_cpl_credit_cnt <= 0;
      end
      else begin
         if (!fdi_rst_n) begin
-           tx_vc_np_credit_cnt <= 0;
-           tx_vc_cpl_credit_cnt <= 0;
+           r_tx_vc_np_credit_cnt <= 0;
+           r_tx_vc_cpl_credit_cnt <= 0;
         end
         else begin
            if (tx_credit_rtn_valid) begin
-              if (tx_credit_rtn_vcn == 2'h0) tx_vc_np_credit_cnt <= tx_vc_np_credit_cnt + tx_credit_rtn_cnt;
-              else if (tx_credit_rtn_vcn == 2'h1) tx_vc_cpl_credit_cnt <= tx_vc_cpl_credit_cnt + tx_credit_rtn_cnt;
+              if (tx_credit_rtn_vcn == 2'h0) r_tx_vc_np_credit_cnt <= r_tx_vc_np_credit_cnt + tx_credit_rtn_cnt;
+              else if (tx_credit_rtn_vcn == 2'h1) r_tx_vc_cpl_credit_cnt <= r_tx_vc_cpl_credit_cnt + tx_credit_rtn_cnt;
            end
            if (tx_credit_decr_flag) begin
-              if (tx_credit_vcn == 3'h0) tx_vc_np_credit_cnt <= tx_vc_np_credit_cnt + 1;
-              else if (tx_credit_vcn == 3'h1) tx_vc_cpl_credit_cnt <= tx_vc_cpl_credit_cnt +1;
+              if (tx_credit_vcn == 3'h0) r_tx_vc_np_credit_cnt <= r_tx_vc_np_credit_cnt - 1;
+              else if (tx_credit_vcn == 3'h1) r_tx_vc_cpl_credit_cnt <= r_tx_vc_cpl_credit_cnt - 1;
            end
         end
      end // else: !if(!por_n)
@@ -203,9 +222,13 @@ module axfdi_credit_mgr #(
    //tracking rx credits consumed
    always_ff@(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
+        rx_np_credit_cnsmd <= '0;
+        rx_cpl_credit_cnsmd <= '0;
      end
      else begin
         if (!fdi_rst_n) begin
+           rx_np_credit_cnsmd <= '0;
+           rx_cpl_credit_cnsmd <= '0;
         end
         else begin
            if (rx_credit_cnsmd_incr_flag) begin
