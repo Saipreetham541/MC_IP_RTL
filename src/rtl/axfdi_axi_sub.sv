@@ -1,6 +1,8 @@
 /* Module Name: axfdi_axi_sub
    Clock Domain : AXI 500Mhz
    Engineer  : Vishwa Patwrai
+   Project Name: AXFDI Bridge
+   Description: Flit Die-to-Die Interface
    Company : Sevya Multimedia Technologies Pvt. Ltd.
 */
 
