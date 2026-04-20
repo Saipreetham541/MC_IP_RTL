@@ -104,8 +104,7 @@ module axfdi_axi_sub #(
   logic [R_W-1:0]   r_buf_din, r_buf_dout;
   logic             r_buf_wen, r_buf_ren;
   logic             r_buf_full, r_buf_empty;
-
-  //reg for the write and read en
+// reg for the write and read en
   logic             AW_cdc_wr_en_r;
   logic [AW_W-1:0]  AW_cdc_data_r;
   logic             W_cdc_wr_en_r;
@@ -113,6 +112,19 @@ module axfdi_axi_sub #(
   logic             AR_cdc_wr_en_r;
   logic [AR_W-1:0]  AR_cdc_data_r;
   logic [B_W-1:0]   B_din;
+
+  // pipeline control for sync FIFO reads
+  logic             aw_w_rd_pending;
+  logic             ar_rd_pending;
+  logic             b_cdc_pending;
+  logic             B_hold_valid;
+  logic             r_cdc_pending;
+  logic             r_buf_wr_pending;
+  logic             r_buf_rd_pending;
+  logic             r_load_pending;
+  logic [R_W-1:0]   R_din_hold;
+
+  wire pair_aw_w;
 
   // AW channel
   assign aw_buf_din = {awid, awlen, awburst, awsize, awaddr};
@@ -138,32 +150,43 @@ module axfdi_axi_sub #(
     .full(w_buf_full), .empty(w_buf_empty)
   );
 
-  //  AW+W Pair 
-  wire pair_aw_w = ~aw_buf_empty & ~w_buf_empty
-                 & ~AW_cdc_full  & ~W_cdc_full;
+  // AW+W Pair
+  assign pair_aw_w = ~aw_buf_empty & ~w_buf_empty
+                   & ~AW_cdc_full  & ~W_cdc_full
+                   & ~aw_w_rd_pending;
 
   assign aw_buf_ren = pair_aw_w;
   assign w_buf_ren  = pair_aw_w;
 
-
-  always_ff @(posedge axi_clk ) begin
+  always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin
-      AW_cdc_wr_en_r <= '0;
-      AW_cdc_data_r <= '0;
-      W_cdc_wr_en_r  <= '0;
-      W_cdc_data_r  <= '0;
+      AW_cdc_wr_en_r <= 1'b0;
+      AW_cdc_data_r  <= '0;
+      W_cdc_wr_en_r  <= 1'b0;
+      W_cdc_data_r   <= '0;
+      aw_w_rd_pending <= 1'b0;
     end else begin
-      AW_cdc_wr_en_r <= pair_aw_w & ~AW_cdc_full;
-      AW_cdc_data_r <= aw_buf_dout;
-      W_cdc_wr_en_r  <= pair_aw_w & ~W_cdc_full;
-      W_cdc_data_r  <= w_buf_dout;
+      AW_cdc_wr_en_r <= 1'b0;
+      W_cdc_wr_en_r  <= 1'b0;
+
+      if (pair_aw_w) begin
+        aw_w_rd_pending <= 1'b1;
+      end else if (aw_w_rd_pending) begin
+        if (~AW_cdc_full & ~W_cdc_full) begin
+          AW_cdc_wr_en_r  <= 1'b1;
+          AW_cdc_data_r   <= aw_buf_dout;
+          W_cdc_wr_en_r   <= 1'b1;
+          W_cdc_data_r    <= w_buf_dout;
+          aw_w_rd_pending <= 1'b0;
+        end
+      end
     end
   end
 
   assign AW_cdc_wr_en = AW_cdc_wr_en_r;
-  assign AW_cdc_data = AW_cdc_data_r;
+  assign AW_cdc_data  = AW_cdc_data_r;
   assign W_cdc_wr_en  = W_cdc_wr_en_r;
-  assign W_cdc_data  = W_cdc_data_r;
+  assign W_cdc_data   = W_cdc_data_r;
 
   // AR Channel
   assign ar_buf_din = {arid, arlen, arburst, arsize, araddr};
@@ -177,116 +200,128 @@ module axfdi_axi_sub #(
     .full(ar_buf_full), .empty(ar_buf_empty)
   );
 
-  assign ar_buf_ren = ~ar_buf_empty & ~AR_cdc_full;
-
-  always_ff @(posedge axi_clk ) begin
+  always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin
-      AR_cdc_wr_en_r <= '0;
-      AR_cdc_data_r <= '0;
+      AR_cdc_wr_en_r <= 1'b0;
+      AR_cdc_data_r  <= '0;
+      ar_rd_pending  <= 1'b0;
     end else begin
-      AR_cdc_wr_en_r <= ar_buf_ren & ~AR_cdc_full;
-      AR_cdc_data_r <= ar_buf_dout;
+      AR_cdc_wr_en_r <= 1'b0;
+
+      if (~ar_rd_pending) begin
+        if (~ar_buf_empty & ~AR_cdc_full) begin
+          ar_rd_pending <= 1'b1;
+        end
+      end else if (~AR_cdc_full) begin
+        AR_cdc_wr_en_r <= 1'b1;
+        AR_cdc_data_r  <= ar_buf_dout;
+        ar_rd_pending  <= 1'b0;
+      end
     end
   end
 
+  assign ar_buf_ren  = ~ar_buf_empty & ~AR_cdc_full & ~ar_rd_pending;
   assign AR_cdc_wr_en = AR_cdc_wr_en_r;
-  assign AR_cdc_data = AR_cdc_data_r;
-  
+  assign AR_cdc_data  = AR_cdc_data_r;
+
   // B Channel
-  
-  logic B_hold_valid;
-  logic b_cdc_pending;
-
-  
-always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin
-        B_cdc_rd_en   <= 1'b0;
-        bvalid       <= 1'b0;
-        bid          <= '0;
-        bresp        <= 2'b00;
-        B_din        <= '0;
-        B_hold_valid <= 1'b0;
+      B_cdc_rd_en    <= 1'b0;
+      bvalid         <= 1'b0;
+      bid            <= '0;
+      bresp          <= 2'b00;
+      B_din          <= '0;
+      B_hold_valid   <= 1'b0;
+      b_cdc_pending  <= 1'b0;
+    end else begin
+      B_cdc_rd_en <= 1'b0;
+
+      if (!b_cdc_pending) begin
+        if (!B_cdc_empty && !B_hold_valid) begin
+          B_cdc_rd_en   <= 1'b1;
+          b_cdc_pending <= 1'b1;
+        end
+      end else begin
+        B_din         <= B_cdc_data;
+        B_hold_valid  <= 1'b1;
         b_cdc_pending <= 1'b0;
-    end else begin
-        B_cdc_rd_en <= 1'b0;
+      end
 
-        if (!b_cdc_pending) begin
-            if (!B_cdc_empty && !B_hold_valid) begin
-                B_cdc_rd_en   <= 1'b1;
-                b_cdc_pending <= 1'b1;
-            end
-        end else begin
-            B_din        <= B_cdc_data;
-            B_hold_valid <= 1'b1;
-            b_cdc_pending <= 1'b0;
-        end
+      if (B_hold_valid) begin
+        bvalid <= 1'b1;
+        bid    <= B_din[9:2];
+        bresp  <= B_din[1:0];
+      end
 
-        if (B_hold_valid) begin
-            bvalid <= 1'b1;
-            bid    <= B_din[9:2];
-            bresp  <= B_din[1:0];
-        end
-
-        if (bvalid && bready) begin
-            bvalid       <= 1'b0;
-            B_hold_valid <= 1'b0;
-        end
+      if (bvalid && bready) begin
+        bvalid       <= 1'b0;
+        B_hold_valid <= 1'b0;
+      end
     end
-end
+  end
 
+  // R channel
+  assign r_buf_din = R_din_hold;
 
-logic r_cdc_pending;
-logic r_load_pending;
-
-// R channel
-assign r_buf_din   = R_cdc_data;
-
-always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk) begin
     if (!axi_rst_n) begin
-        R_cdc_rd_en   <= 1'b0;
-       
-        r_buf_ren   <= 1'b0;
-        rvalid <= 1'b0;
-        rdata  <= '0;
-        rid    <= '0;
-        rresp  <= 2'b00;
-        rlast  <= 1'b0;
-        r_cdc_pending  <= 1'b0;
-        r_load_pending <= 1'b0;
+      R_cdc_rd_en    <= 1'b0;
+      r_buf_wen      <= 1'b0;
+      r_buf_ren      <= 1'b0;
+      rvalid         <= 1'b0;
+      rdata          <= '0;
+      rid            <= '0;
+      rresp          <= 2'b00;
+      rlast          <= 1'b0;
+      R_din_hold     <= '0;
+      r_cdc_pending  <= 1'b0;
+      r_buf_wr_pending <= 1'b0;
+      r_buf_rd_pending <= 1'b0;
+      r_load_pending <= 1'b0;
     end else begin
-        R_cdc_rd_en <= 1'b0;
-        r_buf_wen <= 1'b0;
-       
+      R_cdc_rd_en <= 1'b0;
+      r_buf_wen   <= 1'b0;
+      r_buf_ren   <= 1'b0;
 
-      
-        if (!r_cdc_pending) begin
-            if (!R_cdc_empty && !r_buf_full) begin
-                R_cdc_rd_en   <= 1'b1;
-                r_cdc_pending <= 1'b1;
-            end
-        end else if (!r_buf_full) begin
-            r_buf_ren   <= 1'b1;
-            r_cdc_pending <= 1'b0;
+      if (!r_cdc_pending && !r_buf_wr_pending) begin
+        if (!R_cdc_empty && !r_buf_full) begin
+          R_cdc_rd_en   <= 1'b1;
+          r_cdc_pending <= 1'b1;
         end
+      end else if (r_cdc_pending) begin
+        R_din_hold      <= R_cdc_data;
+        r_cdc_pending   <= 1'b0;
+        r_buf_wr_pending <= 1'b1;
+      end else begin
+        if (!r_buf_full) begin
+          r_buf_wen       <= 1'b1;
+          r_buf_wr_pending <= 1'b0;
+        end
+      end
 
-        
-        if (r_load_pending) begin
-            rvalid <= 1'b1;
-            rlast  <= r_buf_dout[0];
-            rresp  <= r_buf_dout[2:1];
-            rid    <= r_buf_dout[10:3];
-            rdata  <= r_buf_dout[1034:11];
-            r_load_pending <= 1'b0;
-        end else if (rvalid && rready) begin
-            rvalid <= 1'b0;
-        end else if (!r_buf_empty && !rvalid) begin
-            r_buf_ren    <= 1'b1;
-            r_load_pending <= 1'b1;
-        end
+      if (rvalid && rready) begin
+        rvalid <= 1'b0;
+      end
+
+      if (!r_buf_rd_pending && !r_load_pending && !rvalid && !r_buf_empty) begin
+        r_buf_ren      <= 1'b1;
+        r_buf_rd_pending <= 1'b1;
+      end else if (r_buf_rd_pending) begin
+        r_buf_rd_pending <= 1'b0;
+        r_load_pending   <= 1'b1;
+      end else if (r_load_pending) begin
+        rvalid         <= 1'b1;
+        rlast          <= r_buf_dout[0];
+        rresp          <= r_buf_dout[2:1];
+        rid            <= r_buf_dout[10:3];
+        rdata          <= r_buf_dout[1034:11];
+        r_load_pending <= 1'b0;
+      end
     end
-end
+  end
 
-TX_BUFF #(.DEPTH(256), .DATA_WIDTH(R_W)) u_r_buf (
+  TX_BUFF #(.DEPTH(256), .DATA_WIDTH(R_W)) u_r_buf (
     .clk(axi_clk), .rst_n(axi_rst_n),
     .w_en(r_buf_wen), .r_en(r_buf_ren),
     .data_in(r_buf_din), .data_out(r_buf_dout),
