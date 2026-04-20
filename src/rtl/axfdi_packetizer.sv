@@ -1,4 +1,4 @@
-/* Module Name: axfdi_axi_sub
+/* Module Name: axfdi_packetizer
    Clock Domain : FDI 625Mhz
    Engineer  : Vishwa Patwrai
    Company : Sevya Multimedia Technologies Pvt. Ltd.
