@@ -67,20 +67,20 @@ module axfdi_credit_mgr #(
    logic                           r_rx_np_credit_cnsmd_rtn_flag;
 
    //harcode values for the intial rx credit initilization
-   localparam int   rx_cpl_credit_init = 32;
-   localparam int   rx_np_credit_init = 32;
-   logic [credit_size-1:0]      r_rx_cpl_credit_init;
-   logic [credit_size-1:0]      r_rx_np_credit_init;
-   logic            r_rx_cpl_credit_init_en;
-   logic            r_rx_np_credit_init_en;
-   logic            r_rx_cpl_credit_init_done;
-   logic            r_rx_np_credit_init_done;
+   localparam int                  rx_cpl_credit_init = 32;
+   localparam int                  rx_np_credit_init = 32;
+   logic [credit_size-1:0]         r_rx_cpl_credit_init;
+   logic [credit_size-1:0]         r_rx_np_credit_init;
+   logic                           r_rx_cpl_credit_init_en;
+   logic                           r_rx_np_credit_init_en;
+   logic                           r_rx_cpl_credit_init_done;
+   logic                           r_rx_np_credit_init_done;
 
 
    logic [credit_size-1:0]         r_rx_credit_rtn_cnt;
-   logic [rtn_vcn_w-1:0]         r_rx_credit_rtn_vcn;
-   logic               r_rx_cpl_credit_cnsmd_rtn_done;
-   logic               r_rx_np_credit_cnsmd_rtn_done;
+   logic [rtn_vcn_w-1:0]           r_rx_credit_rtn_vcn;
+   logic                           r_rx_cpl_credit_cnsmd_rtn_done;
+   logic                           r_rx_np_credit_cnsmd_rtn_done;
 
 
 
@@ -92,7 +92,7 @@ module axfdi_credit_mgr #(
    assign s_rx_cpl_credit_cnsmd_rtn_flag = (rx_cpl_credit_cnsmd >= rx_credit_cnsmd_thrshld) ? 1'b1 : 1'b0;
    assign s_rx_np_credit_cnsmd_rtn_flag = (rx_np_credit_cnsmd >= rx_credit_cnsmd_thrshld) ? 1'b1 : 1'b0;
 
-   assign credit_rtn_opcode_en = (credit_init_req) ? 1'b1 : (r_rx_cpl_credit_cnsmd_rtn_flag | r_rx_np_credit_cnsmd_rtn_flag) & !pending_tx_available;
+   assign credit_rtn_opcode_en = (credit_init_req) ? 1'b1 : ((r_rx_cpl_credit_cnsmd_rtn_flag | r_rx_np_credit_cnsmd_rtn_flag) & !pending_tx_available);
    assign rx_credit_rtn_cnt = r_rx_credit_rtn_cnt;
    assign rx_credit_rtn_vcn = r_rx_credit_rtn_vcn;
    assign credit_rtn_piggy_en = (r_rx_cpl_credit_cnsmd_rtn_flag | r_rx_np_credit_cnsmd_rtn_flag) & pending_tx_available;
@@ -210,7 +210,7 @@ module axfdi_credit_mgr #(
         else begin
            if (rx_credit_cnsmd_incr_flag) begin
               if (rx_credit_cnsmd_incr_vcn == 3'h0) rx_np_credit_cnsmd <= rx_np_credit_cnsmd + 1;
-              else if (rx_credit_cnsmd_incr_vcn == 3'h1) rx_cpl_credit_cnsmd <= rx_np_credit_cnsmd + 1;
+              else if (rx_credit_cnsmd_incr_vcn == 3'h1) rx_cpl_credit_cnsmd <= rx_cpl_credit_cnsmd + 1;
            end
            if (r_rx_cpl_credit_cnsmd_rtn_done && credit_rtn_done) rx_cpl_credit_cnsmd <= '0;
            if (r_rx_np_credit_cnsmd_rtn_done && credit_rtn_done) rx_np_credit_cnsmd <= '0;
