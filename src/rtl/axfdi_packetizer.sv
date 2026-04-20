@@ -1,3 +1,5 @@
+// Code your design here
+
 
 module axfdi_packetizer  #(
     parameter FDI_FLIT_WIDTH = 2048,
@@ -13,10 +15,12 @@ module axfdi_packetizer  #(
     input logic                       fdi_clk,
     input logic                       fdi_rst_n,
 
+
     // Arbiter
     input logic [2:0]                 txn_type,
     input logic [vcn_w-1:0]           vcn_sel,
     input logic                       port_id_i,
+
 
     // -------- CREDIT MANAGER --------
     input logic                       credit_rtn_opcode_en,
@@ -24,44 +28,57 @@ module axfdi_packetizer  #(
     input logic [rtn_vcn_w-1:0]       rx_credit_rtn_vcn,
     input logic                       credit_rtn_piggy_en,
 
+
     output logic [vcn_w-1:0]          tx_credit_vcn,
     output logic                      tx_credit_decr_flag,
 
+
     //output logic                      pending_tx_available,
     output logic                      credit_rtn_done,
+
 
     // -------- PORT 0 --------
     input logic [AW_AR_DATA_W-1:0]    aw_fifo0_data,
     output logic                      aw_fifo0_rd_en,
 
+
     input logic [W_DATA_W-1:0]        w_fifo0_data,
     output logic                      w_fifo0_rd_en,
+
 
     input logic [AW_AR_DATA_W-1:0]    ar_fifo0_data,
     output logic                      ar_fifo0_rd_en,
 
+
     input logic [R_DATA_W-1:0]        r_fifo0_data,
     output logic                      r_fifo0_rd_en,
 
+
     input logic [B_DATA_W-1:0]        b_fifo0_data,
     output logic                      b_fifo0_rd_en,
+
 
     // -------- PORT 1 --------
     input logic [AW_AR_DATA_W-1:0]    aw_fifo1_data,
     output logic                      aw_fifo1_rd_en,
 
+
     input logic [W_DATA_W-1:0]        w_fifo1_data,
     output logic                      w_fifo1_rd_en,
+
 
     input logic [AW_AR_DATA_W-1:0]    ar_fifo1_data,
     output logic                      ar_fifo1_rd_en,
 
+
     input logic [R_DATA_W-1:0]        r_fifo1_data,
     output logic                      r_fifo1_rd_en,
+
 
     input logic [B_DATA_W-1:0]        b_fifo1_data,
     output logic                      b_fifo1_rd_en,
     //---------Completion tracker---------------
+
 
     output logic                       tx_vcn,
     output logic [txn_id_w-1:0]        tx_txn_id,
@@ -76,31 +93,25 @@ module axfdi_packetizer  #(
     input logic                       fdi_tx_ready
 );
 
+
     typedef enum logic [2:0] {
         WRITE_REQ  = 3'd0,
         READ_REQ   = 3'd1,
         WRITE_RESP = 3'd2,
         READ_RESP  = 3'd3,
         CREDIT_RTN = 3'd4,
-        NOP        = 3'd5 
+        NOP        = 3'd5
     } txn_t;
 
 
-    // PORT MUX
-    
-    logic [AW_AR_DATA_W-1:0]   aw_data, ar_data;
-    logic [W_DATA_W-1:0] w_data;
-    logic [R_DATA_W-1:0] r_data;
-    logic [B_DATA_W-1:0]    b_data;
-
-
-    always_comb begin
+    /*always_comb begin
         if (port_id_i == 0) begin
             aw_data = aw_fifo0_data;
             w_data  = w_fifo0_data;
             ar_data = ar_fifo0_data;
             r_data  = r_fifo0_data;
             b_data  = b_fifo0_data;
+
 
         end else begin
             aw_data = aw_fifo1_data;
@@ -109,11 +120,12 @@ module axfdi_packetizer  #(
             r_data  = r_fifo1_data;
             b_data  = b_fifo1_data;
         end
-    end
+    end */
+
 
    
     // TX AVAILABLE
-    
+   
    /* always_comb begin
         pending_tx_available =
             WRITE_REQ ||
@@ -122,130 +134,249 @@ module axfdi_packetizer  #(
             READ_RESP;
     end */
 
-    
-    // START CONDITION
-   
-    logic start_txn;
 
-    always_comb begin
-        if (credit_rtn_opcode_en)
-            start_txn = 1;
-        else begin
-            case (txn_type)
-                WRITE_REQ:  start_txn = 1;
-                READ_REQ:   start_txn = 1;
-                WRITE_RESP: start_txn = 1;
-                READ_RESP:  start_txn = 1;
-                NOP      :  start_txn = 0;
-                default:    start_txn = 0;
-            endcase
+   
+ 
+
+
+   
+   // FSM
+  typedef enum logic [1:0] {
+    S_IDLE   = 2'd0,
+    S_READ   = 2'd1,
+    S_LATCH  = 2'd2,
+    S_HEADER = 2'd3
+  } state_t;
+
+
+  state_t state;
+
+
+  // latched inputs
+  logic [2:0]           lat_type;
+  logic [vcn_w-1:0]     lat_vcn;
+  logic                 lat_port;
+  logic                 lat_cr_opcode;
+  logic                 lat_cr_piggy;
+  logic [credit_size-1:0]  lat_cr_cnt;
+  logic [rtn_vcn_w-1:0]   lat_cr_vcn;
+
+
+  // latched FIFO data
+  logic [AW_AR_DATA_W-1:0] lat_aw, lat_ar;
+  logic [W_DATA_W-1:0]     lat_w;
+  logic [R_DATA_W-1:0]     lat_r;
+  logic [B_DATA_W-1:0]     lat_b;
+
+
+  // start condition
+  wire start_txn = credit_rtn_opcode_en ||
+                   (txn_type != NOP);
+
+
+  // FIFO mux latched port
+  logic [AW_AR_DATA_W-1:0] sel_aw, sel_ar;
+  logic [W_DATA_W-1:0]     sel_w;
+  logic [R_DATA_W-1:0]     sel_r;
+  logic [B_DATA_W-1:0]     sel_b;
+
+
+  always_comb begin
+    if (lat_port == 1'b0) begin
+      sel_aw = aw_fifo0_data; sel_ar = ar_fifo0_data;
+      sel_w  = w_fifo0_data;  sel_r  = r_fifo0_data;
+      sel_b  = b_fifo0_data;
+    end else begin
+      sel_aw = aw_fifo1_data; sel_ar = ar_fifo1_data;
+      sel_w  = w_fifo1_data;  sel_r  = r_fifo1_data;
+      sel_b  = b_fifo1_data;
+    end
+  end
+
+
+  // FSM
+  always_ff @(posedge fdi_clk or negedge fdi_rst_n) begin
+    if (!fdi_rst_n) begin
+      state        <= S_IDLE;
+      lat_type     <= NOP;
+      lat_vcn      <= '0;
+      lat_port     <= '0;
+      lat_cr_opcode<= '0;
+      lat_cr_piggy <= '0;
+      lat_cr_cnt   <= '0;
+      lat_cr_vcn   <= '0;
+      lat_aw <= '0; lat_ar <= '0;
+      lat_w  <= '0; lat_r  <= '0; lat_b <= '0;
+    end else begin
+      case (state)
+
+
+        S_IDLE: begin
+          if (start_txn) begin
+            // latch all arbiter + credit inputs now
+            lat_type      <= txn_type;
+            lat_vcn       <= vcn_sel;
+            lat_port      <= port_id_i;
+            lat_cr_opcode <= credit_rtn_opcode_en;
+            lat_cr_piggy  <= credit_rtn_piggy_en;
+            lat_cr_cnt    <= rx_credit_rtn_cnt;
+            lat_cr_vcn    <= rx_credit_rtn_vcn;
+            // credit return standalone
+            if (credit_rtn_opcode_en)
+              state <= S_HEADER;
+            else
+              state <= S_READ;
+          end
         end
-    end
 
+
+        // fifo read
+        S_READ: begin
+          state <= S_LATCH;
+        end
+
+
+        // capture FIFO outputs
+        S_LATCH: begin
+          lat_aw <= sel_aw;
+          lat_ar <= sel_ar;
+          lat_w  <= sel_w;
+          lat_r  <= sel_r;
+          lat_b  <= sel_b;
+          state  <= S_HEADER;
+        end
+
+
+        // hold until FDI accepts the flit
+        S_HEADER: begin
+          if (fdi_tx_ready)
+            state <= S_IDLE;
+        end
+
+
+        default: state <= S_IDLE;
+      endcase
+    end
+  end
    
-    // FSM
-    
-    typedef enum logic [1:0] {IDLE, HEADER} state_t;
-    state_t state, next_state;
 
-    always_ff @(posedge fdi_clk or negedge fdi_rst_n) begin
-        if (!fdi_rst_n) state <= IDLE;
-        else state <= next_state;
+
+  always_comb begin
+    aw_fifo0_rd_en = '0; w_fifo0_rd_en = '0;
+    ar_fifo0_rd_en = '0; r_fifo0_rd_en = '0; b_fifo0_rd_en = '0;
+    aw_fifo1_rd_en = '0; w_fifo1_rd_en = '0;
+    ar_fifo1_rd_en = '0; r_fifo1_rd_en = '0; b_fifo1_rd_en = '0;
+
+
+    if (state == S_READ) begin
+      case (lat_type)
+        WRITE_REQ: begin
+          if (!lat_port) begin aw_fifo0_rd_en = 1; w_fifo0_rd_en = 1; end
+          else           begin aw_fifo1_rd_en = 1; w_fifo1_rd_en = 1; end
+        end
+        READ_REQ: begin
+          if (!lat_port) ar_fifo0_rd_en = 1;
+          else           ar_fifo1_rd_en = 1;
+        end
+        WRITE_RESP: begin
+          if (!lat_port) b_fifo0_rd_en = 1;
+          else           b_fifo1_rd_en = 1;
+        end
+        READ_RESP: begin
+          if (!lat_port) r_fifo0_rd_en = 1;
+          else           r_fifo1_rd_en = 1;
+        end
+        default: begin end
+      endcase
     end
-
-    always_comb begin
-        next_state = state;
-        case (state)
-          IDLE: if (start_txn) next_state = HEADER;
-          HEADER: if (fdi_tx_ready) next_state = IDLE;
-          //aravind: added default state
-          default: next_state = state;
-        endcase
-    end
-
-    
+  end
+   
     // CREDIT DECREMENT
-    
-    always_comb begin
-        tx_credit_decr_flag = 0;
-        tx_credit_vcn       = 3'b0;
+   
+   assign tx_credit_decr_flag = (state == S_HEADER) && fdi_tx_ready && !lat_cr_opcode;
+  assign tx_credit_vcn       = lat_vcn;
+ 
+  // credit return done
+  assign credit_rtn_done = (state == S_HEADER) && fdi_tx_ready && lat_cr_opcode;
 
-        if (state == HEADER && !credit_rtn_opcode_en) begin
-            tx_credit_decr_flag = 1;
-            tx_credit_vcn       = vcn_sel;
-        end
-    end
 
-    // CREDIT DONE
-    
-    assign credit_rtn_done = (state == HEADER && fdi_tx_ready && credit_rtn_opcode_en);
 
-    
+
     // OUTPUT LOGIC
-    
+   
     always_comb begin
         flit_tx_data  = '0;
         flit_tx_valid = 0;
         fdi_tx_sop    = 0;
         fdi_tx_eop    = 0;
 
-        if (state == HEADER) begin
+
+        if (state == S_HEADER) begin
             flit_tx_valid = 1;
             fdi_tx_sop    = 1;
-            fdi_tx_eop    = 1;
+            fdi_tx_eop    = lat_w [0] | lat_r [0] ;
+
 
             // COMMON HEADER
             flit_tx_data[2:0]  = 3'b110;
-            flit_tx_data[5:3]  = vcn_sel;
+            flit_tx_data[5:3]  = lat_vcn;
             flit_tx_data[6]    = 1;
-            flit_tx_data[7]    = 1;
+            flit_tx_data[7]    = lat_w [0] | lat_r [0] ;
            //concated to match the size
-            flit_tx_data[11:8] = (credit_rtn_opcode_en) ? {1'b0,CREDIT_RTN} : {1'b0,txn_type};
-            flit_tx_data[12]   = port_id_i;
+            flit_tx_data[11:8] = (lat_cr_opcode) ? {1'b0,CREDIT_RTN} : {1'b0,lat_type};
+            flit_tx_data[12]   = lat_port;
 
-            // CREDIT FIELDS 
-            if (credit_rtn_opcode_en || credit_rtn_piggy_en) begin
-                flit_tx_data[37:36] = rx_credit_rtn_vcn;
-                flit_tx_data[43:38] = rx_credit_rtn_cnt;
+
+            // CREDIT FIELDS
+            if (lat_cr_opcode || lat_cr_piggy) begin
+                flit_tx_data[37:36] = lat_cr_vcn;
+                flit_tx_data[43:38] = lat_cr_cnt;
             end
+
 
             // NO WSTRB
             flit_tx_data[44] = 0;
-            flit_tx_data[255:128] = 0;
+           
 
-            if (!credit_rtn_opcode_en) begin
-                case (txn_type)
+
+            if (!lat_cr_opcode) begin
+                case (lat_type)
+
 
                     WRITE_REQ: begin
-                        flit_tx_data[20:13] = aw_data[7:0];
-                        flit_tx_data[28:21] = aw_data[15:8];
-                        flit_tx_data[30:29] = aw_data[17:16];
-                        flit_tx_data[33:31] = aw_data[20:18];
-                        flit_tx_data[84:45] = aw_data[60:21];
-                       //width mismatch: aravind
-                        flit_tx_data[1983:256] = {w_data[1023:0], 704'b0}; //aravind
+                        flit_tx_data[20:13] = lat_aw[7:0];
+                        flit_tx_data[28:21] = lat_aw[15:8];
+                        flit_tx_data[30:29] = lat_aw[17:16];
+                        flit_tx_data[33:31] = lat_aw[20:18];
+                        flit_tx_data[84:45] = lat_aw[60:21];
+                        flit_tx_data[255:128] = lat_w[128:1];
+                       //width mismatch: 
+                        flit_tx_data[1983:256] = {lat_w[1152:129], 704'b0}; 
                     end
+
 
                     READ_REQ: begin
-                        flit_tx_data[20:13] = ar_data[7:0];
-                        flit_tx_data[28:21] = ar_data[15:8];
-                        flit_tx_data[30:29] = ar_data[17:16];
-                        flit_tx_data[33:31] = ar_data[20:18];
-                        flit_tx_data[84:45] = ar_data[60:21];
+                        flit_tx_data[20:13] = lat_ar[7:0];
+                        flit_tx_data[28:21] = lat_ar[15:8];
+                        flit_tx_data[30:29] = lat_ar[17:16];
+                        flit_tx_data[33:31] = lat_ar[20:18];
+                        flit_tx_data[84:45] = lat_ar[60:21];
                     end
+
 
                     WRITE_RESP: begin
-                        flit_tx_data[20:13] = b_data[7:0];
-                        flit_tx_data[35:34] = b_data[9:8];
+                        flit_tx_data[20:13] = lat_b[7:0];
+                        flit_tx_data[35:34] = lat_b[9:8];
                     end
 
+
                     READ_RESP: begin
-                        flit_tx_data[20:13] = r_data[7:0];
-                        flit_tx_data[35:34] = r_data[9:8];
-                       //width mismatch: aravind
-                        flit_tx_data[1983:256] = {r_data[1023:0], 704'b0};//aravind
+                        flit_tx_data[20:13] = lat_r[10:3];
+                        flit_tx_data[35:34] = lat_r[2:1];
+                       //width mismatch: 
+                        flit_tx_data[1983:256] = {lat_r[1034:11], 704'b0};
                     end
-                  //added default statement :aravind
+                  //added default statement 
                   default: begin
                      flit_tx_data[20:13] = '0;
                         flit_tx_data[35:34] = '0;
@@ -256,5 +387,17 @@ module axfdi_packetizer  #(
         end
     end
 
+
+  assign tx_txn_id    = lat_ar[7:0];
+  assign tx_port_id   = lat_port;
+  assign tx_vcn       = (lat_vcn == 3'b00) ? 0 : 1  ;
+  assign tx_txn_valid = (state == S_HEADER) && fdi_tx_ready && (lat_type == READ_REQ) && !lat_cr_opcode;
+
+
 endmodule
+
+
+
+
+
 
