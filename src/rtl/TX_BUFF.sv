@@ -1,5 +1,7 @@
-/*  Module Name : TX_BUFF
-    Clock Domain : AXI 500Mhz
+/* Module Name: TX_BUFF
+   Clock Domain : AXI 625Mhz
+   Engineer  : Vishwa Patwrai
+   Company : Sevya Multimedia Technologies Pvt. Ltd.
 */
 module TX_BUFF #(parameter DEPTH=8, DATA_WIDTH=8) (
   input logic clk, rst_n,
