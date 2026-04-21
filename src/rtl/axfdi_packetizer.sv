@@ -93,7 +93,11 @@ module axfdi_packetizer  #(
     output logic                      flit_tx_valid,
     output logic                      fdi_tx_sop,
     output logic                      fdi_tx_eop,
-    input logic                       fdi_tx_ready
+    input logic                       fdi_tx_ready,
+    
+    
+    //----------- eop ----------------
+    output logic                     s_fdi_pktr_eop
 );
 
 
@@ -317,14 +321,14 @@ module axfdi_packetizer  #(
         if (state == S_HEADER) begin
             flit_tx_valid = 1;
             fdi_tx_sop    = 1;
-            fdi_tx_eop    = lat_w [0] | lat_r [0] ;
+            fdi_tx_eop    = 1 ;
 
 
             // COMMON HEADER
             flit_tx_data[2:0]  = 3'b110;
             flit_tx_data[5:3]  = lat_vcn;
             flit_tx_data[6]    = 1;
-            flit_tx_data[7]    = lat_w [0] | lat_r [0] ;
+            flit_tx_data[7]    = 1 ;
            //concated to match the size
             flit_tx_data[11:8] = (lat_cr_opcode) ? {1'b0,CREDIT_RTN} : {1'b0,lat_type};
             flit_tx_data[12]   = lat_port;
@@ -339,6 +343,7 @@ module axfdi_packetizer  #(
 
             // NO WSTRB
             flit_tx_data[44] = 0;
+            flit_tx_data[255:128] = '0;
            
 
 
@@ -352,7 +357,7 @@ module axfdi_packetizer  #(
                         flit_tx_data[30:29] = lat_aw[17:16];
                         flit_tx_data[33:31] = lat_aw[20:18];
                         flit_tx_data[84:45] = lat_aw[60:21];
-                        flit_tx_data[255:128] = lat_w[128:1];
+                       
                        //width mismatch: 
                         flit_tx_data[1983:256] = {lat_w[1152:129], 704'b0}; 
                     end
@@ -395,7 +400,7 @@ module axfdi_packetizer  #(
   assign tx_port_id   = lat_port;
   assign tx_vcn       = (lat_vcn == 3'b00) ? 0 : 1  ;
   assign tx_txn_valid = (state == S_HEADER) && fdi_tx_ready && (lat_type == READ_REQ) && !lat_cr_opcode;
-
+  assign s_fdi_pktr_eop = flit_tx_valid && fdi_tx_ready && fdi_tx_eop;
 
 endmodule
 
