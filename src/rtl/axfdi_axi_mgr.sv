@@ -225,7 +225,7 @@ module axfdi_axi_mgr #(
   assign aw_buf_din = AW_hold_data;
 
 
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk, negedge por_n) begin
     if (!por_n) begin
       AW_cdc_rd_en      <= 1'b0;
       aw_buf_wen        <= 1'b0;
@@ -315,7 +315,7 @@ module axfdi_axi_mgr #(
   assign w_buf_din = W_hold_data;
 
 
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk, negedge por_n) begin
     if (!por_n) begin
       W_cdc_rd_en      <= 1'b0;
       w_buf_wen        <= 1'b0;
@@ -419,7 +419,7 @@ module axfdi_axi_mgr #(
   );
 
 
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk , negedge por_n) begin
     if (!por_n) begin
     R_cdc_wr_en_r <= 1'b0;
     R_cdc_data_r  <= '0;

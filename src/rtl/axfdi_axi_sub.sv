@@ -211,7 +211,7 @@ module axfdi_axi_sub #(
     .full(ar_buf_full), .empty(ar_buf_empty)
   );
 
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk , negedge por_n) begin
     if (!por_n) begin
       AR_cdc_wr_en_r <= 1'b0;
       AR_cdc_data_r  <= '0;
@@ -243,7 +243,7 @@ module axfdi_axi_sub #(
   assign AR_cdc_data  = AR_cdc_data_r;
 
   // B Channel
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk , negedge por_n) begin
     if (!por_n) begin
       B_cdc_rd_en    <= 1'b0;
       bvalid         <= 1'b0;
@@ -293,7 +293,7 @@ module axfdi_axi_sub #(
   // R channel
   assign r_buf_din = R_din_hold;
 
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk, negedge por_n) begin
     if (!por_n) begin
       R_cdc_rd_en    <= 1'b0;
       r_buf_wen      <= 1'b0;
