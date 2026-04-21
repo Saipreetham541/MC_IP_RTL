@@ -1,7 +1,0 @@
-1 12 axfdi_fdi_if 4 fast 42 /home/aravindps/sevya_proj/Busbridges/work 0 0 0 0 396 0
-1 17 axfdi_port_router 4 fast 42 /home/aravindps/sevya_proj/Busbridges/work 0 0 131072 0 668 0
-1 24 axfdi_completion_tracker 4 fast 42 /home/aravindps/sevya_proj/Busbridges/work 0 0 131072 0 369 0
-1 16 axfdi_credit_mgr 4 fast 42 /home/aravindps/sevya_proj/Busbridges/work 0 0 0 0 442 0
-1 18 axfdi_depacketizer 4 fast 42 /home/aravindps/sevya_proj/Busbridges/work 0 0 131072 0 574 0
-1 6 top_rx 4 fast 42 /home/aravindps/sevya_proj/Busbridges/work 0 0 524288 0 2959 0
-1 9 top_rx_tb 4 fast 42 /home/aravindps/sevya_proj/Busbridges/work 0 0 655360 0 3952 0
