@@ -1,0 +1,240 @@
+//fdi_driver
+
+ class fdi_driver extends uvm_driver;
+`uvm_component_utils(fdi_driver)
+
+virtual fdi_interface.FDI_DRV_MP vif;
+virtual reset_interface rst_intf;
+
+fdi_credit_manager credit_mgr;
+
+fdi_agt_config fdi_cfg;
+function new(string name="fdi_driver",uvm_component parent);
+super.new(name,parent);
+endfunction
+
+function void build_phase(uvm_phase phase);
+if(!uvm_config_db#(fdi_agt_config)::get(this,"","fdi_agt_config",fdi_cfg))
+`uvm_fatal("FATAL","FROM FDI_DRIVER CLASS")
+if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))
+`uvm_fatal("FATAL","FROM RESET INTERFACE")
+
+if(!uvm_config_db#(fdi_credit_manager) :: get(this, "", "credit_mgr",credit_mgr));
+`uvm_fatal("fdi_driver", "credit get is failed");
+
+endfunction
+
+function void connect_phase(uvm_phase phase);
+vif= fdi_cfg.fdi_intf;
+endfunction
+
+
+task run_phase(uvm_phase phase);
+
+	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
+	if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
+	@(vif.fdi_drv_cb);
+	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b010;
+	else
+	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
+	end
+
+  forever begin
+
+    seq_item_port.get_next_item(txn);
+	//apply_backpressure(txn.backpressure_cycles);
+	wait(credit_mgr.has_credit(txn.vcn));
+    drive_packet(txn);
+	credit_mgr.consume_credit(txn.vcn);
+    seq_item_port.item_done();
+
+  end
+
+endtask
+
+
+
+// OPCODE DECODING
+
+task drive_packet(fdi_xtn txn);
+
+  case(txn.opcode)
+    4'h1: drive_write_req(txn);
+    4'h2: drive_read_req(txn);
+    4'h3: drive_write_resp(txn);
+    4'h4: drive_read_resp(txn);
+    4'h5: drive_credit_return(txn);
+  endcase
+
+endtask
+
+
+// HEADER FORMATION
+
+
+function bit [2047:0] build_header(fdi_xtn txn);
+
+  bit [2047:0] flit;
+
+  flit = '0;
+
+  flit[2:0]    =txn.vcn;
+  flit[6:3]    =txn.opcode;
+  flit[7]      =txn.port_id;
+  flit[15:8]   =txn.txn_id;
+  flit[23:16]  =txn.burst_len;
+  flit[25:24]  =txn.burst_type;
+  flit[28:26]  =txn.burst_size;
+  flit[68:29]  =txn.addr;
+
+  return flit;
+
+endfunction
+
+
+// SENDING FLIT
+
+task send_flit(bit [2047:0] flit,bit sop,bit eop);
+
+  @(vif.fdi_drv_cb);
+
+  vif.fdi_drv_cb.fdi_pl_data<=flit;
+  vif.fdi_drv_cb.fdi_pl_valid<=1;
+  vif.fdi_drv_cb.fdi_pl_irdy<=1;
+  vif.fdi_drv_cb.fdi_pl_startofpkt<=sop;
+  vif.fdi_drv_cb.fdi_pl_endofpkt<=eop;
+	vif.fdi_drv_cb.fdi_pl_trdy<=txn.trdy;
+  wait(vif.fdi_drv_cb.fdi_lp_trdy);
+  @(vif.fdi_drv_cb);
+  vif.fdi_drv_cb.fdi_pl_valid<=0;
+
+endtask
+
+
+// WRITE REQUEST
+
+task drive_write_req(fdi_xtn txn);
+
+  bit [2047:0] header_flit;
+
+  int idx;
+
+  header_flit=build_header(txn);
+	idx=0;
+  
+bit wstrb_present=0;
+
+foreach(txn.wstrb[i]) begin
+  if(txn.wstrb[i] != '1) begin
+    wstrb_present = 1;
+  end
+end
+
+  if(wstrb_present==1)
+    header_flit[255:128]=txn.wstrb[0];
+  else 
+	header_flit[255:128]=0;
+
+  for(int i=0;i<216;i++) begin
+
+    if(idx < txn.data.size())
+      header_flit[(256+i*8)+:8]=txn.data[idx++];
+    else
+      header_flit[(256+i*8)+:8]=0;
+
+  end
+  header_flit[2047:1984]=64'h0;                                    
+  send_flit(header_flit,1,(idx >= txn.data.size()));
+  send_remaining_payload(txn, idx);
+
+endtask
+
+
+// READ REQUEST
+
+task drive_read_req(fdi_xtn txn);
+
+  bit [2047:0] header_flit;
+
+  header_flit = build_header(txn);
+  header_flit[2047:1984]=64'h0;
+  send_flit(header_flit,1,1);
+
+endtask
+
+
+// WRITE RESPONSE 
+
+task drive_write_resp(fdi_xtn txn);
+
+  bit [2047:0] header_flit;
+
+  header_flit=build_header(txn);
+
+  header_flit[31:30]=txn.resp;
+
+  header_flit[2047:1984]=64'h0;
+
+  send_flit(header_flit,1,1);
+
+endtask
+
+// READ RESPONSE 
+
+task drive_read_resp(fdi_xtn txn);
+
+  bit [2047:0] header_flit;
+
+  int idx;
+
+  header_flit = build_header(txn);
+
+  idx = 0;
+
+  for(int i=0;i<216;i++) begin
+
+    if(idx < txn.data.size())
+      header_flit[(256+i*8)+:8] = txn.data[];
+    else
+      header_flit[(256+i*8)+:8] = 0;
+	idx++;
+  end
+
+  header_flit[2047:1984] = 64'h0;
+
+  send_flit(header_flit,1,(idx >= txn.data.size()));
+
+
+endtask
+
+//CREDIT RETURN
+
+task drive_credit_return(fdi_xtn txn);
+
+  bit [2047:0] header_flit;
+
+  header_flit = '0;
+
+  header_flit[5:0] = txn.credit_rtn_cnt;
+  header_flit[7:6] = txn.credit_rtn_vcn;
+
+  header_flit[2047:1984]=64'h0;
+  send_flit(header_flit,1,1);
+
+endtask
+
+
+task apply_backpressure(int cycles);
+
+  vif.fdi_drv_cb.fdi_pl_trdy<=0;
+
+  repeat(cycles)
+    @(vif.fdi_drv_cb);
+
+  vif.fdi_drv_cb.fdi_pl_trdy<=1;
+
+endtask
+
+endclass
+
+
