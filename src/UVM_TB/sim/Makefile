@@ -37,8 +37,8 @@ clean:
 
 uvm_vivado:
 	@mkdir -p $(WORK_DIR) $(LOG_DIR)
-	#@echo "=== Compiling RTL ==="
-	#cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(RTL_FILES)
+	@echo "=== Compiling RTL ==="
+	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(RTL_FILES)
 	@echo "=== Compiling INTERFACE ==="
 	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(INTERFACE_FILES)
 	@echo "=== Compiling UVM package (includes agents/env/test) ==="
@@ -48,7 +48,10 @@ uvm_vivado:
 	@echo "=== Elaborating with xelab ==="
 	cd $(WORK_DIR) && $(XELAB) $(UVM_XELAB_FLAGS) -top $(TOP) -snapshot axfdi_uvm_sim
 	@echo "=== Running UVM test: $(UVM_TEST) ==="
-	cd $(WORK_DIR) && $(XSIM) axfdi_uvm_sim --runall +UVM_TESTNAME=$(UVM_TEST) +UVM_VERBOSITY=UVM_MEDIUM --log vivado_sim.log
+	cd $(WORK_DIR) && $(XSIM) axfdi_uvm_sim --runall
+	+UVM_TESTNAME=$(UVM_TEST) /
+	+UVM_VERBOSITY=UVM_MEDIUM /
+	--log vivado_sim.log
 		
 # Vivado GUI
 vivado_gui: 
