@@ -9,6 +9,7 @@ module axfdi_tx_arb
 (
     input logic    fdi_clk,
     input logic    fdi_rst_n,
+    input logic    por_n,
      
     //signals from the port merge
     input logic    port_id_i,
