@@ -97,7 +97,7 @@ endtask
 endclass
 
 
-class test_case1 extends axfdi_test;
+/*class test_case1 extends axfdi_test;
 	`uvm_component_utils(test_case1)
 	
 	virtual_seqs vseqh;
@@ -119,6 +119,6 @@ task run_phase(uvm_phase phase);
 	vseqh.start(vseqrh);
 	phase.drop_objection(this);
 endtask
-endclass
+endclass*/
 
 	

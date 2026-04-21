@@ -2,15 +2,21 @@
 XVLOG := /cygdrive/E/2025.2/Vivado/bin/xvlog
 XELAB := /cygdrive/E/2025.2/Vivado/bin/xelab
 XSIM  := /cygdrive/E/2025.2/Vivado/bin/xsim
+# Vivado tools
+#XVLOG := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xvlog
+#XELAB := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xelab
+#XSIM  := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xsim
 
 # Base directories
-RTL_DIR    := D:/axfdi_bridge_verification/rtl
-TB_DIR     := D:/axfdi_bridge_verification/tb
-TEST_DIR   := D:/axfdi_bridge_verification/test
+INTERFACE_DIR := D:/Busbridges/src/UVM_TB/interfaces
+RTL_DIR    :=D:/Busbridges/src/rtl
+TB_DIR     := D:/Busbridges/src/UVM_TB/tb
+TEST_DIR   := D:/Busbridges/src/UVM_TB/test
 WORK_DIR   := work
 LOG_DIR    := logs
 
 # Files
+INTERFACE_FILES := $(wildcard $(INTERFACE_DIR)/*.sv)
 RTL_FILES := $(wildcard $(RTL_DIR)/*.sv)
 PKG_FILE  := $(TEST_DIR)/axfdi_pkg.sv
 TOP_FILE  := $(TB_DIR)/axfdi_top.sv
@@ -33,6 +39,8 @@ uvm_vivado:
 	@mkdir -p $(WORK_DIR) $(LOG_DIR)
 	@echo "=== Compiling RTL ==="
 	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(RTL_FILES)
+	@echo "=== Compiling INTERFACE ==="
+	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(INTERFACE_FILES)
 	@echo "=== Compiling UVM package (includes agents/env/test) ==="
 	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(PKG_FILE)
 	@echo "=== Compiling Top TB ==="

@@ -46,9 +46,9 @@ class axi4_seq_item extends uvm_sequence_item;
 		size         = rhs_.size;
 		burst        = rhs_.burst;
 		resp         = rhs_.resp;
-		qos          = rhs_.qos;
+	//	qos          = rhs_.qos;
 		axn_type     = rhs_.axn_type;
-		delay_cycles = rhs_.delay_cycles;
+	//	delay_cycles = rhs_.delay_cycles;
 
 		data = new[rhs_.data.size()];
 		foreach(data[i])

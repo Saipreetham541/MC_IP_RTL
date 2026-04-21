@@ -20,6 +20,7 @@ import uvm_pkg::*;
 `include "../apb_agent/apb_agent.sv"
 
 `include "../fdi_agent/fdi_pkt_item.sv"
+`include "../fdi_agent/credit_model.sv"
 `include "../fdi_agent/fdi_seqs.sv"
 `include "../fdi_agent/fdi_driver.sv"
 `include "../fdi_agent/fdi_monitor.sv"
@@ -28,6 +29,7 @@ import uvm_pkg::*;
 
 `include "../axi_agent/axi4_seq_item.sv"
 //`include "mgr_seqs.sv"
+
 `include "../axi_agent/mgr_driver.sv"
 `include "../axi_agent/mgr_monitor.sv"
 `include "../axi_agent/mgr_seqr.sv"
@@ -37,12 +39,14 @@ import uvm_pkg::*;
 `include "../axi_agent/axi_agent.sv"
 
 
+`include "axfdi_predictor.sv"
+`include "axfdi_comparator.sv"
 `include "axfdi_scoreboard.sv"
 
 `include "../tb/virtual_seqr.sv"
 `include "../tb/axfdi_env.sv"
-`include "../sequences/write_sub_seqs.sv"
-`include "../sequences/mgr_seqs.sv"
+//`include "../sequences/write_sub_seqs.sv"
+//`include "../sequences/mgr_seqs.sv"
 `include "../sequences/virtual_seqs.sv"
 
 
