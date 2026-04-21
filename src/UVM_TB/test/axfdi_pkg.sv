@@ -47,7 +47,7 @@ import uvm_pkg::*;
 `include "../tb/axfdi_env.sv"
 //`include "../sequences/write_sub_seqs.sv"
 //`include "../sequences/mgr_seqs.sv"
-`include "../sequences/virtual_seqs.sv"
+//          `include "../sequences/virtual_seqs.sv"
 
 
 `include "axfdi_test.sv"

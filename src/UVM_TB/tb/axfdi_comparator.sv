@@ -30,7 +30,7 @@ class axfdi_comparator extends uvm_component;
   fdi_pkt_item  exp_fdi_tx_db [string][$];
 
 
-  typedef enum logic [3:0] {
+  typedef enum bit [3:0] {
         WRITE_REQ   = 4'h0,
         READ_REQ    = 4'h1,
         WRITE_RESP  = 4'h2,
@@ -40,9 +40,9 @@ class axfdi_comparator extends uvm_component;
         RESERVED    = 4'h6
   } opcode_e;
 
-  typedef enum logic {
-        WRITE = 1'b0;
-        READ = 1'b1;
+  typedef enum bit {
+        WRITE = 1'b0 ,
+        READ = 1'b1 
   } txn_type ;
 
   int total_cnt, pass_cnt, fail_cnt;
