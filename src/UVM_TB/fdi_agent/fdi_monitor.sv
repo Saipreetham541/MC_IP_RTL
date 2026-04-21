@@ -42,11 +42,11 @@ endfunction
   task monitor_pl_to_lp();
 
     bit [2047:0] flit;
-    fdi_xtn txn;
+    fdi_pkt_item txn;
 
     forever begin
 
-     txn = fdi_xtn::type_id::create("txn_pl2lp");
+     txn = fdi_pkt_item::type_id::create("txn_pl2lp");
       
       do begin
         @(vif.fdi_mon_cb);
@@ -78,11 +78,11 @@ endfunction
   task monitor_lp_to_pl();
 
     bit [2047:0] flit;
-    fdi_xtn txn;
+    fdi_pkt_item txn;
 
     forever begin
 
-      txn = fdi_xtn::type_id::create("txn_lp2pl");
+      txn = fdi_pkt_item::type_id::create("txn_lp2pl");
 
       do begin
         @(vif.fdi_mon_cb);
@@ -115,7 +115,7 @@ endfunction
 
   //HEADEr
 
-  function void decode_header(bit [2047:0] flit, ref fdi_xtn txn);
+  function void decode_header(bit [2047:0] flit, ref fdi_pkt_item txn);
 
     txn.vcn = flit[2:0];
     txn.opcode = flit[6:3];
@@ -133,7 +133,7 @@ endfunction
 
   //PAYLOAD
   
-  function void collect_payload(bit [2047:0] flit,ref fdi_xtn txn);
+  function void collect_payload(bit [2047:0] flit,ref fdi_pkt_item txn);
 
     for(int i=0;i<248;i++) begin
       txn.data[]=(flit[i*8 +: 8]);

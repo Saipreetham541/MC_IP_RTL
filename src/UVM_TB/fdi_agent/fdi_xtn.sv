@@ -1,6 +1,6 @@
-class fdi_xtn extends uvm_sequence_item;
+class fdi_pkt_item extends uvm_sequence_item;
 
-    `uvm_object_utils(fdi_xtn)
+    `uvm_object_utils(fdi_pkt_item)
     
     rand bit trdy
     rand bit [2:0] vcn;
@@ -18,7 +18,7 @@ class fdi_xtn extends uvm_sequence_item;
     rand bit [5:0] credit_rtn_cnt;
     rand bit [1:0] credit_rtn_vcn;
  
-    function new(string name="fdi_xtn");
+    function new(string name="fdi_pkt_item");
     super.new(name);
     endfunction
 

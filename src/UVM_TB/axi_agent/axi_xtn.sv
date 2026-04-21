@@ -3,9 +3,9 @@ typedef enum bit {
   WRITE = 1
 } axn_type_e;
 
-class axi_xtn extends uvm_sequence_item;
+class axi4_seq_item extends uvm_sequence_item;
 
-  `uvm_object_utils(axi_xtn);
+  `uvm_object_utils(axi4_seq_item);
   typedef enum{read, write}axn_type_e;   
   rand bit [39:0] addr;
   rand bit [7:0] id;
@@ -21,7 +21,7 @@ class axi_xtn extends uvm_sequence_item;
  //rand bit [31:0] delay_cycles; // inter-transaction delay
  
  
- 	function new(string name = "axi_xtn");
+ 	function new(string name = "axi4_seq_item");
 		super.new(name);
 	endfunction
 	

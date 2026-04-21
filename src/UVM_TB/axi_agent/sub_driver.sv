@@ -1,7 +1,7 @@
 //sub_driver
- class sub_driver extends uvm_driver#(axi_xtn);
+ class sub_driver extends uvm_driver#(axi4_seq_item);
 `uvm_component_utils(sub_driver)
-axi_xtn txn;
+axi4_seq_item txn;
 /*logic awvalid,awaready;
 logic arvalid, arready;
 logic wvalid, rvalid;*/
@@ -19,7 +19,7 @@ if(!uvm_config_db#(axi_agt_config)::get(this,"","axi_agt_config",agt_cfg))
 `uvm_fatal("FATAL","FROM SUB_DRIVER CLASS")
 if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))
 `uvm_fatal("FATAL","FROM RESET INTERFACE")
-txn=axi_xtn::type_id::create("txn");
+txn=axi4_seq_item::type_id::create("txn");
 endfunction
 
 function void connect_phase(uvm_phase phase);
@@ -42,14 +42,14 @@ task run_phase(uvm_phase phase);
 		end 
 	endtask
 	
-	task drive_write(axi_xtn txn);
+	task drive_write(axi4_seq_item txn);
 		fork
 			drive_aw(txn);
 			drive_w(txn);
 		join
 	endtask
 	
-	task drive_aw(axi_xtn txn);
+	task drive_aw(axi4_seq_item txn);
 		@(vif.sub_drv_cb)
 		
 		vif.sub_drv_cb.awvalid<=1;
@@ -66,7 +66,7 @@ task run_phase(uvm_phase phase);
 		txn.display();
 	endtask
 	
-	task drive_w(axi_xtn txn);
+	task drive_w(axi4_seq_item txn);
 		for(int i=0; i<=txn.len; i++)
 			begin
 				@(vif.sub_drv_cb);
@@ -89,7 +89,7 @@ task run_phase(uvm_phase phase);
 	endtask
 			
 			
-	task drive_read(axi_xtn txn);
+	task drive_read(axi4_seq_item txn);
 		@( vif.sub_drv_cb)
 		
 			vif.sub_drv_cb.arvalid<=1;

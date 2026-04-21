@@ -19,14 +19,14 @@ import uvm_pkg::*;
 `include "../apb_agent/apb_seqr.sv"
 `include "../apb_agent/apb_agent.sv"
 
-`include "../fdi_agent/fdi_xtn.sv"
+`include "../fdi_agent/fdi_pkt_item.sv"
 `include "../fdi_agent/fdi_seqs.sv"
 `include "../fdi_agent/fdi_driver.sv"
 `include "../fdi_agent/fdi_monitor.sv"
 `include "../fdi_agent/fdi_seqr.sv"
 `include "../fdi_agent/fdi_agent.sv"
 
-`include "../axi_agent/axi_xtn.sv"
+`include "../axi_agent/axi4_seq_item.sv"
 //`include "mgr_seqs.sv"
 `include "../axi_agent/mgr_driver.sv"
 `include "../axi_agent/mgr_monitor.sv"

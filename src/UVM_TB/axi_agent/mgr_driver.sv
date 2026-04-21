@@ -1,7 +1,7 @@
 //mgr_driver
-class mgr_driver extends uvm_driver#(axi_xtn);
+class mgr_driver extends uvm_driver#(axi4_seq_item);
 `uvm_component_utils(mgr_driver)
-axi_xtn txn;
+axi4_seq_item txn;
 virtual mgr_interface.MGR_DRV_MP vif;
 virtual reset_interface rst_intf;
 
@@ -28,7 +28,7 @@ endfunction
 	join
 	endtask 
 	
-	task drive_b(axi_xtn txn);
+	task drive_b(axi4_seq_item txn);
 		@( vif.mgr_drv_cb)
 		vif.mgr_drv_cb.bvalid<=0;
 		vif.mgr_drv_cb.bid<=txn.id;
@@ -38,7 +38,7 @@ endfunction
 		vif.mgr_drv_cb.bvalid<=1;
 	endtask
 	
-	task drive_r(axi_xtn txn);
+	task drive_r(axi4_seq_item txn);
 		@(vif.mgr_drv_cb)
 		vif.mgr_drv_cb.rvalid<=0;
 		

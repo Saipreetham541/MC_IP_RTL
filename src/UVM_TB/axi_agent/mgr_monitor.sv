@@ -6,9 +6,9 @@ class mgr_monitor extends uvm_monitor;
  virtual mgr_interface.MGR_MON_MP vif;
  
  virtual reset_interface rst_intf;
- axi_xtn txnh;
- 		uvm_analysis_port#(axi_xtn) req1;
-		uvm_analysis_port#(axi_xtn) res1;
+ axi4_seq_item txnh;
+ 		uvm_analysis_port#(axi4_seq_item) req1;
+		uvm_analysis_port#(axi4_seq_item) res1;
 		
  
  function new(string name="mgr_monitor",uvm_component parent);
@@ -29,7 +29,7 @@ vif=agt_cfg.mgr_intf;
 endfunction
 
 task run_phase(uvm_phase phase);
-		txnh = axi_xtn::type_id::create("txnh");
+		txnh = axi4_seq_item::type_id::create("txnh");
 
 		 fork
 			monitor_b(txnh);
@@ -40,13 +40,13 @@ task run_phase(uvm_phase phase);
 		join
 		endtask
 		
-		task monitor_r(axi_xtn txnh);
-		//axi_xtn txn;
+		task monitor_r(axi4_seq_item txnh);
+		//axi4_seq_item txn;
 		forever begin
 		@(vif.mgr_mon_cb)
 		if(vif.mgr_mon_cb.rvalid && vif.mgr_mon_cb.rready) begin
 
-        //txnh = axi_xtn::type_id::create("txnh");
+        //txnh = axi4_seq_item::type_id::create("txnh");
 		txnh.id=vif.mgr_mon_cb.rid;
 		foreach(txnh.data[i]) begin
 		txnh.data[i]=vif.mgr_mon_cb.rdata;
@@ -61,12 +61,12 @@ task run_phase(uvm_phase phase);
 		end
 		endtask
 		
-		task monitor_b(axi_xtn txnh);
-		//axi_xtn txnh;
+		task monitor_b(axi4_seq_item txnh);
+		//axi4_seq_item txnh;
 		forever begin
 		@(vif.mgr_mon_cb)
 		if(vif.mgr_mon_cb.bvalid && vif.mgr_mon_cb.bready) begin
-			//txnh = axi_xtn::type_id::create("txnh");
+			//txnh = axi4_seq_item::type_id::create("txnh");
 			 txnh.id    = vif.mgr_mon_cb.bid;
 			txnh.resp = vif.mgr_mon_cb.bresp;
 			//txnh.ready=vif.mgr_mon_cb.awready;
@@ -77,12 +77,12 @@ task run_phase(uvm_phase phase);
 		endtask
 		
 		
-		task monitor_aw(axi_xtn txnh);
-		//axi_xtn txnh;
+		task monitor_aw(axi4_seq_item txnh);
+		//axi4_seq_item txnh;
 		forever begin
 		@( vif.mgr_mon_cb)
 		if(vif.mgr_mon_cb.awvalid && vif.mgr_mon_cb.awready) begin
-		//txnh = axi_xtn::type_id::create("txnh");
+		//txnh = axi4_seq_item::type_id::create("txnh");
 		
 		txnh.addr  = vif.mgr_mon_cb.awaddr;
         txnh.id    = vif.mgr_mon_cb.awid;
@@ -97,7 +97,7 @@ task run_phase(uvm_phase phase);
 		end
 		endtask
 		int i=0;
-		task monitor_w(axi_xtn txnh);
+		task monitor_w(axi4_seq_item txnh);
 		int beat_count1;
 		beat_count1=vif.mgr_mon_cb.awlen+1;//6
 		while( i<=vif.mgr_mon_cb.awlen)//0=6
@@ -116,11 +116,11 @@ task run_phase(uvm_phase phase);
 		end
 		endtask
 		
-		task monitor_ar(axi_xtn txnh);
+		task monitor_ar(axi4_seq_item txnh);
 		forever begin
 		@(vif.mgr_mon_cb)
 		if(vif.mgr_mon_cb.arvalid && vif.mgr_mon_cb.arready) begin
-		txnh = axi_xtn::type_id::create("txnh");
+		txnh = axi4_seq_item::type_id::create("txnh");
 		txnh.addr=vif.mgr_mon_cb.araddr;
 		txnh.id=vif.mgr_mon_cb.arid;
 		txnh.len=vif.mgr_mon_cb.arlen;

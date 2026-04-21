@@ -2,9 +2,9 @@
 class sub_monitor extends uvm_monitor;
  `uvm_component_utils(sub_monitor)
  
- 	axi_xtn txnh;
-		uvm_analysis_port#(axi_xtn) req;
-		uvm_analysis_port#(axi_xtn) res;
+ 	axi4_seq_item txnh;
+		uvm_analysis_port#(axi4_seq_item) req;
+		uvm_analysis_port#(axi4_seq_item) res;
 		
  virtual sub_interface.SUB_MON_MP vif;
  virtual reset_interface rst_intf;
@@ -51,12 +51,12 @@ task run_phase(uvm_phase phase);
 		endtask
 		
 		task monitor_aw();
-			//axi_xtn txnh;
+			//axi4_seq_item txnh;
 		forever begin
 			@(vif.sub_mon_cb);
 			if(vif.sub_mon_cb.awvalid && vif.sub_mon_cb.awready)
 				begin
-					txnh=axi_xtn::type_id::create("txnh");
+					txnh=axi4_seq_item::type_id::create("txnh");
 					txnh.addr=vif.sub_mon_cb.awaddr;
 					txnh.id=vif.sub_mon_cb.awid;
 					txnh.len=vif.sub_mon_cb.awlen;
@@ -75,7 +75,7 @@ task run_phase(uvm_phase phase);
 				repeat(beat_count)
 			if(vif.sub_mon_cb.awvalid && vif.sub_mon_cb.awready)
 					begin
-					txnh=axi_xtn::type_id::create("txnh");
+					txnh=axi4_seq_item::type_id::create("txnh");
 					@(vif.sub_mon_cb);
 					if(vif.sub_mon_cb.wvalid && vif.sub_mon_cb.wready) begin
 				//	txnh.data.push_back(vif.sub_mon_cb.wdata);
@@ -90,7 +90,7 @@ task run_phase(uvm_phase phase);
 		
 		task monitor_ar();
 			forever begin
-				txnh=axi_xtn::type_id::create("txnh");
+				txnh=axi4_seq_item::type_id::create("txnh");
 					@(posedge vif.sub_mon_cb);
 					if(vif.sub_mon_cb.arvalid && vif.sub_mon_cb.arready)
 						begin
@@ -109,7 +109,7 @@ task run_phase(uvm_phase phase);
 			@(vif.sub_mon_cb);
 			if(vif.sub_mon_cb.bvalid && vif.sub_mon_cb.bready)
 				begin
-					txnh=axi_xtn::type_id::create("txnh");
+					txnh=axi4_seq_item::type_id::create("txnh");
 					txnh.id=vif.sub_mon_cb.bid;
 					txnh.resp=vif.sub_mon_cb.bresp;
 				
@@ -124,7 +124,7 @@ task run_phase(uvm_phase phase);
 		@(vif.sub_mon_cb);
 		if(vif.sub_mon_cb.rvalid && vif.sub_mon_cb.rready)
 		begin
-		txnh=axi_xtn::type_id::create("txnh");
+		txnh=axi4_seq_item::type_id::create("txnh");
 			txnh.id=vif.sub_mon_cb.rid;
 		//	txnh.data.push_back(vif.sub_mon_cb.rdata);
 			txnh.resp=vif.sub_mon_cb.rresp;

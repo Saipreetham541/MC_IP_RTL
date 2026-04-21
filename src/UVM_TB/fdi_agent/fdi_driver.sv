@@ -56,7 +56,7 @@ endtask
 
 // OPCODE DECODING
 
-task drive_packet(fdi_xtn txn);
+task drive_packet(fdi_pkt_item txn);
 
   case(txn.opcode)
     4'h1: drive_write_req(txn);
@@ -72,7 +72,7 @@ endtask
 // HEADER FORMATION
 
 
-function bit [2047:0] build_header(fdi_xtn txn);
+function bit [2047:0] build_header(fdi_pkt_item txn);
 
   bit [2047:0] flit;
 
@@ -113,7 +113,7 @@ endtask
 
 // WRITE REQUEST
 
-task drive_write_req(fdi_xtn txn);
+task drive_write_req(fdi_pkt_item txn);
 
   bit [2047:0] header_flit;
 
@@ -152,7 +152,7 @@ endtask
 
 // READ REQUEST
 
-task drive_read_req(fdi_xtn txn);
+task drive_read_req(fdi_pkt_item txn);
 
   bit [2047:0] header_flit;
 
@@ -165,7 +165,7 @@ endtask
 
 // WRITE RESPONSE 
 
-task drive_write_resp(fdi_xtn txn);
+task drive_write_resp(fdi_pkt_item txn);
 
   bit [2047:0] header_flit;
 
@@ -181,7 +181,7 @@ endtask
 
 // READ RESPONSE 
 
-task drive_read_resp(fdi_xtn txn);
+task drive_read_resp(fdi_pkt_item txn);
 
   bit [2047:0] header_flit;
 
@@ -209,7 +209,7 @@ endtask
 
 //CREDIT RETURN
 
-task drive_credit_return(fdi_xtn txn);
+task drive_credit_return(fdi_pkt_item txn);
 
   bit [2047:0] header_flit;
 
