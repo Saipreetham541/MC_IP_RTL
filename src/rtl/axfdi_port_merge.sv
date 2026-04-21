@@ -74,7 +74,7 @@ module axfdi_port_merge (
    merge_fsm cs;
    merge_fsm ns;
 
-   always_ff @(posedge fdi_clk) begin
+   always_ff @(posedge fdi_clk, negedge por_n) begin
     if (!por_n) begin
       cs <= IDLE;
       last_port <= 1'b1;
@@ -202,7 +202,7 @@ end
     
    end
 
-   always_ff @( posedge fdi_clk ) begin
+   always_ff @( posedge fdi_clk , negedge por_n) begin
     if (!por_n) begin
       write_req_vaild <= 0;
       read_req_vaild <= 0;
