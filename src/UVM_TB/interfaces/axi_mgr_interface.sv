@@ -1,5 +1,8 @@
 //mgr_interface
 interface mgr_interface(input bit axi_clk);
+logic global_reset;
+logic axi_rst_n;
+
 //write address channels
 logic [39:0] awaddr;
 logic [7:0] awid;

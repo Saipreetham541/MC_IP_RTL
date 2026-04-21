@@ -1,5 +1,7 @@
 //fdi_interface
 interface fdi_interface(input bit fdi_clk);
+logic global_reset;
+logic fdi_rst_n;
 
 logic [2047:0]fdi_lp_data;
 logic fdi_lp_valid;

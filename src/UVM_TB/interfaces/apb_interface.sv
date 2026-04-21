@@ -1,6 +1,9 @@
 //apb_interface
 
 interface apb_interface(input bit apb_clk);
+logic apb_rst_n;
+logic global_reset;
+
 logic [15:0] paddr;
 logic psel;
 logic penable;
