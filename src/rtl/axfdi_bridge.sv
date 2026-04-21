@@ -35,7 +35,15 @@ module axfdi_bridge
   parameter credit_size = 6,
   parameter rtn_vcn_w = 2,
   parameter vcn_w = 3,
-  parameter completion_tracker_w = 256
+  parameter completion_tracker_w = 256,
+  parameter AW_DEPTH   = 32,
+  parameter W_DEPTH    = 64,
+  parameter AR_DEPTH   = 32,
+  parameter AW_W = axi_id_w + 8 + 2 + 3 + axi_addr_w,
+  parameter W_W  = axi_data_w + 128 + 1,
+  parameter AR_W = axi_id_w + 8 + 2 + 3 + axi_addr_w,
+  parameter B_W  = axi_id_w + 2,
+  parameter R_W  = axi_data_w + axi_id_w + 2 + 1
 )(
   //clock and reset logic
   input logic                     fdi_clk_i,
@@ -662,7 +670,15 @@ module axfdi_bridge
      #(
        .AXI_DATA_W(axi_data_w),
        .AXI_ADDR_W(axi_addr_w),
-       .AXI_ID_W(axi_id_w)
+       .AXI_ID_W(axi_id_w),
+       .AW_DEPTH(AW_DEPTH),
+       .W_DEPTH(W_DEPTH),
+       .AR_DEPTH(AR_DEPTH),
+       .AW_W(AW_W),
+       .W_W(W_W),
+       .AR_W(AR_W),
+       .B_W(B_W),
+       .R_W(R_W)
        )u_axfdi_axi_mgr0
        (
         // clock and reset
@@ -734,7 +750,15 @@ module axfdi_bridge
      #(
        .AXI_DATA_W(axi_data_w),
        .AXI_ADDR_W(axi_addr_w),
-       .AXI_ID_W(axi_id_w)
+       .AXI_ID_W(axi_id_w),
+       .AW_DEPTH(AW_DEPTH),
+       .W_DEPTH(W_DEPTH),
+       .AR_DEPTH(AR_DEPTH),
+       .AW_W(AW_W),
+       .W_W(W_W),
+       .AR_W(AR_W),
+       .B_W(B_W),
+       .R_W(R_W)
        ) u_axfdi_axi_mgr1
        (
         // clock and reset
@@ -808,7 +832,15 @@ module axfdi_bridge
      #(
        .AXI_DATA_W(axi_data_w),
        .AXI_ADDR_W(axi_addr_w),
-       .AXI_ID_W(axi_id_w)
+       .AXI_ID_W(axi_id_w),
+       .AW_DEPTH(AW_DEPTH),
+       .W_DEPTH(W_DEPTH),
+       .AR_DEPTH(AR_DEPTH),
+       .AW_W(AW_W),
+       .W_W(W_W),
+       .AR_W(AR_W),
+       .B_W(B_W),
+       .R_W(R_W)
        ) u_axfdi_axi_sub0
        (
         // clock and reset
@@ -882,7 +914,14 @@ module axfdi_bridge
      #(
        .AXI_DATA_W(axi_data_w),
        .AXI_ADDR_W(axi_addr_w),
-       .AXI_ID_W(axi_id_w)
+       .AXI_ID_W(axi_id_w),
+       .AW_DEPTH(AW_DEPTH),
+       .W_DEPTH(W_DEPTH),
+       .AR_DEPTH(AR_DEPTH),
+       .AW_W(AW_W),
+       .W_W(W_W),
+       .AR_W(AR_W),
+       .B_W(B_W)
        ) u_axfdi_axi_sub1
        (
         // clock and reset
@@ -1462,6 +1501,8 @@ module axfdi_bridge
         .flit_tx_valid(s_flit_tx_data_valid),
         .fdi_tx_sop(s_fdi_pktr_tx_sop),
         .fdi_tx_eop(s_fdi_pktr_tx_eop),
-        .fdi_tx_ready(s_flit_tx_ready)
+        .fdi_tx_ready(s_flit_tx_ready),
+     //eop
+        .fdi_pktr_eop(s_fdi_pktr_eop)
 );
 endmodule

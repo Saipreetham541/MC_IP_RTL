@@ -77,7 +77,7 @@ module axfdi_axi_mgr #(
   input  logic                   R_cdc_full,
   output logic                   R_cdc_wr_en,
 
-  output logic [9:0]             B_cdc_data,
+  output logic [B_W-1:0]             B_cdc_data,
   input  logic                   B_cdc_full,
   output logic                   B_cdc_wr_en
 );

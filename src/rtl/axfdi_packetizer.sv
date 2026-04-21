@@ -17,6 +17,7 @@ module axfdi_packetizer  #(
 )(
     input logic                       fdi_clk,
     input logic                       fdi_rst_n,
+    input logic                       por_n,
 
 
     // Arbiter
@@ -83,11 +84,11 @@ module axfdi_packetizer  #(
     //---------Completion tracker---------------
 
 
-    output logic                       tx_vcn,
-    output logic [txn_id_w-1:0]        tx_txn_id,
-    output logic                       tx_port_id,
-    input logic                      tx_write_done,
-    output logic                       tx_txn_valid,
+    output logic                      tx_vcn,
+    output logic [txn_id_w-1:0]       tx_txn_id,
+    output logic                      tx_port_id,
+    input logic                       tx_write_done,
+    output logic                      tx_txn_valid,
     // -------- FDI --------
     output logic [FDI_FLIT_WIDTH-1:0] flit_tx_data,
     output logic                      flit_tx_valid,
@@ -97,7 +98,7 @@ module axfdi_packetizer  #(
     
     
     //----------- eop ----------------
-    output logic                     s_fdi_pktr_eop
+    output logic                      fdi_pktr_eop
 );
 
 
@@ -201,9 +202,9 @@ module axfdi_packetizer  #(
   end
 
 
-  // FSM
-  always_ff @(posedge fdi_clk or negedge fdi_rst_n) begin
-    if (!fdi_rst_n) begin
+  // FSM/
+  always_ff @(posedge fdi_clk or negedge por_n) begin
+    if (!por_n) begin
       state        <= S_IDLE;
       lat_type     <= NOP;
       lat_vcn      <= '0;
@@ -215,64 +216,78 @@ module axfdi_packetizer  #(
       lat_aw <= '0; lat_ar <= '0;
       lat_w  <= '0; lat_r  <= '0; lat_b <= '0;
     end else begin
-      case (state)
+       if (!fdi_rst_n) begin
+          state        <= S_IDLE;
+          lat_type     <= NOP;
+          lat_vcn      <= '0;
+          lat_port     <= '0;
+          lat_cr_opcode<= '0;
+          lat_cr_piggy <= '0;
+          lat_cr_cnt   <= '0;
+          lat_cr_vcn   <= '0;
+          lat_aw <= '0; lat_ar <= '0;
+          lat_w  <= '0; lat_r  <= '0; lat_b <= '0;
+       end
+       else begin
+          case (state)
 
 
-        S_IDLE: begin
-          if (start_txn) begin
-            // latch all arbiter + credit inputs now
-            lat_type      <= txn_type;
+            S_IDLE: begin
+               if (start_txn) begin
+                  // latch all arbiter + credit inputs now
+                  lat_type      <= txn_type;
             lat_vcn       <= vcn_sel;
-            lat_port      <= port_id_i;
-            lat_cr_opcode <= credit_rtn_opcode_en;
-            lat_cr_piggy  <= credit_rtn_piggy_en;
-            lat_cr_cnt    <= rx_credit_rtn_cnt;
-            lat_cr_vcn    <= rx_credit_rtn_vcn;
-            // credit return standalone
-            if (credit_rtn_opcode_en)
+                  lat_port      <= port_id_i;
+                  lat_cr_opcode <= credit_rtn_opcode_en;
+                  lat_cr_piggy  <= credit_rtn_piggy_en;
+                  lat_cr_cnt    <= rx_credit_rtn_cnt;
+                  lat_cr_vcn    <= rx_credit_rtn_vcn;
+                  // credit return standalone
+                  if (credit_rtn_opcode_en)
               state <= S_HEADER;
-            else
-              state <= S_READ;
-          end
-        end
+                  else
+                    state <= S_READ;
+               end
+            end
 
 
-        // fifo read
-        S_READ: begin
-          state <= S_LATCH;
-        end
+            // fifo read
+            S_READ: begin
+               state <= S_LATCH;
+            end
 
 
-        // capture FIFO outputs
-        S_LATCH: begin
-          lat_aw <= sel_aw;
-          lat_ar <= sel_ar;
-          lat_w  <= sel_w;
-          lat_r  <= sel_r;
-          lat_b  <= sel_b;
-          state  <= S_HEADER;
-        end
+            // capture FIFO outputs
+            S_LATCH: begin
+               lat_aw <= sel_aw;
+               lat_ar <= sel_ar;
+               lat_w  <= sel_w;
+               lat_r  <= sel_r;
+               lat_b  <= sel_b;
+               state  <= S_HEADER;
+            end
 
 
-        // hold until FDI accepts the flit
-        S_HEADER: begin
-          if (fdi_tx_ready)
-            state <= S_IDLE;
-        end
+            // hold until FDI accepts the flit
+            S_HEADER: begin
+               if (fdi_tx_ready)
+                 state <= S_IDLE;
+            end
 
 
-        default: state <= S_IDLE;
-      endcase
-    end
+            default: state <= S_IDLE;
+          endcase
+       end
+    end // else: !if(!fdi_rst_n)
   end
    
 
 
-  always_comb begin
-    aw_fifo0_rd_en = '0; w_fifo0_rd_en = '0;
-    ar_fifo0_rd_en = '0; r_fifo0_rd_en = '0; b_fifo0_rd_en = '0;
-    aw_fifo1_rd_en = '0; w_fifo1_rd_en = '0;
-    ar_fifo1_rd_en = '0; r_fifo1_rd_en = '0; b_fifo1_rd_en = '0;
+     always_comb begin
+        aw_fifo0_rd_en = '0; w_fifo0_rd_en = '0;
+        ar_fifo0_rd_en = '0; r_fifo0_rd_en = '0; b_fifo0_rd_en = '0;
+        aw_fifo1_rd_en = '0; w_fifo1_rd_en = '0;
+        ar_fifo1_rd_en = '0; r_fifo1_rd_en = '0; b_fifo1_rd_en = '0;
 
 
     if (state == S_READ) begin
@@ -400,12 +415,6 @@ module axfdi_packetizer  #(
   assign tx_port_id   = lat_port;
   assign tx_vcn       = (lat_vcn == 3'b00) ? 0 : 1  ;
   assign tx_txn_valid = (state == S_HEADER) && fdi_tx_ready && (lat_type == READ_REQ) && !lat_cr_opcode;
-  assign s_fdi_pktr_eop = flit_tx_valid && fdi_tx_ready && fdi_tx_eop;
+  assign fdi_pktr_eop = flit_tx_valid && fdi_tx_ready && fdi_tx_eop;
 
 endmodule
-
-
-
-
-
-

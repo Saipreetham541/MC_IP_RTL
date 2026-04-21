@@ -138,7 +138,7 @@ module axfdi_port_router #(
    assign port0_cdc_r_d_wr_en = r_port0_cdc_r_d_valid;
 
  
-    always_ff@(posedge fdi_clk or negedge fdi_rst_n)
+    always_ff@(posedge fdi_clk or negedge por_n)
       if(!por_n) begin
             r_port0_cdc_aw_d_valid <= 1'b0;
             r_port0_cdc_aw_d <= '0;
