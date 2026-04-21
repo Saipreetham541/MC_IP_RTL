@@ -87,7 +87,7 @@ module axfdi_packetizer  #(
     output logic                      tx_vcn,
     output logic [txn_id_w-1:0]       tx_txn_id,
     output logic                      tx_port_id,
-   // input logic                       tx_write_done,
+    input logic                       tx_write_done,
     output logic                      tx_txn_valid,
     // -------- FDI --------
     output logic [FDI_FLIT_WIDTH-1:0] flit_tx_data,
