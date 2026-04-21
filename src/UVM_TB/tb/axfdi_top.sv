@@ -199,7 +199,7 @@ begin
    
    uvm_config_db #(virtual reset_interface)::set(null,"*","rst_intf",rst_intf);
    
-   run_test("axfdi_test");
+   run_test();
    
 end
 endmodule
