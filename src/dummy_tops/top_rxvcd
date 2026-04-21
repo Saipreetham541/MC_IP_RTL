@@ -1,0 +1,41 @@
+$date
+	Mon Apr 20 17:16:06 2026
+$end
+$version
+	Questa Altera Starter FPGA Edition Version 2025.2
+$end
+$timescale
+	1ps
+$end
+$scope module top_rx_tb $end
+$scope module dut $end
+$scope module u_axfdi_credit_mgr $end
+$var wire 1 ! tx_credit_rtn_cnt [5] $end
+$var wire 1 " tx_credit_rtn_cnt [4] $end
+$var wire 1 # tx_credit_rtn_cnt [3] $end
+$var wire 1 $ tx_credit_rtn_cnt [2] $end
+$var wire 1 % tx_credit_rtn_cnt [1] $end
+$var wire 1 & tx_credit_rtn_cnt [0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+0!
+0"
+0#
+0$
+0%
+0&
+0!
+0"
+0#
+0$
+0%
+0&
+#165000
+1$
+1&
+#195000
+0$
+0&

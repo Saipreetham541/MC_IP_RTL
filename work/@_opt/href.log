@@ -1,0 +1,41 @@
+BEGIN 1:axfdi_credit_mgr:fast:work
+    r_rx_np_credit_cnsmd_rtn_done :  1:top_rx_tb:fast:work
+    r_rx_np_credit_init_done :  1:top_rx_tb:fast:work
+    r_rx_np_credit_cnsmd_rtn_flag :  1:top_rx_tb:fast:work
+    r_rx_cpl_credit_cnsmd_rtn_done :  1:top_rx_tb:fast:work
+    r_rx_credit_rtn_vcn :  1:top_rx_tb:fast:work
+    r_rx_cpl_credit_init :  1:top_rx_tb:fast:work
+    r_rx_cpl_credit_init_en :  1:top_rx_tb:fast:work
+    r_rx_np_credit_init_en :  1:top_rx_tb:fast:work
+    r_rx_cpl_credit_init_done :  1:top_rx_tb:fast:work
+    r_rx_cpl_credit_cnsmd_rtn_flag :  1:top_rx_tb:fast:work
+    r_rx_credit_rtn_cnt :  1:top_rx_tb:fast:work
+    rx_np_credit_cnsmd :  1:top_rx_tb:fast:work
+    r_rx_np_credit_init :  1:top_rx_tb:fast:work
+    r_tx_vc_np_credit_cnt :  1:top_rx_tb:fast:work
+    rx_cpl_credit_cnsmd :  1:top_rx_tb:fast:work
+END 
+BEGIN 1:axfdi_fdi_if:fast:work
+    CS :  1:top_rx_tb:fast:work
+END 
+BEGIN 1:top_rx:fast:work
+    s_fdi_pktr_tx_sop :  1:top_rx_tb:fast:work
+    s_credit_init_req :  1:top_rx_tb:fast:work
+    s_pending_tx_available :  1:top_rx_tb:fast:work
+    s_pktr_cmpltkr_tx_port_id :  1:top_rx_tb:fast:work
+    s_credit_init_done :  1:top_rx_tb:fast:work
+    s_tx_credit_vcn :  1:top_rx_tb:fast:work
+    s_pktr_cmpltkr_tx_txn_valid :  1:top_rx_tb:fast:work
+    s_pktr_cmpltkr_tx_vcn :  1:top_rx_tb:fast:work
+    s_flit_tx_data_valid :  1:top_rx_tb:fast:work
+    s_fdi_pktr_tx_eop :  1:top_rx_tb:fast:work
+    s_portrtr_depktr_read_done :  1:top_rx_tb:fast:work
+    s_credit_rtn_done :  1:top_rx_tb:fast:work
+    s_pktr_cmpltkr_tx_write_done :  1:top_rx_tb:fast:work
+    s_tx_credit_decr_flag :  1:top_rx_tb:fast:work
+    s_flit_tx_data :  1:top_rx_tb:fast:work
+    s_pktr_cmpltkr_tx_txn_id :  1:top_rx_tb:fast:work
+END 
+BEGIN_UNRESOLVED_HREF
+ 1:top_rx_tb:fast:work
+END_UNRESOLVED_HREF

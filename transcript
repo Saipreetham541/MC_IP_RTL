@@ -1,0 +1,119 @@
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.2 linux_x86_64 May 31 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# do src/tb/top_rx_wave.do
+# 
+# set cwd [file normalize [pwd]]
+# /home/aravindps/sevya_proj/Busbridges
+# set repo_root ""
+# 
+# if {[file exists [file join $cwd Busbridges src dummy_tops top_rx.sv]]} {
+#   set repo_root [file join $cwd Busbridges]
+# } elseif {[file exists [file join $cwd src dummy_tops top_rx.sv]]} {
+#   set repo_root $cwd
+# } else {
+#   echo "ERROR: Could not locate Busbridges repo root from current directory: $cwd"
+#   echo "Start Questa from /home/aravindps/sevya_proj or /home/aravindps/sevya_proj/Busbridges"
+#   quit -f
+# }
+# /home/aravindps/sevya_proj/Busbridges
+# 
+# if {[file exists work]} {
+#   vdel -lib work -all
+# }
+# vlib work
+# 
+# vlog -sv [file join $repo_root src rtl axfdi_fdi_if.sv] \
+#          [file join $repo_root src rtl axfdi_depacketizer.sv] \
+#          [file join $repo_root src rtl axfdi_port_router.sv] \
+#          [file join $repo_root src rtl axfdi_completion_tracker.sv] \
+#          [file join $repo_root src rtl axfdi_credit_mgr.sv] \
+#          [file join $repo_root src dummy_tops top_rx.sv] \
+#          [file join $repo_root src tb top_rx_tb.sv]
+# Questa Altera Starter FPGA Edition-64 vlog 2025.2 Compiler 2025.05 May 31 2025
+# Start time: 17:24:24 on Apr 20,2026
+# vlog -reportprogress 300 -sv /home/aravindps/sevya_proj/Busbridges/src/rtl/axfdi_fdi_if.sv /home/aravindps/sevya_proj/Busbridges/src/rtl/axfdi_depacketizer.sv /home/aravindps/sevya_proj/Busbridges/src/rtl/axfdi_port_router.sv /home/aravindps/sevya_proj/Busbridges/src/rtl/axfdi_completion_tracker.sv /home/aravindps/sevya_proj/Busbridges/src/rtl/axfdi_credit_mgr.sv /home/aravindps/sevya_proj/Busbridges/src/dummy_tops/top_rx.sv /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv 
+# ** Note: (vlog-220) '/home/aravindps/altera/25.1std/questa_fse/linux_x86_64/../modelsim.ini' is used as the ini file.
+# -- Compiling module axfdi_fdi_if
+# -- Compiling module axfdi_depacketizer
+# -- Compiling module axfdi_port_router
+# -- Compiling module axfdi_completion_tracker
+# -- Compiling module axfdi_credit_mgr
+# -- Compiling module top_rx
+# -- Compiling module top_rx_tb
+# 
+# Top level modules:
+# 	top_rx_tb
+# End time: 17:24:24 on Apr 20,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+#vsim -voptargs=+acc top_rx_tb
+# vsim top_rx_tb
+# ** Note: (vsim-220) '/home/aravindps/altera/25.1std/questa_fse/linux_x86_64/../modelsim.ini' is used as the ini file.
+# vsim top_rx_tb 
+# Start time: 17:24:24 on Apr 20,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) '/home/aravindps/altera/25.1std/questa_fse/linux_x86_64/../modelsim.ini' is used as the ini file.
+# Loading sv_std.std
+# Loading work.top_rx_tb(fast)
+# 
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# view wave
+# .main_pane.wave.interior.cs.body.pw.wf
+# 
+# add wave -r /*
+# 
+# run -all
+# [0] Single-sequence RX top test
+# [105000] Phase 1: credit init bring-up
+# ** Error: FDI IF should request credit initialization expected=1 actual=0
+#    Time: 105 ns  Scope: top_rx_tb.expect_bit File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 217
+# ** Error: SPEC BUG: credit initialization should drive an LP flit expected=1 actual=0
+#    Time: 105 ns  Scope: top_rx_tb.expect_bit File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 217
+# [145000] Phase 2: incoming CREDIT_RTN updates TX credit
+# ** Error: Incoming CREDIT_RTN flit should add NP TX credits expected=0x5 actual=0x0
+#    Time: 175 ns  Scope: top_rx_tb.expect_vec6 File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 229
+# [175000] Phase 3: valid one-beat WRITE_REQ to port0
+# ** Error: Port0 AW CDC write-enable should pulse for WRITE_REQ expected=1 actual=0
+#    Time: 205 ns  Scope: top_rx_tb.expect_bit File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 217
+# ** Error: Port0 W CDC write-enable should pulse for WRITE_REQ expected=1 actual=0
+#    Time: 205 ns  Scope: top_rx_tb.expect_bit File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 217
+# ** Error: Port0 AW payload should carry AXI address expected=0x123456789a actual=0x0
+#    Time: 205 ns  Scope: top_rx_tb.expect_vec40 File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 253
+# [205000] Phase 4: READ_REQ port1 routing bug
+# ** Error: SPEC BUG: READ_REQ with PORT_ID=1 should target port1 AR CDC expected=1 actual=0
+#    Time: 235 ns  Scope: top_rx_tb.expect_bit File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 217
+# [235000] Phase 5: WRITE_REQ WSTRB_PRESENT bug
+# ** Error: SPEC BUG: port0 W CDC WSTRB should match incoming header WSTRB expected=0xf0f00f0faaaa5555123456789abcdef0 actual=0x00000000000000000000000000000000
+#    Time: 265 ns  Scope: top_rx_tb.expect_vec128 File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 241
+# [265000] Phase 6: RX credit-consume timing
+# ** Error: SPEC BUG: RX credit-consumed counter should increment when packet is received expected=0x1 actual=0x0
+#    Time: 295 ns  Scope: top_rx_tb.expect_vec6 File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 229
+# [315000] Phase 7: READ_RESP completion-tracker routing
+# ** Error: SPEC BUG: READ_RESP should be routed using completion-tracker port_id expected=1 actual=0
+#    Time: 345 ns  Scope: top_rx_tb.expect_bit File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 217
+# [385000] top_rx TB completed: checks_run=12 checks_failed=10
+# ** Fatal: top_rx_tb detected 10 failing checks
+#    Time: 385 ns  Scope: top_rx_tb File: /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv Line: 491
+# ** Note: $finish    : /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv(491)
+#    Time: 385 ns  Iteration: 1  Instance: /top_rx_tb
+# 1
+# Break at /home/aravindps/sevya_proj/Busbridges/src/tb/top_rx_tb.sv line 491
+# Break key hit
+# Break key hit
+# Break key hit
+# End time: 17:29:11 on Apr 20,2026, Elapsed time: 0:04:47
+# Errors: 11, Warnings: 0
