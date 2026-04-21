@@ -5,7 +5,7 @@
 
 virtual fdi_interface.FDI_DRV_MP vif;
 virtual reset_interface rst_intf;
-
+fdi_pkt_item txn;
 fdi_credit_manager credit_mgr;
 
 fdi_agt_config fdi_cfg;
@@ -21,6 +21,8 @@ if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))
 
 if(!uvm_config_db#(fdi_credit_manager) :: get(this, "", "fdi_credit_manager",credit_mgr))
 `uvm_fatal("fdi_driver", "credit get is failed")
+
+txn=fdi_pkt_item :: type_id :: create("txn");
 
 endfunction
 
@@ -197,7 +199,7 @@ task drive_read_resp(fdi_pkt_item txn);
   for(int i=0;i<216;i++) begin
 
     if(idx < txn.data.size())
-      header_flit[(256+i*8)+:8] = txn.data;
+      header_flit[(256+i*8)+:8] = txn.data[i];
     else
       header_flit[(256+i*8)+:8] = 0;
 	idx++;
