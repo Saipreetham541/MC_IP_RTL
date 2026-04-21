@@ -7,6 +7,7 @@
 module axfdi_port_merge (
     input logic     fdi_clk,
     input logic     fdi_rst_n,
+    input logic     por_n,
  
     input logic     AW_cdc_fifo_empty_0,// sub side port 0
     input logic     W_cdc_fifo_empty_0,// sub side port 0
