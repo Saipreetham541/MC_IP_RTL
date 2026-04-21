@@ -1,3 +1,4 @@
+
 /* Module Name: axfdi_axi_sub
    Clock Domain : AXI 500Mhz
    Engineer  : Vishwa Patwrai
@@ -21,6 +22,7 @@ module axfdi_axi_sub #(
 )(
   input  logic                   axi_clk,
   input  logic                   axi_rst_n,
+  input  logic                   por_n, 
 
   // AXI SUB Write Address
   input  logic [AXI_ADDR_W-1:0]  awaddr,
@@ -373,6 +375,4 @@ module axfdi_axi_sub #(
   );
 
 endmodule
-
-
 
