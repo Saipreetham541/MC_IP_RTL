@@ -164,7 +164,7 @@ module axfdi_axi_sub #(
       AW_cdc_data_r  <= '0;
       W_cdc_wr_en_r  <= 1'b0;
       W_cdc_data_r   <= '0;
-      aw_w_rd_pending <= 1'b;
+      aw_w_rd_pending <= 1'b0;
     end
     else begin
     if (!axi_rst_n) begin
@@ -305,7 +305,7 @@ module axfdi_axi_sub #(
       r_cdc_pending  <= 1'b0;
       r_buf_wr_pending <= 1'b0;
       r_buf_rd_pending <= 1'b0;
-      r_load_pending <= 1'b0
+      r_load_pending <= 1'b0;
     end
     else begin
     if (!axi_rst_n) begin
