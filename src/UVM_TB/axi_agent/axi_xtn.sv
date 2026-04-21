@@ -1,23 +1,27 @@
+typedef enum bit {
+  READ  = 0,
+  WRITE = 1
+} axn_type_e;
+
 class axi_xtn extends uvm_sequence_item;
 
-	`uvm_object_utils(axi_xtn);
-	typedef enum{read, write}axn_type_e; 
-
-rand bit [39:0] addr;
- rand bit [7:0] id;
- rand bit [7:0] len; // AWLEN/ARLEN
- rand bit [2:0] size; // AWSIZE/ARSIZE
- rand bit [1:0] burst; // AWBURST/ARBURST
- rand bit [1023:0] data[]; // write/read data array
- rand bit [127:0] strb[]; // write strobes per beat
- rand bit [1:0] resp; // expected/actual BRESP/RRESP
- //rand bit [3:0] qos; // AWQOS/ARQOS
- rand axn_type_e axn_type; // READ / WRITE
+  `uvm_object_utils(axi_xtn);
+  typedef enum{read, write}axn_type_e;   
+  rand bit [39:0] addr;
+  rand bit [7:0] id;
+  rand bit [7:0] len; // AWLEN/ARLEN
+  rand bit [2:0] size; // AWSIZE/ARSIZE
+  rand bit [1:0] burst; // AWBURST/ARBURST
+  rand bit [1023:0] data[]; // write/read data array
+  rand bit [127:0] strb[]; // write strobes per beat
+  rand bit [1:0] resp; // expected/actual BRESP/RRESP
+  //rand bit [3:0] qos; // AWQOS/ARQOS
+  rand axn_type_e axn_type; // READ / WRITE
  
  //rand bit [31:0] delay_cycles; // inter-transaction delay
  
  
- 	function new(string name="axi_xtn");
+ 	function new(string name = "axi_xtn");
 		super.new(name);
 	endfunction
 	
@@ -27,6 +31,34 @@ rand bit [39:0] addr;
 	constraint addr_align_c3{addr % (2 ** size) == 0;}
 	//constraint awaddr_align_c3{awaddr % ((2 ** awsize)) == 0;}
 	
+	function void do_copy(uvm_object rhs);
+
+		axi4_seq_item rhs_;
+
+		if(!$cast(rhs_, rhs))
+		`uvm_fatal("COPY", "Cast failed in do_copy")
+
+		super.do_copy(rhs);
+
+		addr         = rhs_.addr;
+		id           = rhs_.id;
+		len          = rhs_.len;
+		size         = rhs_.size;
+		burst        = rhs_.burst;
+		resp         = rhs_.resp;
+		qos          = rhs_.qos;
+		axn_type     = rhs_.axn_type;
+		delay_cycles = rhs_.delay_cycles;
+
+		data = new[rhs_.data.size()];
+		foreach(data[i])
+		data[i] = rhs_.data[i];
+
+		strb = new[rhs_.strb.size()];
+		foreach(strb[i])
+		strb[i] = rhs_.strb[i];
+
+	endfunction
 
 	
 	
@@ -43,16 +75,17 @@ rand bit [39:0] addr;
 		printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_HEX);
 		end
 		//printer.print_field("last",last,1,UVM_HEX);
-
-		
 	endfunction
 	
 	function void display();
 		this.print(uvm_default_tree_printer);
 	endfunction
 
+	function string convert2string();
 
+		return $sformatf(
+		"type=%s addr=0x%0h id=%0d len=%0d size=%0d burst=%0d resp=%0d beats=%0d",
+		(axn_type == WRITE) ? "WRITE" : "READ",addr,id,len,size,burst,resp,len+1);
 
-
-
+	endfunction
 endclass
