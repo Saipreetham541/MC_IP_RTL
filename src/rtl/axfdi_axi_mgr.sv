@@ -240,7 +240,7 @@ module axfdi_axi_mgr #(
       AW_cdc_pending    <= 1'b0;
       AW_buf_wr_pending <= 1'b0;
       AW_buf_rd_pending <= 1'b0;
-      AW_load_pending   <= 1'b0
+      AW_load_pending   <= 1'b0;
     end
   else begin
     if (!axi_rst_n) begin
