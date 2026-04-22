@@ -27,10 +27,8 @@ vif=agt_cfg.sub_intf;
 endfunction
 
 task run_phase(uvm_phase phase);
-		@(vif.sub_drv_cb);
-			vif.sub_drv_cb.axi_rstn<=0;
-		@(vif.sub_drv_cb);
-			vif.sub_drv_cb.axi_rstn<=1;
+		wait(vif.sub_drv_cb.axi_rst_n && vif.sub_drv_cb.global_reset);
+			@(vif.sub_drv_cb)
 		
 		forever begin
 			seq_item_port.get_next_item(txn);

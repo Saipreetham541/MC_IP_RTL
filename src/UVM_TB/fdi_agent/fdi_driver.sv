@@ -33,6 +33,9 @@ endfunction
 
 task run_phase(uvm_phase phase);
 
+wait(vif.fdi_drv_cb.global_reset && vif.fdi_drv_cb.fdi_rst_n);
+	@(vif.fdi_drv_cb)
+
 	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
 	if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
 	@(vif.fdi_drv_cb);

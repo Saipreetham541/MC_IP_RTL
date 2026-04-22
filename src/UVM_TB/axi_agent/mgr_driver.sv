@@ -22,6 +22,8 @@ vif=agt_cfg.mgr_intf;
 endfunction
 	
 	task run_phase(uvm_phase phase);
+	wait(vif.mgr_drv_cb.axi_rst_n && vif.mgr_drv_cb.global_reset);
+			@(vif.sub_drv_cb)
 	fork 
 		drive_b(txn);
 		drive_r(txn);
