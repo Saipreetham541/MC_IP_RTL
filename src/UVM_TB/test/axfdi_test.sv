@@ -97,29 +97,4 @@ endtask
 endclass
 
 
-class test_case1 extends axfdi_test;
-	`uvm_component_utils(test_case1)
-	
-	//virtual_seqs vseqh;
-	//virtual_seqr vseqrh;
-	
-function new(string name ="test_case1" , uvm_component parent);
-	super.new(name, parent);
-endfunction
 
-function void build_phase (uvm_phase phase);
-	super.build_phase(phase);
-//vseqh=virtual_seqs :: type_id :: create("vseqh");
-//vseqrh=virtual_seqr:: type_id :: create("vseqrh", this);
-`uvm_info("TESTCASE1","EXTENDED",UVM_MEDIUM)
-endfunction
-
-/*task run_phase(uvm_phase phase);
-	phase.raise_objection(this);
-	apply_reset;
-	vseqh.start(vseqrh);//envh.vserh
-	phase.drop_objection(this);
-endtask*/
-endclass
-
-	

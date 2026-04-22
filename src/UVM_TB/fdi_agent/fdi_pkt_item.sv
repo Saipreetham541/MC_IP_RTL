@@ -17,7 +17,8 @@ class fdi_pkt_item extends uvm_sequence_item;
     rand int backpressure_cycles; // PL trdy deassert duration
     rand bit [5:0] credit_rtn_cnt;
     rand bit [1:0] credit_rtn_vcn;
- 
+	rand bit startofpkt;
+	rand bit endofpkt;
     function new(string name="fdi_pkt_item");
     super.new(name);
     endfunction
@@ -52,7 +53,8 @@ class fdi_pkt_item extends uvm_sequence_item;
         backpressure_cycles = rhs_.backpressure_cycles;
         credit_rtn_cnt      = rhs_.credit_rtn_cnt;
         credit_rtn_vcn      = rhs_.credit_rtn_vcn;
-
+		startofpkt			= rhs_.startofpkt;
+		endofpkt            = rhs_.endofpkt;
         data = new[rhs_.data.size()];
         foreach(data[i])
         data[i] = rhs_.data[i];

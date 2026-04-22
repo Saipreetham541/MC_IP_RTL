@@ -14,7 +14,7 @@ class credit_back_pressure_test extends axfdi_test;
 	task run_phase(uvm_phase phase);
 		phase.raise_objection(this);
 			cre_bp_vir_seqh=credit_back_pressure_virtual_seq::type_id::create("cre_bp_vir_seqh");
-			cre_bp_vir_seqh.start(env.v_seqrh);
+			cre_bp_vir_seqh.start(env.vseqrh);
 		phase.drop_objection(this);
 	endtask
 	

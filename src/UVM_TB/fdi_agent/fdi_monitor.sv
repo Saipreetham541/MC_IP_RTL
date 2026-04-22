@@ -9,8 +9,13 @@ class fdi_monitor extends uvm_monitor;
  
  fdi_credit_manager credit_mgr;
  
+   uvm_analysis_port #(fdi_pkt_item) ap_tx;
+	uvm_analysis_port #(fdi_pkt_item) ap_rx;
  function new(string name="fdi_monitor",uvm_component parent);
  super.new(name,parent);
+ ap_tx=new("ap_tx",this);
+ ap_rx=new("ap_rx",this);
+ 
  endfunction
  
  function void build_phase(uvm_phase phase);
@@ -69,7 +74,7 @@ endfunction
       if(txn.opcode == 4'h5) begin
         credit_mgr.add_credit(txn.credit_rtn_vcn, txn.credit_rtn_cnt);  // Credit return
       end
-      analysis_port.write(txn);
+      ap_tx.write(txn);
     end
   endtask
   
@@ -107,7 +112,7 @@ endfunction
 
         credit_mgr.add_credit(txn.credit_rtn_vcn, txn.credit_rtn_cnt );
 
-      analysis_port.write(txn);
+      ap_rx.write(txn);
 
     end
 	end

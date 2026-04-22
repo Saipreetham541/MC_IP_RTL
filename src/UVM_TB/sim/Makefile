@@ -1,32 +1,32 @@
 # Vivado tools pavan path
-#XVLOG := /cygdrive/E/2025.2/Vivado/bin/xvlog
-#XELAB := /cygdrive/E/2025.2/Vivado/bin/xelab
-#XSIM  := /cygdrive/E/2025.2/Vivado/bin/xsim
+XVLOG := /cygdrive/E/2025.2/Vivado/bin/xvlog
+XELAB := /cygdrive/E/2025.2/Vivado/bin/xelab
+XSIM  := /cygdrive/E/2025.2/Vivado/bin/xsim
 
 # Vivado tools shivasai path
-XVLOG := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xvlog
-XELAB := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xelab
-XSIM  := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xsim
+#XVLOG := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xvlog
+#XELAB := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xelab
+#XSIM  := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xsim
 
 # Base directories pavan path
-#INTERFACE_DIR := D:/Busbridges/src/UVM_TB/interfaces
-#RTL_DIR    := D:/Busbridges/src/rtl
-#TB_DIR     := D:/Busbridges/src/UVM_TB/tb
-#TEST_DIR   := D:/Busbridges/src/UVM_TB/test
-#V_SEQS_DIR := D:/Busbridges/src/UVM_TB/virtual_seqs
-#SEQS_DIR   := D:/Busbridges/src/UVM_TB/sequences
-#WORK_DIR   := work
-#LOG_DIR    := logs
+INTERFACE_DIR := D:/Busbridges/src/UVM_TB/interfaces
+RTL_DIR    := D:/Busbridges/src/rtl
+TB_DIR     := D:/Busbridges/src/UVM_TB/tb
+TEST_DIR   := D:/Busbridges/src/UVM_TB/test
+V_SEQS_DIR := D:/Busbridges/src/UVM_TB/virtual_seqs
+SEQS_DIR   := D:/Busbridges/src/UVM_TB/sequences
+WORK_DIR   := work
+LOG_DIR    := logs
 
 # Base directories shivasai path
-INTERFACE_DIR := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/interfaces
-RTL_DIR    	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/rtl
-TB_DIR     	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb
-TEST_DIR   	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/test
-V_SEQS_DIR 	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/virtual_seqs
-SEQS_DIR   	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sequences
-WORK_DIR   	  := work
-LOG_DIR    	  := logs
+#INTERFACE_DIR := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/interfaces
+#RTL_DIR    	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/rtl
+#TB_DIR     	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb
+#TEST_DIR   	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/test
+#V_SEQS_DIR 	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/virtual_seqs
+#SEQS_DIR   	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sequences
+#WORK_DIR   	  := work
+#LOG_DIR    	  := logs
 
 # Files
 INTERFACE_FILES := $(wildcard $(INTERFACE_DIR)/*.sv)
@@ -41,15 +41,17 @@ UVM_XVLOG_FLAGS := --sv -d SIMULATION --incr --relax -L uvm \
                     -i $(TB_DIR) -i $(TEST_DIR) -i $(V_SEQS_DIR) -i $(SEQS_DIR) \
                    -i E:/2025.2/Vivado/data/systemverilog/uvm/src
 
-UVM_XELAB_FLAGS := --incr --debug typical --relax --mt auto -L uvm
+UVM_XELAB_FLAGS := --relax --mt off -L uvm 
 
-all: uvm_vivado
+all: clean uvm_vivado
 
 clean:
-	rm -rf xsim.dir *.log *.jou *.pb $(WORK_DIR) $(LOG_DIR)
-
-uvm_vivado:
+	#rm -rf xsim.dir *.log *.jou *.pb $(WORK_DIR) $(LOG_DIR)
+	@echo "=== Cleaning ==="
+	rm -rf $(WORK_DIR) xsim.dir *.log *.jou *.pb *.wdb
 	@mkdir -p $(WORK_DIR) $(LOG_DIR)
+uvm_vivado:
+	#@mkdir -p $(WORK_DIR) $(LOG_DIR)
 	@echo "=== Compiling RTL ==="
 	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(RTL_FILES)
 	@echo "=== Compiling INTERFACE ==="

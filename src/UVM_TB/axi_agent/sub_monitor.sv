@@ -91,7 +91,7 @@ task run_phase(uvm_phase phase);
 		task monitor_ar();
 			forever begin
 				txnh=axi4_seq_item::type_id::create("txnh");
-					@(posedge vif.sub_mon_cb);
+					@(vif.sub_mon_cb);
 					if(vif.sub_mon_cb.arvalid && vif.sub_mon_cb.arready)
 						begin
 							txnh.addr=vif.sub_mon_cb.araddr;

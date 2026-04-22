@@ -5,7 +5,7 @@ class single_write_virtual_seq extends virtual_seq;
 		
 	single_write_seq sin_wr_seqh0;
 	single_write_seq sin_wr_seqh1;
-	
+		virtual_seqr vseqrh;
 	//invalid_mngr_seq inv_mgr_seqh0;
 	//invalid_mngr_seq inv_mgr_seqh1;
 	
@@ -26,10 +26,10 @@ class single_write_virtual_seq extends virtual_seq;
 		//inv_mgr_seqh1 = invalid_mngr_seq::type_id::create("inv_mgr_seqh1");
 		begin
 				
-				init_seqh.start(fdi_seqr);
+				init_seqh.start(vseqrh.fdi_seqr);
 			fork
-			    sin_wr_seqh0.start(vseqrh.sub_sqr0);//vserh.seqr
-				sin_wr_seqh1.start(vseqrh.sub_sqr1);
+			    sin_wr_seqh0.start(vseqrh.sub_seqr0);//vserh.seqr
+				sin_wr_seqh1.start(vseqrh.sub_seqr1);
 		 
 				//inv_mgr_seqh0.start(mgr_seqr0);
 				//inv_mgr_seqh1.start(mgr_seqr1);

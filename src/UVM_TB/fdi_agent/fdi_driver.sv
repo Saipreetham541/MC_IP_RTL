@@ -1,6 +1,6 @@
 //fdi_driver
 
- class fdi_driver extends uvm_driver;
+ class fdi_driver extends uvm_driver#(fdi_pkt_item);
 `uvm_component_utils(fdi_driver)
 
 virtual fdi_interface.FDI_DRV_MP vif;
@@ -33,8 +33,8 @@ endfunction
 
 task run_phase(uvm_phase phase);
 
-wait(vif.fdi_drv_cb.global_reset && vif.fdi_drv_cb.fdi_rst_n);
-	@(vif.fdi_drv_cb)
+wait(vif.global_reset && vif.fdi_rst_n);
+	@(vif.fdi_drv_cb);
 
 	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
 	if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
@@ -48,7 +48,7 @@ wait(vif.fdi_drv_cb.global_reset && vif.fdi_drv_cb.fdi_rst_n);
   forever begin
 
     seq_item_port.get_next_item(txn);
-	//apply_backpressure(txn.backpressure_cycles);
+	apply_backpressure(txn.backpressure_cycles);
 	wait(credit_mgr.has_credit(txn.vcn));
     drive_packet(txn);
 	credit_mgr.consume_credit(txn.vcn);
@@ -153,7 +153,7 @@ end
   end
   header_flit[2047:1984]=64'h0;                                    
   send_flit(header_flit,1,(idx >= txn.data.size()));
-  send_remaining_payload(txn, idx);
+ // send_remaining_payload(txn, idx);
 
 endtask
 

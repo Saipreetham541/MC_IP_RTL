@@ -14,7 +14,7 @@ class single_rw_test extends axfdi_test;
 	task run_phase(uvm_phase phase);
 		phase.raise_objection(this);
 			sin_rw_vir_seqh=single_rw_virtual_seq::type_id::create("sin_rw_vir_seqh");
-			sin_rw_vir_seqh.start(env.v_seqrh);
+			sin_rw_vir_seqh.start(env.vseqrh);
 		phase.drop_objection(this);
 	endtask
 	

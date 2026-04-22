@@ -1,6 +1,7 @@
 interface sub_interface(input bit axi_clk);
 logic global_reset;
 logic axi_rst_n;
+
 logic [39:0] awaddr;
 logic [7:0] awid;
 logic [7:0]awlen;
@@ -43,6 +44,8 @@ logic rready;
 //subordinate driving clocking block
 
 clocking sub_drv_cb @(posedge axi_clk);
+//output global_reset;
+//output axi_rst_n;
 
 output awaddr,awid,awlen,awsize,awburst,awvalid;
 output wdata,wstrb,wlast,wvalid;
@@ -77,6 +80,6 @@ endclocking
 
 
 
-modport SUB_DRV_MP (clocking sub_drv_cb);
+modport SUB_DRV_MP (input global_reset,input axi_rst_n,clocking sub_drv_cb);
 modport SUB_MON_MP (clocking sub_mon_cb);
 endinterface

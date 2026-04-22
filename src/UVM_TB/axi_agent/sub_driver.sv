@@ -27,7 +27,7 @@ vif=agt_cfg.sub_intf;
 endfunction
 
 task run_phase(uvm_phase phase);
-		wait(vif.sub_drv_cb.axi_rst_n && vif.sub_drv_cb.global_reset);
+		wait(vif.axi_rst_n && vif.global_reset);
 			@(vif.sub_drv_cb)
 		
 		forever begin

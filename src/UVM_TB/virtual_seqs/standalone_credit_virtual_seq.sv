@@ -1,4 +1,4 @@
-class standalone_credit_virtual_seq extends virtual_sequence;
+class standalone_credit_virtual_seq extends virtual_seq;
 	`uvm_object_utils(standalone_credit_virtual_seq)
 	
 	fdi_init_seqs init_seqh;
@@ -7,7 +7,7 @@ class standalone_credit_virtual_seq extends virtual_sequence;
 	single_rw_seq axi_rw_seqh1;
 	fdi_data_seqs fdi_d_seqh;
 	fdi_standalone_credit_rtn_seqs fdi_sd_seqh;
-	
+		virtual_seqr vseqrh;
 	rand int temp;
 	constraint c1{temp inside{0,1};}
 	int unsigned count=0;
@@ -26,8 +26,8 @@ class standalone_credit_virtual_seq extends virtual_sequence;
 		fdi_d_seqh=fdi_data_seqs::type_id::create("fdi_d_seqh");
 		fdi_sd_seqh = fdi_standalone_credit_rtn_seqs::type_id::create("fdi_sd_seqh");
 		
-		begin
-			init_seqh.start(fdi_seqr);
+		
+			init_seqh.start(vseqrh.fdi_seqr);
 			
 			repeat(33)
 				begin
@@ -36,12 +36,12 @@ class standalone_credit_virtual_seq extends virtual_sequence;
 							fork 
 								begin
 									if(temp==0)
-										axi_rw_seqh0.start(sub_sqr0);
+										axi_rw_seqh0.start(vseqrh.sub_seqr0);
 									else 
-										axi_rw_seqh1.start(sub_sqr1);
+										axi_rw_seqh1.start(vseqrh.sub_seqr1);
 								end
 								
-										fdi_d_seqh.start(fdi_seqr);
+										fdi_d_seqh.start(vseqrh.fdi_seqr);
 							join
 						count=count+1;
 						end
@@ -51,7 +51,7 @@ class standalone_credit_virtual_seq extends virtual_sequence;
 						begin
 							fork
 								
-								fdi_sd_seqh.start(fdi_seqr);
+								fdi_sd_seqh.start(vseqrh.fdi_seqr);
 							join
 							count=0;
 						end

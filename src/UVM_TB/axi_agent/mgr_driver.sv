@@ -22,8 +22,8 @@ vif=agt_cfg.mgr_intf;
 endfunction
 	
 	task run_phase(uvm_phase phase);
-	wait(vif.mgr_drv_cb.axi_rst_n && vif.mgr_drv_cb.global_reset);
-			@(vif.sub_drv_cb)
+	wait(vif.axi_rst_n && vif.global_reset);
+			@(vif.mgr_drv_cb);
 	fork 
 		drive_b(txn);
 		drive_r(txn);
@@ -31,12 +31,12 @@ endfunction
 	endtask 
 	
 	task drive_b(axi4_seq_item txn);
-		@( vif.mgr_drv_cb)
+		@( vif.mgr_drv_cb);
 		vif.mgr_drv_cb.bvalid<=0;
 		vif.mgr_drv_cb.bid<=txn.id;
 		vif.mgr_drv_cb.bresp<=txn.resp;
 		wait(vif.mgr_drv_cb.bready);  
-		@(vif.mgr_drv_cb)
+		@(vif.mgr_drv_cb);
 		vif.mgr_drv_cb.bvalid<=1;
 	endtask
 	

@@ -1,6 +1,6 @@
-class fdi_init_seqs extends fdi_sequence;
+class fdi_init_seqs extends uvm_sequence#(fdi_pkt_item);
 	`uvm_object_utils(fdi_init_seqs)
-	fdi_xtn fditxn;
+	fdi_pkt_item fditxn;
 	
 	function new(string name="fdi_init_seqs");
 		super.new(name);
@@ -11,7 +11,7 @@ class fdi_init_seqs extends fdi_sequence;
 		
 		foreach(credit[vcn]) 
 			begin
-			fditxn=fdi_xtn:: type_id:: create("fditxn");
+			fditxn=fdi_pkt_item:: type_id:: create("fditxn");
 			start_item(fditxn);
 			assert(fditxn.randomize() with{fditxn.opcode==4'h5;
 									  fditxn.credit_rtn_vcn==vcn;
