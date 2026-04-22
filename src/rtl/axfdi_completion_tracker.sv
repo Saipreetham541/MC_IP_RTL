@@ -48,7 +48,7 @@ module axfdi_completion_tracker #(
       }completion_tracker[0:tracker_depth-1];
 
    logic          tx_d_found;
-   localparam int unsigned entry_idx_w = (tracker_depth > 1) ? $clog2(tracker_depth) : 1;
+   localparam integer entry_idx_w = (tracker_depth > 1) ? $clog2(tracker_depth) : 1;
    logic [entry_idx_w-1:0] tx_d_index;
 
    logic                   rx_d_hit;
