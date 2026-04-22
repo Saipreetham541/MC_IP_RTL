@@ -1,20 +1,28 @@
-# Vivado tools
-XVLOG := /cygdrive/E/2025.2/Vivado/bin/xvlog
-XELAB := /cygdrive/E/2025.2/Vivado/bin/xelab
-XSIM  := /cygdrive/E/2025.2/Vivado/bin/xsim
-# Vivado tools
-#XVLOG := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xvlog
-#XELAB := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xelab
-#XSIM  := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xsim
+# Vivado tools pavan path
+#XVLOG := /cygdrive/E/2025.2/Vivado/bin/xvlog
+#XELAB := /cygdrive/E/2025.2/Vivado/bin/xelab
+#XSIM  := /cygdrive/E/2025.2/Vivado/bin/xsim
 
-# Base directories
-INTERFACE_DIR := D:/Busbridges/src/UVM_TB/interfaces
-RTL_DIR    :=D:/Busbridges/src/rtl
-TB_DIR     := D:/Busbridges/src/UVM_TB/tb
-TEST_DIR   := D:/Busbridges/src/UVM_TB/test
-WORK_DIR   := work
-LOG_DIR    := logs
+# Vivado tools shivasai path
+XVLOG := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xvlog
+XELAB := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xelab
+XSIM  := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xsim
 
+# Base directories pavan path
+#INTERFACE_DIR := D:/Busbridges/src/UVM_TB/interfaces
+#RTL_DIR       :=D:/Busbridges/src/rtl
+#TB_DIR        := D:/Busbridges/src/UVM_TB/tb
+#TEST_DIR      := D:/Busbridges/src/UVM_TB/test
+#WORK_DIR      := work
+#LOG_DIR       := logs
+
+# Base directories shivasai path
+INTERFACE_DIR := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/interfaces
+RTL_DIR    	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/rtl
+TB_DIR     	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb
+TEST_DIR   	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/test
+WORK_DIR   	  := work
+LOG_DIR    	  := logs
 # Files
 INTERFACE_FILES := $(wildcard $(INTERFACE_DIR)/*.sv)
 RTL_FILES := $(wildcard $(RTL_DIR)/*.sv)
