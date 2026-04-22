@@ -53,8 +53,8 @@ module axfdi_tx_arb
     assign cpl_valid = write_resp_vaild | read_resp_vaild ;
 
 
-    assign cpl_txn_vaild = (cpl_valid) && (cpl_cnt > 0) && (!tx_vc_cpl_credit_ind);
-    assign np_txn_vaild = (np_vaild) && (np_cnt > 0) && (!tx_vc_np_credit_ind);
+    assign cpl_txn_vaild = (cpl_valid) && (cpl_cnt > 0) && (tx_vc_cpl_credit_ind);
+    assign np_txn_vaild = (np_vaild) && (np_cnt > 0) && (tx_vc_np_credit_ind);
 
 
     // txn_type

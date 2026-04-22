@@ -10,9 +10,9 @@ wire [addr_w:0] wr_ptr_gray,rd_ptr_gray;
 reg [addr_w:0]ff_wr1,ff_wr2,ff_rd1,ff_rd2;
 wire [addr_w:0] wr_ptr_sync,rd_ptr_sync;
 
-always @(posedge clk_wr or posedge rst)
+always @(posedge clk_wr or negedge rst)
 begin
-if(rst)
+if(!rst)
   wr_ptr<=0;
 else if(wr_en && ~full)
   begin
@@ -21,9 +21,9 @@ else if(wr_en && ~full)
   end
 end
 
-always @(posedge clk_rd or posedge rst)
+always @(posedge clk_rd or negedge rst)
 begin
-if(rst)
+if(!rst)
    begin
    rd_ptr<=0;
    end
@@ -37,9 +37,9 @@ end
 assign wr_ptr_gray= wr_ptr^(wr_ptr>>1);
 assign rd_ptr_gray= rd_ptr^(rd_ptr>>1);
 
-always @ (posedge clk_rd or posedge rst)
+always @ (posedge clk_rd or negedge rst)
 begin
-if(rst)
+if(!rst)
   begin
   ff_rd1<=0;
   ff_rd2<=0;
@@ -51,9 +51,9 @@ else
   end 
 end
 
-always @(posedge clk_wr or posedge rst)
+always @(posedge clk_wr or negedge rst)
 begin
-if(rst)
+if(!rst)
   begin
   ff_wr1<=0;
   ff_wr2<=0;

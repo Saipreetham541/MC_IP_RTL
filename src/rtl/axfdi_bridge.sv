@@ -684,6 +684,7 @@ module axfdi_bridge
         // clock and reset
         .axi_clk(axi_clk_i),
         .axi_rst_n(axi_rst_n_i),
+        .por_n(por_n_i),
         // Write Address Channel
         .awaddr(PORT0_MGR_awaddr),
         .awid(PORT0_MGR_awid),
@@ -764,6 +765,7 @@ module axfdi_bridge
         // clock and reset
         .axi_clk(axi_clk_i),
         .axi_rst_n(axi_rst_n_i),
+        .por_n(por_n_i),
 
         // Write Address Channel
         .awaddr(PORT1_MGR_awaddr),
@@ -846,6 +848,7 @@ module axfdi_bridge
         // clock and reset
         .axi_clk(axi_clk_i),
         .axi_rst_n(axi_rst_n_i),
+        .por_n(por_n_i),
         // Write Address Channel
         .awaddr(PORT0_SUB_awaddr),
         .awid(PORT0_SUB_awid),
@@ -927,6 +930,7 @@ module axfdi_bridge
         // clock and reset
         .axi_clk(axi_clk_i),
         .axi_rst_n(axi_rst_n_i),
+        .por_n(por_n_i),
 
         // Write Address Channel
         .awaddr(PORT1_SUB_awaddr),
@@ -1406,6 +1410,7 @@ module axfdi_bridge
      (
       .fdi_clk(fdi_clk_i),
       .fdi_rst_n(fdi_rst_n_i),
+      .por_n(por_n_i),
       //signals from the port merge
       .port_id_i(s_portmrg_arb_port_id),
       .write_req_vaild(s_portmrg_arb_write_req_vaild),
@@ -1443,6 +1448,7 @@ module axfdi_bridge
        (
         .fdi_clk(fdi_clk_i),
         .fdi_rst_n(fdi_rst_n_i),
+        .por_n(por_n_i),
     // Arbiter
         .txn_type(s_arb_txn_type),
         .vcn_sel(s_arb_vcn_sel),
