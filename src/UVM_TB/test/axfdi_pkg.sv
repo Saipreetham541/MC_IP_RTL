@@ -38,17 +38,44 @@ import uvm_pkg::*;
 `include "../axi_agent/sub_seqr.sv"
 `include "../axi_agent/axi_agent.sv"
 
-
+`include "virtual_seqr.sv"
 `include "axfdi_predictor.sv"
 `include "axfdi_comparator.sv"
 `include "axfdi_scoreboard.sv"
 
-`include "../tb/virtual_seqr.sv"
-`include "../tb/axfdi_env.sv"
-//`include "../sequences/write_sub_seqs.sv"
-//`include "../sequences/mgr_seqs.sv"
-//          `include "../sequences/virtual_seqs.sv"
 
+`include "axi_back_pressure_seq.sv"
+`include "credit_starve_axi_seq.sv"
+`include "fdi_back_pressure_seqs.sv"
+`include "fdi_credit_starve_seqs.sv"
+`include "fdi_data_seqs.sv"
+`include "fdi_inline_credit_rtn_seqs.sv"
+`include "fdi_standalone_credit_rtn_seqs.sv"
+`include "single_read_seq.sv"
+`include "single_rw_port_seq.sv"
+`include "single_write_seq.sv"
+
+
+`include "../virtual_seqs/credit_back_pressure_virtual_seqs.sv"
+`include "../virtual_seqs/credit_starve_virtual_seq.sv"
+`include "../virtual_seqs/inline_credit_virtual_seq.sv"
+`include "../virtual_seqs/single_read_virtual_seq.sv"
+`include "../virtual_seqs/single_rw_virtual_seq.sv"
+`include "../virtual_seqs/single_write_virtual_seq.sv"
+`include "../virtual_seqs/standalone_credit_virtual_seq.sv"
+`include "../virtual_seqs/base_vseq.sv"
+
+
+`include "../tb/axfdi_env.sv"
+
+
+`include "credit_backpressure_test.sv"
+`include "credit_starve_test.sv"
+`include "inline_credit_test.sv"
+`include "single_read_test.sv"
+`include "single_rw_test.sv"
+`include "single_write_test.sv"
+`include "standalone_credit_test.sv"
 
 `include "axfdi_test.sv"
 

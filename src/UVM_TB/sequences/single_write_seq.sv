@@ -1,4 +1,4 @@
-class single_write_seq extends sub_sequence;
+class single_write_seq extends uvm_sequence #(axi4_seq_item);
 	`uvm_object_utils(single_write_seq)
 	axi_xtn txn;
 	

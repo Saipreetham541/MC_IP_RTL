@@ -58,6 +58,9 @@ function void connect_phase(uvm_phase phase);
  vseqrh.mgr_seqr0 = this.axi_agt[0].mgr_seqr;
  vseqrh.mgr_seqr1 =this.axi_agt[1].mgr_seqr;
   //end
+  vseqrh.fdi_seqr=this.fdi_agt.fdi_seqr;
+  
+  
  endfunction
 
 endclass
