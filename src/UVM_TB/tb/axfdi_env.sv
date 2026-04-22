@@ -12,7 +12,7 @@ axfdi_scoreboard sb;
 
 virtual_seqr vseqrh;
 
-fdi_credit_manager credit_mgr;
+
 
 function new(string name="axfdi_env",uvm_component parent);
 super.new(name,parent);
@@ -25,7 +25,7 @@ if(!uvm_config_db#(env_config)::get(this,"","env_config",env_cfg))
 axi_agt=new[env_cfg.no_of_axi_agts];
 vseqrh= virtual_seqr:: type_id:: create("vserqrh",this);
 
-credit_mgr = fdi_credit_manager :: type_id :: create("credit_mgr" , this);
+
 
 foreach(axi_agt[i])
 begin
@@ -43,7 +43,7 @@ sb=axfdi_scoreboard::type_id::create("sb",this);
 
 uvm_config_db#(fdi_agt_config)::set(this,"*","fdi_agt_config",env_cfg.fdi_cfg);
 uvm_config_db#(apb_agt_config)::set(this,"*","apb_agt_config",env_cfg.apb_cfg);
-uvm_config_db#(fdi_credit_manager):: set(this, "*", "credit_mgr" , credit_mgr); 
+
 
 endfunction
 

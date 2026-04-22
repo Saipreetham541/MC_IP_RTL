@@ -1380,6 +1380,7 @@ module axfdi_bridge
      (
       .fdi_clk(fdi_clk_i),
       .fdi_rst_n(fdi_rst_n_i),
+      .por_n(por_n_i),
 
       .AW_cdc_fifo_empty_0(s_port0_sub_cdc_aw_d_empty),// sub side port 0
       .W_cdc_fifo_empty_0(s_port0_sub_cdc_w_d_empty),// sub side port 0

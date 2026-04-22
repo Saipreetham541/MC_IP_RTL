@@ -20,6 +20,8 @@ module axfdi_axi_mgr #(
 )(
   input  logic                   axi_clk,
   input  logic                   axi_rst_n,
+  input  logic                   por_n, 
+
 
   // AXI mng Write Address
   output logic [AXI_ADDR_W-1:0]  awaddr,
@@ -30,6 +32,7 @@ module axfdi_axi_mgr #(
   output logic                   awvalid,
   input  logic                   awready,
 
+
   // AXI mng Write Data
   output logic [AXI_DATA_W-1:0]  wdata,
   output logic [127:0]           wstrb,
@@ -37,11 +40,13 @@ module axfdi_axi_mgr #(
   output logic                   wvalid,
   input  logic                   wready,
 
+
   // AXI mng Write Response
   input  logic [AXI_ID_W-1:0]    bid,
   input  logic [1:0]             bresp,
   input  logic                   bvalid,
   output logic                   bready,
+
 
   // AXI mng Read Address
   output logic [AXI_ADDR_W-1:0]  araddr,
@@ -52,6 +57,7 @@ module axfdi_axi_mgr #(
   output logic                   arvalid,
   input  logic                   arready,
 
+
   // AXI mng Read Data
   input  logic [AXI_DATA_W-1:0]  rdata,
   input  logic [AXI_ID_W-1:0]    rid,
@@ -60,63 +66,93 @@ module axfdi_axi_mgr #(
   input  logic                   rvalid,
   output logic                   rready,
 
+
   // CDC to mng
   input  logic [60:0]            AW_cdc_data,
   input  logic                   AW_cdc_empty,
   output logic                   AW_cdc_rd_en,
 
+
   input  logic [1152:0]          W_cdc_data,
   input  logic                   W_cdc_empty,
   output logic                   W_cdc_rd_en,
+
 
   input  logic [60:0]            AR_cdc_data,
   input  logic                   AR_cdc_empty,
   output logic                   AR_cdc_rd_en,
 
+
   output logic [1034:0]          R_cdc_data,
   input  logic                   R_cdc_full,
   output logic                   R_cdc_wr_en,
+
 
   output logic [B_W-1:0]             B_cdc_data,
   input  logic                   B_cdc_full,
   output logic                   B_cdc_wr_en
 );
 
+
   // AW TX buffer signals
   logic [AW_W-1:0]  aw_buf_din, aw_buf_dout;
   logic             aw_buf_wen, aw_buf_ren;
   logic             aw_buf_full, aw_buf_empty;
+
 
   // W TX buffer signals
   logic [W_W-1:0]   w_buf_din, w_buf_dout;
   logic             w_buf_wen, w_buf_ren;
   logic             w_buf_full, w_buf_empty;
 
+
   // AR TX buffer signals
   logic [AR_W-1:0]  ar_buf_din, ar_buf_dout;
   logic             ar_buf_wen, ar_buf_ren;
   logic             ar_buf_full, ar_buf_empty;
+
 
   // R RX buffer signals
   logic [R_W-1:0]   r_buf_din, r_buf_dout;
   logic             r_buf_wen, r_buf_ren;
   logic             r_buf_full, r_buf_empty;
 
+
   logic [AW_W-1:0]  AW_hold_data;
   logic [W_W-1:0]   W_hold_data;
   logic [AR_W-1:0]  AR_hold_data;
 
+
   logic             AW_cdc_pending, AW_buf_wr_pending, AW_buf_rd_pending, AW_load_pending;
   logic             W_cdc_pending,  W_buf_wr_pending,  W_buf_rd_pending,  W_load_pending;
   logic             AR_cdc_pending, AR_buf_wr_pending, AR_buf_rd_pending, AR_load_pending;
-  
+ 
   logic r_rd_pending,R_cdc_wr_en_r;
   logic [1034:0] R_cdc_data_r;
+
 
   // AR channel
   assign ar_buf_din = AR_hold_data;
 
-  always_ff @(posedge axi_clk) begin
+
+  always_ff @(posedge axi_clk , negedge por_n) begin
+    if (!por_n) begin
+      AR_cdc_rd_en      <= 1'b0;
+      ar_buf_wen        <= 1'b0;
+      ar_buf_ren        <= 1'b0;
+      arvalid           <= 1'b0;
+      arid              <= '0;
+      arlen             <= '0;
+      arsize            <= '0;
+      arburst           <= '0;
+      araddr            <= '0;
+      AR_hold_data      <= '0;
+      AR_cdc_pending    <= 1'b0;
+      AR_buf_wr_pending <= 1'b0;
+      AR_buf_rd_pending <= 1'b0;
+      AR_load_pending   <= 1'b0;
+    end
+    else begin
     if (!axi_rst_n) begin
       AR_cdc_rd_en      <= 1'b0;
       ar_buf_wen        <= 1'b0;
@@ -137,6 +173,7 @@ module axfdi_axi_mgr #(
       ar_buf_wen   <= 1'b0;
       ar_buf_ren   <= 1'b0;
 
+
       if (!AR_cdc_pending && !AR_buf_wr_pending) begin
         if (!AR_cdc_empty && !ar_buf_full) begin
           AR_cdc_rd_en   <= 1'b1;
@@ -152,6 +189,7 @@ module axfdi_axi_mgr #(
           AR_buf_wr_pending <= 1'b0;
         end
       end
+
 
       if (AR_load_pending) begin
         arvalid         <= 1'b1;
@@ -172,6 +210,8 @@ module axfdi_axi_mgr #(
       end
     end
   end
+  end
+
 
   TX_BUFF #(.DEPTH(AR_DEPTH), .DATA_WIDTH(AR_W)) u_ar_buf (
     .clk(axi_clk), .rst_n(axi_rst_n),
@@ -180,10 +220,29 @@ module axfdi_axi_mgr #(
     .full(ar_buf_full), .empty(ar_buf_empty)
   );
 
+
   // AW channel
   assign aw_buf_din = AW_hold_data;
 
-  always_ff @(posedge axi_clk) begin
+
+  always_ff @(posedge axi_clk, negedge por_n) begin
+    if (!por_n) begin
+      AW_cdc_rd_en      <= 1'b0;
+      aw_buf_wen        <= 1'b0;
+      aw_buf_ren        <= 1'b0;
+      awvalid           <= 1'b0;
+      awid              <= '0;
+      awlen             <= '0;
+      awsize            <= '0;
+      awburst           <= '0;
+      awaddr            <= '0;
+      AW_hold_data      <= '0;
+      AW_cdc_pending    <= 1'b0;
+      AW_buf_wr_pending <= 1'b0;
+      AW_buf_rd_pending <= 1'b0;
+      AW_load_pending   <= 1'b0;
+    end
+  else begin
     if (!axi_rst_n) begin
       AW_cdc_rd_en      <= 1'b0;
       aw_buf_wen        <= 1'b0;
@@ -204,6 +263,7 @@ module axfdi_axi_mgr #(
       aw_buf_wen   <= 1'b0;
       aw_buf_ren   <= 1'b0;
 
+
       if (!AW_cdc_pending && !AW_buf_wr_pending) begin
         if (!AW_cdc_empty && !aw_buf_full) begin
           AW_cdc_rd_en   <= 1'b1;
@@ -219,6 +279,7 @@ module axfdi_axi_mgr #(
           AW_buf_wr_pending <= 1'b0;
         end
       end
+
 
       if (AW_load_pending) begin
         awvalid         <= 1'b1;
@@ -239,6 +300,8 @@ module axfdi_axi_mgr #(
       end
     end
   end
+  end
+
 
   TX_BUFF #(.DEPTH(AW_DEPTH), .DATA_WIDTH(AW_W)) u_aw_buf (
     .clk(axi_clk), .rst_n(axi_rst_n),
@@ -247,10 +310,27 @@ module axfdi_axi_mgr #(
     .full(aw_buf_full), .empty(aw_buf_empty)
   );
 
+
   // W channel
   assign w_buf_din = W_hold_data;
 
-  always_ff @(posedge axi_clk) begin
+
+  always_ff @(posedge axi_clk, negedge por_n) begin
+    if (!por_n) begin
+      W_cdc_rd_en      <= 1'b0;
+      w_buf_wen        <= 1'b0;
+      w_buf_ren        <= 1'b0;
+      wvalid           <= 1'b0;
+      wdata            <= '0;
+      wstrb            <= '0;
+      wlast            <= '0;
+      W_hold_data      <= '0;
+      W_cdc_pending    <= 1'b0;
+      W_buf_wr_pending <= 1'b0;
+      W_buf_rd_pending <= 1'b0;
+      W_load_pending   <= 1'b0;
+    end
+    else begin
     if (!axi_rst_n) begin
       W_cdc_rd_en      <= 1'b0;
       w_buf_wen        <= 1'b0;
@@ -269,6 +349,7 @@ module axfdi_axi_mgr #(
       w_buf_wen   <= 1'b0;
       w_buf_ren   <= 1'b0;
 
+
       if (!W_cdc_pending && !W_buf_wr_pending) begin
         if (!W_cdc_empty && !w_buf_full) begin
           W_cdc_rd_en   <= 1'b1;
@@ -284,6 +365,7 @@ module axfdi_axi_mgr #(
           W_buf_wr_pending <= 1'b0;
         end
       end
+
 
       if (W_load_pending) begin
         wvalid         <= 1'b1;
@@ -302,6 +384,8 @@ module axfdi_axi_mgr #(
       end
     end
   end
+  end
+
 
   TX_BUFF #(.DEPTH(W_DEPTH), .DATA_WIDTH(W_W)) u_w_buf (
     .clk(axi_clk), .rst_n(axi_rst_n),
@@ -310,10 +394,14 @@ module axfdi_axi_mgr #(
     .full(w_buf_full), .empty(w_buf_empty)
   );
 
+
   // B channel
   assign bready      = ~B_cdc_full;
   assign B_cdc_wr_en = bvalid & bready;
   assign B_cdc_data  = {bid, bresp};
+
+
+
 
 
 
@@ -322,6 +410,7 @@ module axfdi_axi_mgr #(
   assign rready    = ~r_buf_full;
   assign r_buf_wen = rvalid & rready;
 
+
   TX_BUFF #(.DEPTH(256), .DATA_WIDTH(R_W)) u_r_buf (
     .clk(axi_clk), .rst_n(axi_rst_n),
     .w_en(r_buf_wen), .r_en(r_buf_ren),
@@ -329,13 +418,21 @@ module axfdi_axi_mgr #(
     .full(r_buf_full), .empty(r_buf_empty)
   );
 
-  always_ff @(posedge axi_clk) begin
+
+  always_ff @(posedge axi_clk , negedge por_n) begin
+    if (!por_n) begin
+    R_cdc_wr_en_r <= 1'b0;
+    R_cdc_data_r  <= '0;
+    r_rd_pending  <= 1'b0;
+    end
+    else begin
     if (!axi_rst_n) begin
       R_cdc_wr_en_r <= 1'b0;
       R_cdc_data_r  <= '0;
       r_rd_pending  <= 1'b0;
     end else begin
       R_cdc_wr_en_r <= 1'b0;
+
 
       if (~r_rd_pending) begin
         if (~r_buf_empty & ~R_cdc_full) begin
@@ -348,15 +445,12 @@ module axfdi_axi_mgr #(
       end
     end
   end
+  end
+
 
   assign r_buf_ren  = ~r_buf_empty & ~R_cdc_full & ~r_rd_pending;
   assign R_cdc_wr_en = R_cdc_wr_en_r;
   assign R_cdc_data  = R_cdc_data_r;
 
+
 endmodule
-
-
-
-
-
-

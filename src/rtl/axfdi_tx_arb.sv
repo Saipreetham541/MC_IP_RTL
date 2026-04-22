@@ -1,7 +1,15 @@
+/* Module Name: axfdi_tx_arb
+   Clock Domain : FDI 625Mhz
+   Engineer  : Vishwa Patwrai
+   Project Name: AXFDI Bridge
+   Company : Sevya Multimedia Technologies Pvt. Ltd.
+*/
+
 module axfdi_tx_arb  
 (
     input logic    fdi_clk,
     input logic    fdi_rst_n,
+    input logic    por_n,
      
     //signals from the port merge
     input logic    port_id_i,
@@ -127,7 +135,12 @@ end
 
 assign reload = (cpl_cnt_next == 0) && (np_cnt_next == 0);
    
-    always_ff @(posedge fdi_clk) begin
+    always_ff @(posedge fdi_clk, negedge por_n) begin
+    if (!por_n) begin
+        cpl_cnt <= vcn_cpl_weig;
+        np_cnt  <= vcn_np_weig;
+    end
+    else begin
     if (!fdi_rst_n) begin
         cpl_cnt <= vcn_cpl_weig;
         np_cnt  <= vcn_np_weig;
@@ -143,16 +156,22 @@ assign reload = (cpl_cnt_next == 0) && (np_cnt_next == 0);
         end
     end
 end
+end
 
 
     // perent state logc
-    always_ff @( posedge fdi_clk  ) begin
+    always_ff @( posedge fdi_clk , negedge por_n ) begin
+         if (!por_n) begin
+          cs <= IDLE;
+    end
+    else begin
         if (!fdi_rst_n) begin
             cs <= IDLE;
         end
         else begin
             cs <= ns;
         end
+    end
     end
    
     // next state logic
@@ -245,7 +264,14 @@ end
     end
 
 
-    always_ff @( posedge fdi_clk ) begin
+    always_ff @( posedge fdi_clk, negedge por_n ) begin
+        if (!por_n) begin
+          r_txn_type <= NOP;
+          r_vcn_sel <= VCN_CPL;
+          r_last_req <= READ_REQ;
+          r_last_resp <= READ_RESP;
+    end
+    else begin
         if(!fdi_rst_n)begin
             r_txn_type <= NOP;
             r_vcn_sel <= VCN_CPL;
@@ -265,6 +291,7 @@ end
             r_last_req <= s_last_req;
             
         end
+    end
     end
 
    assign crd_rtn_valid = crd_rtn;

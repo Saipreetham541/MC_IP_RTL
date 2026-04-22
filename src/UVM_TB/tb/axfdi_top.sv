@@ -9,8 +9,6 @@ logic apb_clk=0;
 
 reset_interface rst_intf();
 
-
-
 mgr_interface axi_mgr_intf_0(axi_clk);
 sub_interface axi_sub_intf_0(axi_clk);
 mgr_interface axi_mgr_intf_1(axi_clk);
@@ -39,7 +37,7 @@ axfdi_bridge DUV(.fdi_clk_i(fdi_clk),
 				 .PORT0_SUB_bid(axi_sub_intf_0.bid) ,
 				 .PORT0_SUB_bresp(axi_sub_intf_0.bresp),
                  .PORT0_SUB_bvalid(axi_sub_intf_0.bvalid),
-                 .PORT0_SUB_bready(axi_sub_intf_0.bready)
+                 .PORT0_SUB_bready(axi_sub_intf_0.bready),
 				 .PORT0_SUB_araddr(axi_sub_intf_0.araddr),
 				 .PORT0_SUB_arid(axi_sub_intf_0.arid),
 				 .PORT0_SUB_arlen(axi_sub_intf_0.arlen),
@@ -201,7 +199,7 @@ begin
    
    uvm_config_db #(virtual reset_interface)::set(null,"*","rst_intf",rst_intf);
    
-   run_test("axfdi_test");
+   run_test();
    
 end
 endmodule

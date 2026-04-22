@@ -19,7 +19,7 @@ if(!uvm_config_db#(fdi_agt_config)::get(this,"","fdi_agt_config",fdi_cfg))
 if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))
 `uvm_fatal("FATAL","FROM RESET INTERFACE")
 
-if(!uvm_config_db#(fdi_credit_manager) :: get(this, "", "credit_mgr",credit_mgr))
+if(!uvm_config_db#(fdi_credit_manager) :: get(this, "", "fdi_credit_manager",credit_mgr))
 `uvm_fatal("fdi_driver", "credit get is failed")
 endfunction
 
@@ -110,12 +110,12 @@ endfunction
       analysis_port.write(txn);
 
     end
-
+	end
   endtask
 
   //HEADEr
 
-  function void decode_header(bit [2047:0] flit, ref fdi_pkt_item txn);
+  function void decode_header(bit [2047:0]flit, ref fdi_pkt_item txn);
 
     txn.vcn = flit[2:0];
     txn.opcode = flit[6:3];
@@ -133,14 +133,14 @@ endfunction
 
   //PAYLOAD
   
-  function void collect_payload(bit [2047:0] flit,ref fdi_pkt_item txn);
+  function void collect_payload(bit [2047:0]flit,ref fdi_pkt_item txn);
 
     for(int i=0;i<248;i++) begin
-      txn.data[]=(flit[i*8 +: 8]);
+      txn.data[i]=(flit[(i*8) +: 8]);
     end
 
   endfunction
 
 endclass
 
- endclass
+ 

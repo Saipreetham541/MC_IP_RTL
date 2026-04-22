@@ -2,7 +2,7 @@ class fdi_pkt_item extends uvm_sequence_item;
 
     `uvm_object_utils(fdi_pkt_item)
     
-    rand bit trdy
+    rand bit trdy;
     rand bit [2:0] vcn;
     rand bit [3:0] opcode;
     rand bit port_id;

@@ -7,6 +7,7 @@
 module axfdi_port_merge (
     input logic     fdi_clk,
     input logic     fdi_rst_n,
+    input logic     por_n,
  
     input logic     AW_cdc_fifo_empty_0,// sub side port 0
     input logic     W_cdc_fifo_empty_0,// sub side port 0
@@ -73,7 +74,12 @@ module axfdi_port_merge (
    merge_fsm cs;
    merge_fsm ns;
 
-   always_ff @(posedge fdi_clk) begin
+   always_ff @(posedge fdi_clk, negedge por_n) begin
+    if (!por_n) begin
+      cs <= IDLE;
+      last_port <= 1'b1;
+    end
+    else begin
     if (!fdi_rst_n) begin
         cs <= IDLE;
         last_port <= 1'b1;
@@ -87,6 +93,7 @@ module axfdi_port_merge (
             last_port <= 1'b1;
         end   
     end
+end
 end
    
    always_comb begin 
@@ -195,7 +202,14 @@ end
     
    end
 
-   always_ff @( posedge fdi_clk ) begin
+   always_ff @( posedge fdi_clk , negedge por_n) begin
+    if (!por_n) begin
+      write_req_vaild <= 0;
+      read_req_vaild <= 0;
+      write_resp_vaild <= 0;
+      read_resp_vaild <= 0;
+    end
+    else begin
     if (!fdi_rst_n) begin
         write_req_vaild <= 0;
         read_req_vaild <= 0;
@@ -225,6 +239,7 @@ end
         endcase
     end
     
+   end
    end
 
    assign port_id = last_port;

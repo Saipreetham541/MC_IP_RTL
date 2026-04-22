@@ -1,3 +1,4 @@
+
 /* Module Name: axfdi_axi_sub
    Clock Domain : AXI 500Mhz
    Engineer  : Vishwa Patwrai
@@ -21,6 +22,7 @@ module axfdi_axi_sub #(
 )(
   input  logic                   axi_clk,
   input  logic                   axi_rst_n,
+  input  logic                   por_n, 
 
   // AXI SUB Write Address
   input  logic [AXI_ADDR_W-1:0]  awaddr,
@@ -158,7 +160,15 @@ module axfdi_axi_sub #(
   assign aw_buf_ren = pair_aw_w;
   assign w_buf_ren  = pair_aw_w;
 
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk, negedge por_n) begin
+    if (!por_n) begin
+      AW_cdc_wr_en_r <= 1'b0;
+      AW_cdc_data_r  <= '0;
+      W_cdc_wr_en_r  <= 1'b0;
+      W_cdc_data_r   <= '0;
+      aw_w_rd_pending <= 1'b0;
+    end
+    else begin
     if (!axi_rst_n) begin
       AW_cdc_wr_en_r <= 1'b0;
       AW_cdc_data_r  <= '0;
@@ -182,6 +192,7 @@ module axfdi_axi_sub #(
       end
     end
   end
+  end
 
   assign AW_cdc_wr_en = AW_cdc_wr_en_r;
   assign AW_cdc_data  = AW_cdc_data_r;
@@ -200,7 +211,13 @@ module axfdi_axi_sub #(
     .full(ar_buf_full), .empty(ar_buf_empty)
   );
 
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk , negedge por_n) begin
+    if (!por_n) begin
+      AR_cdc_wr_en_r <= 1'b0;
+      AR_cdc_data_r  <= '0;
+      ar_rd_pending  <= 1'b0;
+    end
+    else begin
     if (!axi_rst_n) begin
       AR_cdc_wr_en_r <= 1'b0;
       AR_cdc_data_r  <= '0;
@@ -219,13 +236,24 @@ module axfdi_axi_sub #(
       end
     end
   end
+  end
 
   assign ar_buf_ren  = ~ar_buf_empty & ~AR_cdc_full & ~ar_rd_pending;
   assign AR_cdc_wr_en = AR_cdc_wr_en_r;
   assign AR_cdc_data  = AR_cdc_data_r;
 
   // B Channel
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk , negedge por_n) begin
+    if (!por_n) begin
+      B_cdc_rd_en    <= 1'b0;
+      bvalid         <= 1'b0;
+      bid            <= '0;
+      bresp          <= 2'b00;
+      B_din          <= '0;
+      B_hold_valid   <= 1'b0;
+      b_cdc_pending  <= 1'b0;
+    end
+    else begin
     if (!axi_rst_n) begin
       B_cdc_rd_en    <= 1'b0;
       bvalid         <= 1'b0;
@@ -260,11 +288,28 @@ module axfdi_axi_sub #(
       end
     end
   end
+  end
 
   // R channel
   assign r_buf_din = R_din_hold;
 
-  always_ff @(posedge axi_clk) begin
+  always_ff @(posedge axi_clk, negedge por_n) begin
+    if (!por_n) begin
+      R_cdc_rd_en    <= 1'b0;
+      r_buf_wen      <= 1'b0;
+      r_buf_ren      <= 1'b0;
+      rvalid         <= 1'b0;
+      rdata          <= '0;
+      rid            <= '0;
+      rresp          <= 2'b00;
+      rlast          <= 1'b0;
+      R_din_hold     <= '0;
+      r_cdc_pending  <= 1'b0;
+      r_buf_wr_pending <= 1'b0;
+      r_buf_rd_pending <= 1'b0;
+      r_load_pending <= 1'b0;
+    end
+    else begin
     if (!axi_rst_n) begin
       R_cdc_rd_en    <= 1'b0;
       r_buf_wen      <= 1'b0;
@@ -319,6 +364,7 @@ module axfdi_axi_sub #(
         r_load_pending <= 1'b0;
       end
     end
+  end
   end
 
   TX_BUFF #(.DEPTH(256), .DATA_WIDTH(R_W)) u_r_buf (

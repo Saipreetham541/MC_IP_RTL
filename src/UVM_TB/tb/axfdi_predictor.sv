@@ -14,7 +14,7 @@ class axfdi_predictor extends uvm_component;
 
   //ENUM DECLEARATION
 
-  typedef enum logic [3:0] {
+  typedef enum bit [3:0] {
         WRITE_REQ   = 4'h0,
         READ_REQ    = 4'h1,
         WRITE_RESP  = 4'h2,
@@ -24,9 +24,9 @@ class axfdi_predictor extends uvm_component;
         RESERVED    = 4'h6
     } opcode_e;
 
-    typedef enum logic {
-        WRITE = 1'b0;
-        READ = 1'b1;
+    typedef enum bit {
+        WRITE = 1'b0 ,
+        READ = 1'b1 
     } txn_type ;
 
     //PREDICTOR INPUTS
@@ -105,10 +105,10 @@ class axfdi_predictor extends uvm_component;
             req_c = axi4_seq_item::type_id::create("req_c");
             req_c.copy(req);
             if (req_c.axn_type == WRITE) begin
-                wr_req_q[port].push_back(req_c);
+                void'(wr_req_q[port].push_back(req_c));
             end
             else begin
-                rd_req_q[port].push_back(req_c); 
+                void'(rd_req_q[port].push_back(req_c)); 
             end                       
             try_schedule_tx();
         end
@@ -270,7 +270,7 @@ class axfdi_predictor extends uvm_component;
         pkt.data  = new[BYTES_PER_BEAT];
         pkt.wstrb = new[1];
         foreach (pkt.data[i]) pkt.data[i] = (axi.data.size() > 0) ? axi.data[0][(i*8)+:8] : '0;
-        pkt.wstrb = (axi.strb.size() > 0) ? axi.strb[0] : '0;
+        pkt.wstrb[0] = (axi.strb.size() > 0) ? axi.strb[0] : '0;
     endfunction
 
     function void unpack_fdi_payload_to_axi(fdi_pkt_item pkt, ref axi4_seq_item axi);
@@ -278,7 +278,7 @@ class axfdi_predictor extends uvm_component;
         axi.strb = new[1];
         axi.data[0] = '0;
         foreach (pkt.data[i]) axi.data[0][(i*8)+:8] = pkt.data[i];
-        axi.strb[0] = pkt.wstrb;
+        axi.strb[0] = pkt.wstrb[0];
     endfunction
 
     //BULDING EXPECTED FDI PACKET FROM AXI TXN
@@ -310,14 +310,14 @@ class axfdi_predictor extends uvm_component;
             pkt.resp = axi.resp;
             pkt.addr = axi.addr;
             pkt.data = new[0];
-            pkt.wstrb = '0;
+            pkt.wstrb[0] = '0;
         end
         else if (txn_type == WRITE_RESP) begin
             axi = wr_rsp_q[port][0];
             pkt.txn_id = axi.id;
             pkt.resp = axi.resp;
             pkt.data = new[0];
-            pkt.wstrb = '0;
+            pkt.wstrb[0] = '0;
         end
         else if (txn_type == READ_RESP) begin
             axi = rd_rsp_q[port][0];
@@ -328,7 +328,7 @@ class axfdi_predictor extends uvm_component;
         else begin
             pkt.txn_id = '0;
             pkt.data = new[0];
-            pkt.wstrb = '0;
+            pkt.wstrb[0] = '0;
         end
 
         if (credit_rtn_pending) begin

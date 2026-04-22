@@ -1,6 +1,6 @@
 typedef enum bit {
-  READ  = 0,
-  WRITE = 1
+  READ  = 1,
+  WRITE = 0
 } axn_type_e;
 
 class axi4_seq_item extends uvm_sequence_item;
@@ -16,7 +16,7 @@ class axi4_seq_item extends uvm_sequence_item;
   rand bit [127:0] strb[]; // write strobes per beat
   rand bit [1:0] resp; // expected/actual BRESP/RRESP
   //rand bit [3:0] qos; // AWQOS/ARQOS
-  rand axn_type_e axn_type; // READ / WRITE
+  rand  bit axn_type; // READ / WRITE
  
  //rand bit [31:0] delay_cycles; // inter-transaction delay
  
@@ -46,9 +46,9 @@ class axi4_seq_item extends uvm_sequence_item;
 		size         = rhs_.size;
 		burst        = rhs_.burst;
 		resp         = rhs_.resp;
-		qos          = rhs_.qos;
+	//	qos          = rhs_.qos;
 		axn_type     = rhs_.axn_type;
-		delay_cycles = rhs_.delay_cycles;
+	//	delay_cycles = rhs_.delay_cycles;
 
 		data = new[rhs_.data.size()];
 		foreach(data[i])

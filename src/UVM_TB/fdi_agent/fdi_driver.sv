@@ -5,7 +5,7 @@
 
 virtual fdi_interface.FDI_DRV_MP vif;
 virtual reset_interface rst_intf;
-
+fdi_pkt_item txn;
 fdi_credit_manager credit_mgr;
 
 fdi_agt_config fdi_cfg;
@@ -19,8 +19,10 @@ if(!uvm_config_db#(fdi_agt_config)::get(this,"","fdi_agt_config",fdi_cfg))
 if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))
 `uvm_fatal("FATAL","FROM RESET INTERFACE")
 
-if(!uvm_config_db#(fdi_credit_manager) :: get(this, "", "credit_mgr",credit_mgr));
-`uvm_fatal("fdi_driver", "credit get is failed");
+if(!uvm_config_db#(fdi_credit_manager) :: get(this, "", "fdi_credit_manager",credit_mgr))
+`uvm_fatal("fdi_driver", "credit get is failed")
+
+txn=fdi_pkt_item :: type_id :: create("txn");
 
 endfunction
 
@@ -31,13 +33,17 @@ endfunction
 
 task run_phase(uvm_phase phase);
 
+wait(vif.fdi_drv_cb.global_reset && vif.fdi_drv_cb.fdi_rst_n);
+	@(vif.fdi_drv_cb)
+
 	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
 	if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
 	@(vif.fdi_drv_cb);
 	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b010;
+	end
 	else
 	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
-	end
+	
 
   forever begin
 
@@ -118,11 +124,13 @@ task drive_write_req(fdi_pkt_item txn);
   bit [2047:0] header_flit;
 
   int idx;
+  int wstrb_present=0;
 
   header_flit=build_header(txn);
 	idx=0;
   
-bit wstrb_present=0;
+
+
 
 foreach(txn.wstrb[i]) begin
   if(txn.wstrb[i] != '1) begin
@@ -133,7 +141,7 @@ end
   if(wstrb_present==1)
     header_flit[255:128]=txn.wstrb[0];
   else 
-	header_flit[255:128]=0;
+	header_flit[255:128]='0;
 
   for(int i=0;i<216;i++) begin
 
@@ -194,7 +202,7 @@ task drive_read_resp(fdi_pkt_item txn);
   for(int i=0;i<216;i++) begin
 
     if(idx < txn.data.size())
-      header_flit[(256+i*8)+:8] = txn.data[];
+      header_flit[(256+i*8)+:8] = txn.data[i];
     else
       header_flit[(256+i*8)+:8] = 0;
 	idx++;
