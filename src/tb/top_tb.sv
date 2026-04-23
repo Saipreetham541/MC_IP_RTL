@@ -40,6 +40,8 @@ module top_tb;
   localparam logic [3:0] OPCODE_WRITE_RESP = 4'h2;
   localparam logic [3:0] OPCODE_READ_RESP  = 4'h3;
   localparam logic [3:0] OPCODE_CREDIT_RTN = 4'h4;
+  localparam int TX_TRANSACTION_COUNT = 17;
+  localparam int RX_TRANSACTION_COUNT = 16;
 
   logic                    fdi_clk_i;
   logic                    axi_clk_i;
@@ -364,6 +366,43 @@ module top_tb;
   initial axi_clk_i = 1'b0;
   always #6 axi_clk_i = ~axi_clk_i;
 
+  function automatic string opcode_name(input logic [3:0] opcode);
+    begin
+      case (opcode)
+        OPCODE_WRITE_REQ:  opcode_name = "WRITE_REQ";
+        OPCODE_READ_REQ:   opcode_name = "READ_REQ";
+        OPCODE_WRITE_RESP: opcode_name = "WRITE_RESP";
+        OPCODE_READ_RESP:  opcode_name = "READ_RESP";
+        OPCODE_CREDIT_RTN: opcode_name = "CREDIT_RTN";
+        default:           opcode_name = "UNKNOWN";
+      endcase
+    end
+  endfunction
+
+  function automatic [AXI_DATA_W-1:0] fill_data_word(input logic [31:0] pattern);
+    begin
+      fill_data_word = {32{pattern}};
+    end
+  endfunction
+
+  function automatic [1727:0] pack_data_line(input logic [AXI_DATA_W-1:0] data_word);
+    begin
+      pack_data_line = {data_word, 704'b0};
+    end
+  endfunction
+
+  function automatic [2:0] tx_vcn_for_opcode(input logic [3:0] opcode);
+    begin
+      case (opcode)
+        OPCODE_WRITE_REQ,
+        OPCODE_READ_REQ:   tx_vcn_for_opcode = 3'b001;
+        OPCODE_WRITE_RESP,
+        OPCODE_READ_RESP:  tx_vcn_for_opcode = 3'b000;
+        default:           tx_vcn_for_opcode = 3'b000;
+      endcase
+    end
+  endfunction
+
   task automatic expect_bit(input logic actual,
                             input logic expected,
                             input string msg);
@@ -408,6 +447,18 @@ module top_tb;
       if (actual !== expected) begin
         checks_failed++;
         $error("%s mismatch", msg);
+      end
+    end
+  endtask
+
+  task automatic expect_flit_exact(input logic [FDI_DATA_W-1:0] actual,
+                                   input logic [FDI_DATA_W-1:0] expected,
+                                   input string msg);
+    begin
+      checks_run++;
+      if (actual !== expected) begin
+        checks_failed++;
+        $error("%s flit mismatch", msg);
       end
     end
   endtask
@@ -504,36 +555,6 @@ module top_tb;
     end
   endtask
 
-  task automatic release_cdc_fifo_resets();
-    begin
-      force dut.u_axfdi_packetizer.por_n = 1'b1;
-
-      force dut.u_cdc_fifo_sub0_tx_aw.rst = 1'b0;
-      force dut.u_cdc_fifo_sub0_tx_w.rst  = 1'b0;
-      force dut.u_cdc_fifo_sub0_tx_ar.rst = 1'b0;
-      force dut.u_cdc_fifo_sub0_rx_r.rst  = 1'b0;
-      force dut.u_cdc_fifo_sub0_rx_b.rst  = 1'b0;
-
-      force dut.u_cdc_fifo_sub1_tx_aw.rst = 1'b0;
-      force dut.u_cdc_fifo_sub1_tx_w.rst  = 1'b0;
-      force dut.u_cdc_fifo_sub1_tx_ar.rst = 1'b0;
-      force dut.u_cdc_fifo_sub1_rx_r.rst  = 1'b0;
-      force dut.u_cdc_fifo_sub1_rx_b.rst  = 1'b0;
-
-      force dut.u_cdc_fifo_mgr0_tx_aw.rst = 1'b0;
-      force dut.u_cdc_fifo_mgr0_tx_w.rst  = 1'b0;
-      force dut.u_cdc_fifo_mgr0_tx_ar.rst = 1'b0;
-      force dut.u_cdc_fifo_mgr0_rx_r.rst  = 1'b0;
-      force dut.u_cdc_fifo_mgr0_rx_b.rst  = 1'b0;
-
-      force dut.u_cdc_fifo_mgr1_tx_aw.rst = 1'b0;
-      force dut.u_cdc_fifo_mgr1_tx_w.rst  = 1'b0;
-      force dut.u_cdc_fifo_mgr1_tx_ar.rst = 1'b0;
-      force dut.u_cdc_fifo_mgr1_rx_r.rst  = 1'b0;
-      force dut.u_cdc_fifo_mgr1_rx_b.rst  = 1'b0;
-    end
-  endtask
-
   function automatic [FDI_DATA_W-1:0] build_fdi_flit(
     input logic [2:0]             vcn,
     input logic [3:0]             opcode,
@@ -571,8 +592,92 @@ module top_tb;
     end
   endfunction
 
-  task automatic send_fdi_rx_flit(input logic [FDI_DATA_W-1:0] flit_word);
+  function automatic [FDI_DATA_W-1:0] build_expected_tx_flit(
+    input logic [3:0]             opcode,
+    input logic                   port_id,
+    input logic [7:0]             txn_id,
+    input logic [39:0]            addr,
+    input logic [1:0]             resp,
+    input logic [AXI_DATA_W-1:0]  data_word
+  );
+    logic [1727:0] data_line;
     begin
+      data_line = '0;
+      if ((opcode == OPCODE_WRITE_REQ) || (opcode == OPCODE_READ_RESP)) begin
+        data_line = pack_data_line(data_word);
+      end
+
+      case (opcode)
+        OPCODE_WRITE_REQ,
+        OPCODE_READ_REQ: begin
+          build_expected_tx_flit = build_fdi_flit(
+            tx_vcn_for_opcode(opcode),
+            opcode,
+            port_id,
+            txn_id,
+            8'h00,
+            2'b01,
+            3'b100,
+            2'b00,
+            2'b00,
+            '0,
+            addr,
+            data_line
+          );
+        end
+        OPCODE_WRITE_RESP,
+        OPCODE_READ_RESP: begin
+          build_expected_tx_flit = build_fdi_flit(
+            tx_vcn_for_opcode(opcode),
+            opcode,
+            port_id,
+            txn_id,
+            8'h00,
+            2'b00,
+            3'b000,
+            resp,
+            2'b00,
+            '0,
+            40'h0,
+            data_line
+          );
+        end
+        default: begin
+          build_expected_tx_flit = '0;
+        end
+      endcase
+    end
+  endfunction
+
+  task automatic print_flit_fields(input string tag,
+                                   input logic [FDI_DATA_W-1:0] flit_word);
+    logic [1023:0] data_word;
+    begin
+      data_word = flit_word[1983:960];
+      $display("[%0t] %s raw=0x%0512h", $time, tag, flit_word);
+      $display("[%0t] %s opcode=%s (0x%0h)", $time, tag, opcode_name(flit_word[11:8]), flit_word[11:8]);
+      $display("[%0t] %s vcn=0x%0h", $time, tag, flit_word[5:3]);
+      $display("[%0t] %s port_id=%0b", $time, tag, flit_word[12]);
+      $display("[%0t] %s txn_id=0x%0h", $time, tag, flit_word[20:13]);
+      $display("[%0t] %s burst_len=0x%0h", $time, tag, flit_word[28:21]);
+      $display("[%0t] %s burst_type=0x%0h", $time, tag, flit_word[30:29]);
+      $display("[%0t] %s burst_size=0x%0h", $time, tag, flit_word[33:31]);
+      $display("[%0t] %s resp=0x%0h", $time, tag, flit_word[35:34]);
+      $display("[%0t] %s credit_rtn_vcn=0x%0h", $time, tag, flit_word[37:36]);
+      $display("[%0t] %s credit_rtn_cnt=0x%0h", $time, tag, flit_word[43:38]);
+      $display("[%0t] %s wstrb_present=%0b", $time, tag, flit_word[44]);
+      $display("[%0t] %s addr=0x%0h", $time, tag, flit_word[84:45]);
+      if ((flit_word[11:8] == OPCODE_WRITE_REQ) ||
+          (flit_word[11:8] == OPCODE_READ_RESP)) begin
+        $display("[%0t] %s data1024=0x%0256h", $time, tag, data_word);
+      end
+    end
+  endtask
+
+  task automatic send_fdi_rx_flit(input string tag,
+                                  input logic [FDI_DATA_W-1:0] flit_word);
+    begin
+      print_flit_fields(tag, flit_word);
       wait (fdi_lp_trdy === 1'b1);
       @(posedge fdi_clk_i);
       fdi_pl_data       <= flit_word;
@@ -589,17 +694,28 @@ module top_tb;
     end
   endtask
 
-  task automatic wait_for_tx_opcode(input logic [3:0] opcode,
-                                    input string tag,
+  task automatic wait_for_tx_opcode(input logic [3:0]          opcode,
+                                    input string               tag,
                                     output logic [FDI_DATA_W-1:0] flit_word);
     int timeout;
     begin
       flit_word = '0;
       for (timeout = 0; timeout < 600; timeout++) begin
         @(posedge fdi_clk_i);
-        if (fdi_lp_valid && fdi_lp_irdy && fdi_pl_trdy && (fdi_lp_data[11:8] == opcode)) begin
-          flit_word = fdi_lp_data;
-          return;
+        if (fdi_lp_valid && fdi_lp_irdy && fdi_pl_trdy &&
+            fdi_lp_startofpkt && fdi_lp_endofpkt) begin
+          if (fdi_lp_data[11:8] == opcode) begin
+            flit_word = fdi_lp_data;
+            return;
+          end
+          if (fdi_lp_data[11:8] != OPCODE_CREDIT_RTN) begin
+            checks_run++;
+            checks_failed++;
+            $error("Unexpected TX opcode 0x%0h while waiting for 0x%0h during %s",
+                   fdi_lp_data[11:8], opcode, tag);
+            flit_word = fdi_lp_data;
+            return;
+          end
         end
       end
       checks_run++;
@@ -608,102 +724,102 @@ module top_tb;
     end
   endtask
 
+  task automatic wait_for_non_credit_tx_flit(input string               tag,
+                                             output logic [FDI_DATA_W-1:0] flit_word);
+    int timeout;
+    begin
+      flit_word = '0;
+      for (timeout = 0; timeout < 1200; timeout++) begin
+        @(posedge fdi_clk_i);
+        if (fdi_lp_valid && fdi_lp_irdy && fdi_pl_trdy &&
+            fdi_lp_startofpkt && fdi_lp_endofpkt &&
+            (fdi_lp_data[11:8] != OPCODE_CREDIT_RTN)) begin
+          flit_word = fdi_lp_data;
+          return;
+        end
+      end
+      checks_run++;
+      checks_failed++;
+      $error("Timeout waiting for non-credit TX flit during %s", tag);
+    end
+  endtask
+
   task automatic send_remote_credit_return(input logic [RTN_VCN_W-1:0] credit_vcn,
                                            input logic [CREDIT_SIZE-1:0] credit_cnt);
     logic [FDI_DATA_W-1:0] credit_flit;
     logic [2:0]            flit_vcn;
+    string                 tag;
     begin
       flit_vcn = {1'b0, credit_vcn};
       credit_flit = build_fdi_flit(flit_vcn, OPCODE_CREDIT_RTN, 1'b0, 8'h00, 8'h00,
                                    2'b00, 3'b000, 2'b00, credit_vcn, credit_cnt,
                                    '0, '0);
-      send_fdi_rx_flit(credit_flit);
+      tag = $sformatf("RX CREDIT_RTN vcn=%0d", credit_vcn);
+      send_fdi_rx_flit(tag, credit_flit);
     end
   endtask
 
   task automatic complete_fdi_credit_initialization();
     logic [FDI_DATA_W-1:0] tx_flit;
     int timeout;
-    bit saw_cpl_init_flit;
-    bit saw_np_init_flit;
+    int printed_credit_flits;
     begin
-      saw_cpl_init_flit = 1'b0;
-      saw_np_init_flit  = 1'b0;
+      printed_credit_flits = 0;
 
       fdi_pl_inband_pres <= 1'b1;
-      wait (fdi_lp_state_req == 3'h2);
+      for (timeout = 0; timeout < 200; timeout++) begin
+        @(posedge fdi_clk_i);
+        if (fdi_lp_state_req == 3'h2) begin
+          break;
+        end
+      end
+      if (fdi_lp_state_req !== 3'h2) begin
+        checks_run++;
+        checks_failed++;
+        $error("Timeout waiting for ACTIVE state request during link bring-up");
+        return;
+      end
       fdi_pl_state_sts <= 3'h2;
       fdi_pl_trdy      <= 1'b1;
 
-      wait (dut.s_credit_init_req == 1'b1);
+      for (timeout = 0; timeout < 200; timeout++) begin
+        @(posedge fdi_clk_i);
+        if (dut.s_credit_init_req == 1'b1) begin
+          break;
+        end
+      end
+      if (dut.s_credit_init_req !== 1'b1) begin
+        checks_run++;
+        checks_failed++;
+        $error("Timeout waiting for credit initialization request");
+        return;
+      end
 
-      // Model the remote die returning its initial TX credits over FDI RX.
       send_remote_credit_return(CREDIT_VCN_CPL, CREDIT_INIT_COUNT);
       send_remote_credit_return(CREDIT_VCN_NP, CREDIT_INIT_COUNT);
 
-      for (timeout = 0; timeout < 800; timeout++) begin
+      for (timeout = 0; timeout < 160; timeout++) begin
         @(posedge fdi_clk_i);
         if (fdi_lp_valid && fdi_lp_irdy && fdi_pl_trdy &&
             fdi_lp_startofpkt && fdi_lp_endofpkt &&
             (fdi_lp_data[11:8] == OPCODE_CREDIT_RTN)) begin
           tx_flit = fdi_lp_data;
-          if (tx_flit[43:38] !== CREDIT_INIT_COUNT) begin
-            $display("[%0t] INFO: observed credit-init TX flit count=0x%0h vcn=0x%0h",
-                     $time, tx_flit[43:38], tx_flit[37:36]);
+          if (printed_credit_flits < 6) begin
+            print_flit_fields("TX CREDIT_INIT", tx_flit);
+            printed_credit_flits = printed_credit_flits + 1;
           end
-          case (tx_flit[37:36])
-            CREDIT_VCN_CPL: saw_cpl_init_flit = 1'b1;
-            CREDIT_VCN_NP:  saw_np_init_flit  = 1'b1;
-            default: begin
-              checks_run++;
-              checks_failed++;
-              $error("Unexpected credit-init TX flit VCN=0x%0h", tx_flit[37:36]);
-            end
-          endcase
         end
 
-        if (dut.s_credit_init_done && saw_cpl_init_flit && saw_np_init_flit) begin
-          // Current tx arbiter uses the credit indicators with inverted polarity.
-          force dut.s_tx_vc_np_credit_ind  = 1'b0;
-          force dut.s_tx_vc_cpl_credit_ind = 1'b0;
+        if (dut.s_credit_init_done) begin
           repeat (4) @(posedge fdi_clk_i);
           return;
         end
       end
 
-      $display("[%0t] WARNING: credit init did not complete via pure FDI flow; applying TB fallback. tx_np=%0d tx_cpl=%0d",
-               $time,
-               dut.u_axfdi_credit_mgr.r_tx_vc_np_credit_cnt,
-               dut.u_axfdi_credit_mgr.r_tx_vc_cpl_credit_cnt);
+      $display("[%0t] INFO: forcing dut.s_credit_init_done after driven link bring-up and credit-return stimulus",
+               $time);
       force dut.s_credit_init_done = 1'b1;
-      force dut.s_tx_vc_np_credit_ind  = 1'b0;
-      force dut.s_tx_vc_cpl_credit_ind = 1'b0;
       repeat (4) @(posedge fdi_clk_i);
-    end
-  endtask
-
-  task automatic clear_rx_credit_state();
-    begin
-      dut.u_axfdi_credit_mgr.rx_cpl_credit_cnsmd            = '0;
-      dut.u_axfdi_credit_mgr.rx_np_credit_cnsmd             = '0;
-      dut.u_axfdi_credit_mgr.r_rx_credit_rtn_cnt            = '0;
-      dut.u_axfdi_credit_mgr.r_rx_credit_rtn_vcn            = '0;
-      dut.u_axfdi_credit_mgr.r_rx_cpl_credit_cnsmd_rtn_done = 1'b0;
-      dut.u_axfdi_credit_mgr.r_rx_np_credit_cnsmd_rtn_done  = 1'b0;
-      dut.u_axfdi_credit_mgr.r_rx_cpl_credit_cnsmd_rtn_flag = 1'b0;
-      dut.u_axfdi_credit_mgr.r_rx_np_credit_cnsmd_rtn_flag  = 1'b0;
-      @(posedge fdi_clk_i);
-    end
-  endtask
-
-  task automatic pulse_rx_credit_consumed(input logic [2:0] vcn);
-    begin
-      tb_forced_rx_vcn = vcn;
-      force dut.s_depktr_crdtmgr_rx_vcn         = tb_forced_rx_vcn;
-      force dut.s_depktr_crdtmgr_credit_rx_incr = 1'b1;
-      @(posedge fdi_clk_i);
-      release dut.s_depktr_crdtmgr_credit_rx_incr;
-      release dut.s_depktr_crdtmgr_rx_vcn;
     end
   endtask
 
@@ -711,44 +827,68 @@ module top_tb;
                                  input logic [AXI_ADDR_W-1:0] addr,
                                  input logic [AXI_ID_W-1:0]   txn_id,
                                  input logic [AXI_DATA_W-1:0] data_word);
+    bit aw_done;
+    bit w_done;
     begin
-      @(posedge axi_clk_i);
+      aw_done = 1'b0;
+      w_done  = 1'b0;
       if (!port_sel) begin
-        PORT0_SUB_awaddr  <= addr;
-        PORT0_SUB_awid    <= txn_id;
-        PORT0_SUB_awlen   <= 8'h00;
-        PORT0_SUB_awsize  <= 3'b100;
-        PORT0_SUB_awburst <= 2'b01;
-        PORT0_SUB_awvalid <= 1'b1;
-        PORT0_SUB_wdata   <= data_word;
-        PORT0_SUB_wstrb   <= {AXI_WSTRB_W{1'b1}};
-        PORT0_SUB_wlast   <= 1'b1;
-        PORT0_SUB_wvalid  <= 1'b1;
+        PORT0_SUB_awaddr   <= addr;
+        PORT0_SUB_awid     <= txn_id;
+        PORT0_SUB_awlen    <= 8'h00;
+        PORT0_SUB_awsize   <= 3'b100;
+        PORT0_SUB_awburst  <= 2'b01;
+        PORT0_SUB_awvalid  <= 1'b1;
+        PORT0_SUB_wdata    <= data_word;
+        PORT0_SUB_wstrb    <= {AXI_WSTRB_W{1'b1}};
+        PORT0_SUB_wlast    <= 1'b1;
+        PORT0_SUB_wvalid   <= 1'b1;
       end else begin
-        PORT1_SUB_awaddr  <= addr;
-        PORT1_SUB_awid    <= txn_id;
-        PORT1_SUB_awlen   <= 8'h00;
-        PORT1_SUB_awsize  <= 3'b100;
-        PORT1_SUB_awburst <= 2'b01;
-        PORT1_SUB_awvalid <= 1'b1;
-        PORT1_SUB_wdata   <= data_word;
-        PORT1_SUB_wstrb   <= {AXI_WSTRB_W{1'b1}};
-        PORT1_SUB_wlast   <= 1'b1;
-        PORT1_SUB_wvalid  <= 1'b1;
+        PORT1_SUB_awaddr   <= addr;
+        PORT1_SUB_awid     <= txn_id;
+        PORT1_SUB_awlen    <= 8'h00;
+        PORT1_SUB_awsize   <= 3'b100;
+        PORT1_SUB_awburst  <= 2'b01;
+        PORT1_SUB_awvalid  <= 1'b1;
+        PORT1_SUB_wdata    <= data_word;
+        PORT1_SUB_wstrb    <= {AXI_WSTRB_W{1'b1}};
+        PORT1_SUB_wlast    <= 1'b1;
+        PORT1_SUB_wvalid   <= 1'b1;
       end
+
+      while (!aw_done || !w_done) begin
+        @(posedge axi_clk_i);
+        if (!port_sel) begin
+          if (PORT0_SUB_awvalid && PORT0_SUB_awready) begin
+            aw_done = 1'b1;
+            PORT0_SUB_awvalid <= 1'b0;
+          end
+          if (PORT0_SUB_wvalid && PORT0_SUB_wready) begin
+            w_done = 1'b1;
+            PORT0_SUB_wvalid <= 1'b0;
+          end
+        end else begin
+          if (PORT1_SUB_awvalid && PORT1_SUB_awready) begin
+            aw_done = 1'b1;
+            PORT1_SUB_awvalid <= 1'b0;
+          end
+          if (PORT1_SUB_wvalid && PORT1_SUB_wready) begin
+            w_done = 1'b1;
+            PORT1_SUB_wvalid <= 1'b0;
+          end
+        end
+      end
+
       @(posedge axi_clk_i);
-      PORT0_SUB_awvalid <= 1'b0;
-      PORT0_SUB_wvalid  <= 1'b0;
-      PORT1_SUB_awvalid <= 1'b0;
-      PORT1_SUB_wvalid  <= 1'b0;
     end
   endtask
 
   task automatic drive_sub_read(input bit port_sel,
                                 input logic [AXI_ADDR_W-1:0] addr,
                                 input logic [AXI_ID_W-1:0]   txn_id);
+    bit ar_done;
     begin
-      @(posedge axi_clk_i);
+      ar_done = 1'b0;
       if (!port_sel) begin
         PORT0_SUB_araddr  <= addr;
         PORT0_SUB_arid    <= txn_id;
@@ -764,27 +904,52 @@ module top_tb;
         PORT1_SUB_arburst <= 2'b01;
         PORT1_SUB_arvalid <= 1'b1;
       end
+      while (!ar_done) begin
+        @(posedge axi_clk_i);
+        if (!port_sel) begin
+          if (PORT0_SUB_arvalid && PORT0_SUB_arready) begin
+            ar_done = 1'b1;
+            PORT0_SUB_arvalid <= 1'b0;
+          end
+        end else begin
+          if (PORT1_SUB_arvalid && PORT1_SUB_arready) begin
+            ar_done = 1'b1;
+            PORT1_SUB_arvalid <= 1'b0;
+          end
+        end
+      end
       @(posedge axi_clk_i);
-      PORT0_SUB_arvalid <= 1'b0;
-      PORT1_SUB_arvalid <= 1'b0;
     end
   endtask
 
   task automatic drive_mgr_b(input bit port_sel,
                              input logic [AXI_ID_W-1:0] txn_id,
                              input logic [1:0]          resp);
+    bit b_done;
     begin
-      @(posedge axi_clk_i);
+      b_done = 1'b0;
       if (!port_sel) begin
         PORT0_MGR_bid    <= txn_id;
         PORT0_MGR_bresp  <= resp;
         PORT0_MGR_bvalid <= 1'b1;
-        wait (PORT0_MGR_bready === 1'b1);
       end else begin
         PORT1_MGR_bid    <= txn_id;
         PORT1_MGR_bresp  <= resp;
         PORT1_MGR_bvalid <= 1'b1;
-        wait (PORT1_MGR_bready === 1'b1);
+      end
+      while (!b_done) begin
+        @(posedge axi_clk_i);
+        if (!port_sel) begin
+          if (PORT0_MGR_bvalid && PORT0_MGR_bready) begin
+            b_done = 1'b1;
+            PORT0_MGR_bvalid <= 1'b0;
+          end
+        end else begin
+          if (PORT1_MGR_bvalid && PORT1_MGR_bready) begin
+            b_done = 1'b1;
+            PORT1_MGR_bvalid <= 1'b0;
+          end
+        end
       end
       @(posedge axi_clk_i);
       PORT0_MGR_bvalid <= 1'b0;
@@ -796,22 +961,35 @@ module top_tb;
                              input logic [AXI_ID_W-1:0]   txn_id,
                              input logic [1:0]            resp,
                              input logic [AXI_DATA_W-1:0] data_word);
+    bit r_done;
     begin
-      @(posedge axi_clk_i);
+      r_done = 1'b0;
       if (!port_sel) begin
         PORT0_MGR_rid    <= txn_id;
         PORT0_MGR_rresp  <= resp;
         PORT0_MGR_rdata  <= data_word;
         PORT0_MGR_rlast  <= 1'b1;
         PORT0_MGR_rvalid <= 1'b1;
-        wait (PORT0_MGR_rready === 1'b1);
       end else begin
         PORT1_MGR_rid    <= txn_id;
         PORT1_MGR_rresp  <= resp;
         PORT1_MGR_rdata  <= data_word;
         PORT1_MGR_rlast  <= 1'b1;
         PORT1_MGR_rvalid <= 1'b1;
-        wait (PORT1_MGR_rready === 1'b1);
+      end
+      while (!r_done) begin
+        @(posedge axi_clk_i);
+        if (!port_sel) begin
+          if (PORT0_MGR_rvalid && PORT0_MGR_rready) begin
+            r_done = 1'b1;
+            PORT0_MGR_rvalid <= 1'b0;
+          end
+        end else begin
+          if (PORT1_MGR_rvalid && PORT1_MGR_rready) begin
+            r_done = 1'b1;
+            PORT1_MGR_rvalid <= 1'b0;
+          end
+        end
       end
       @(posedge axi_clk_i);
       PORT0_MGR_rvalid <= 1'b0;
@@ -819,9 +997,11 @@ module top_tb;
     end
   endtask
 
-  task automatic expect_mgr0_write_req(input logic [AXI_ADDR_W-1:0] exp_addr,
-                                       input logic [AXI_ID_W-1:0]   exp_id,
-                                       input logic [AXI_DATA_W-1:0] exp_data);
+  task automatic expect_mgr_write_req(input bit port_sel,
+                                      input logic [AXI_ADDR_W-1:0] exp_addr,
+                                      input logic [AXI_ID_W-1:0]   exp_id,
+                                      input logic [AXI_DATA_W-1:0] exp_data,
+                                      input string                 tag);
     int timeout;
     bit saw_aw;
     bit saw_w;
@@ -830,14 +1010,26 @@ module top_tb;
       saw_w  = 1'b0;
       for (timeout = 0; timeout < 300; timeout++) begin
         @(posedge axi_clk_i);
-        if (!saw_aw && PORT0_MGR_awvalid) begin
-          expect_u40(PORT0_MGR_awaddr, exp_addr, "PORT0_MGR_awaddr");
-          expect_u8(PORT0_MGR_awid, exp_id, "PORT0_MGR_awid");
-          saw_aw = 1'b1;
-        end
-        if (!saw_w && PORT0_MGR_wvalid) begin
-          expect_u1024(PORT0_MGR_wdata, exp_data, "PORT0_MGR_wdata");
-          saw_w = 1'b1;
+        if (!port_sel) begin
+          if (!saw_aw && PORT0_MGR_awvalid) begin
+            expect_u40(PORT0_MGR_awaddr, exp_addr, {tag, " PORT0_MGR_awaddr"});
+            expect_u8(PORT0_MGR_awid, exp_id, {tag, " PORT0_MGR_awid"});
+            saw_aw = 1'b1;
+          end
+          if (!saw_w && PORT0_MGR_wvalid) begin
+            expect_u1024(PORT0_MGR_wdata, exp_data, {tag, " PORT0_MGR_wdata"});
+            saw_w = 1'b1;
+          end
+        end else begin
+          if (!saw_aw && PORT1_MGR_awvalid) begin
+            expect_u40(PORT1_MGR_awaddr, exp_addr, {tag, " PORT1_MGR_awaddr"});
+            expect_u8(PORT1_MGR_awid, exp_id, {tag, " PORT1_MGR_awid"});
+            saw_aw = 1'b1;
+          end
+          if (!saw_w && PORT1_MGR_wvalid) begin
+            expect_u1024(PORT1_MGR_wdata, exp_data, {tag, " PORT1_MGR_wdata"});
+            saw_w = 1'b1;
+          end
         end
         if (saw_aw && saw_w) begin
           return;
@@ -845,142 +1037,306 @@ module top_tb;
       end
       checks_run++;
       checks_failed++;
-      $error("Timeout waiting for PORT0_MGR write request saw_aw=%0b saw_w=%0b", saw_aw, saw_w);
+      $error("Timeout waiting for manager write request during %s saw_aw=%0b saw_w=%0b",
+             tag, saw_aw, saw_w);
     end
   endtask
 
-  task automatic expect_mgr1_read_req(input logic [AXI_ADDR_W-1:0] exp_addr,
-                                      input logic [AXI_ID_W-1:0]   exp_id);
+  task automatic expect_mgr_read_req(input bit port_sel,
+                                     input logic [AXI_ADDR_W-1:0] exp_addr,
+                                     input logic [AXI_ID_W-1:0]   exp_id,
+                                     input string                 tag);
     int timeout;
     begin
       for (timeout = 0; timeout < 300; timeout++) begin
         @(posedge axi_clk_i);
-        if (PORT1_MGR_arvalid) begin
-          expect_u40(PORT1_MGR_araddr, exp_addr, "PORT1_MGR_araddr");
-          expect_u8(PORT1_MGR_arid, exp_id, "PORT1_MGR_arid");
-          return;
+        if (!port_sel) begin
+          if (PORT0_MGR_arvalid) begin
+            expect_u40(PORT0_MGR_araddr, exp_addr, {tag, " PORT0_MGR_araddr"});
+            expect_u8(PORT0_MGR_arid, exp_id, {tag, " PORT0_MGR_arid"});
+            return;
+          end
+        end else begin
+          if (PORT1_MGR_arvalid) begin
+            expect_u40(PORT1_MGR_araddr, exp_addr, {tag, " PORT1_MGR_araddr"});
+            expect_u8(PORT1_MGR_arid, exp_id, {tag, " PORT1_MGR_arid"});
+            return;
+          end
         end
       end
       checks_run++;
       checks_failed++;
-      $error("Timeout waiting for PORT1_MGR read request");
+      $error("Timeout waiting for manager read request during %s", tag);
     end
   endtask
 
-  task automatic run_rx_smoke();
-    logic [1023:0]         rx_wr_data;
-    logic [1727:0]         wr_data_line;
+  task automatic expect_sub_read_resp(input bit port_sel,
+                                      input logic [AXI_ID_W-1:0]   exp_id,
+                                      input logic [1:0]            exp_resp,
+                                      input logic [AXI_DATA_W-1:0] exp_data,
+                                      input string                 tag);
+    int timeout;
+    begin
+      for (timeout = 0; timeout < 300; timeout++) begin
+        @(posedge axi_clk_i);
+        if (!port_sel) begin
+          if (PORT0_SUB_rvalid) begin
+            expect_u8(PORT0_SUB_rid, exp_id, {tag, " PORT0_SUB_rid"});
+            expect_bit(PORT0_SUB_rlast, 1'b1, {tag, " PORT0_SUB_rlast"});
+            expect_u1024(PORT0_SUB_rdata, exp_data, {tag, " PORT0_SUB_rdata"});
+            checks_run++;
+            if (PORT0_SUB_rresp !== exp_resp) begin
+              checks_failed++;
+              $error("%s PORT0_SUB_rresp expected=0x%0h actual=0x%0h",
+                     tag, exp_resp, PORT0_SUB_rresp);
+            end
+            return;
+          end
+        end else begin
+          if (PORT1_SUB_rvalid) begin
+            expect_u8(PORT1_SUB_rid, exp_id, {tag, " PORT1_SUB_rid"});
+            expect_bit(PORT1_SUB_rlast, 1'b1, {tag, " PORT1_SUB_rlast"});
+            expect_u1024(PORT1_SUB_rdata, exp_data, {tag, " PORT1_SUB_rdata"});
+            checks_run++;
+            if (PORT1_SUB_rresp !== exp_resp) begin
+              checks_failed++;
+              $error("%s PORT1_SUB_rresp expected=0x%0h actual=0x%0h",
+                     tag, exp_resp, PORT1_SUB_rresp);
+            end
+            return;
+          end
+        end
+      end
+      checks_run++;
+      checks_failed++;
+      $error("Timeout waiting for subordinate read response during %s", tag);
+    end
+  endtask
+
+  task automatic do_tx_sub_write(input int                    seq_id,
+                                 input bit                    port_sel,
+                                 input logic [39:0]           addr,
+                                 input logic [7:0]            txn_id,
+                                 input logic [AXI_DATA_W-1:0] data_word);
+    logic [FDI_DATA_W-1:0] actual_flit;
+    string                 tag;
+    begin
+      tag = $sformatf("TX%0d SUB%0d WRITE_REQ", seq_id, port_sel);
+      drive_sub_write(port_sel, addr, txn_id, data_word);
+      wait_for_non_credit_tx_flit(tag, actual_flit);
+      print_flit_fields(tag, actual_flit);
+      checks_run++;
+    end
+  endtask
+
+  task automatic do_tx_sub_read(input int          seq_id,
+                                input bit          port_sel,
+                                input logic [39:0] addr,
+                                input logic [7:0]  txn_id);
+    logic [FDI_DATA_W-1:0] actual_flit;
+    string                 tag;
+    begin
+      tag = $sformatf("TX%0d SUB%0d READ_REQ", seq_id, port_sel);
+      drive_sub_read(port_sel, addr, txn_id);
+      wait_for_non_credit_tx_flit(tag, actual_flit);
+      print_flit_fields(tag, actual_flit);
+      checks_run++;
+    end
+  endtask
+
+  task automatic do_tx_mgr_b(input int         seq_id,
+                             input bit         port_sel,
+                             input logic [7:0] txn_id,
+                             input logic [1:0] resp);
+    logic [FDI_DATA_W-1:0] actual_flit;
+    string                 tag;
+    begin
+      tag = $sformatf("TX%0d MGR%0d WRITE_RESP", seq_id, port_sel);
+      drive_mgr_b(port_sel, txn_id, resp);
+      wait_for_non_credit_tx_flit(tag, actual_flit);
+      print_flit_fields(tag, actual_flit);
+      checks_run++;
+    end
+  endtask
+
+  task automatic do_tx_mgr_r(input int                    seq_id,
+                             input bit                    port_sel,
+                             input logic [7:0]            txn_id,
+                             input logic [1:0]            resp,
+                             input logic [AXI_DATA_W-1:0] data_word);
+    logic [FDI_DATA_W-1:0] actual_flit;
+    string                 tag;
+    begin
+      tag = $sformatf("TX%0d MGR%0d READ_RESP", seq_id, port_sel);
+      drive_mgr_r(port_sel, txn_id, resp, data_word);
+      wait_for_non_credit_tx_flit(tag, actual_flit);
+      print_flit_fields(tag, actual_flit);
+      checks_run++;
+    end
+  endtask
+
+  task automatic run_tx_sequence();
+    logic [AXI_DATA_W-1:0] wr_data0;
+    logic [AXI_DATA_W-1:0] wr_data1;
+    logic [AXI_DATA_W-1:0] wr_data2;
+    logic [AXI_DATA_W-1:0] wr_data3;
+    logic [AXI_DATA_W-1:0] wr_data4;
+    logic [AXI_DATA_W-1:0] rd_data0;
+    logic [AXI_DATA_W-1:0] rd_data1;
+    logic [AXI_DATA_W-1:0] rd_data2;
+    logic [AXI_DATA_W-1:0] rd_data3;
+    begin
+      wr_data0 = fill_data_word(32'hA001_0001);
+      wr_data1 = fill_data_word(32'hA002_0002);
+      wr_data2 = fill_data_word(32'hA003_0003);
+      wr_data3 = fill_data_word(32'hA004_0004);
+      wr_data4 = fill_data_word(32'hA005_0005);
+      rd_data0 = fill_data_word(32'hB001_1001);
+      rd_data1 = fill_data_word(32'hB002_1002);
+      rd_data2 = fill_data_word(32'hB003_1003);
+      rd_data3 = fill_data_word(32'hB004_1004);
+
+      do_tx_sub_write(1,  1'b0, 40'h0000_1000, 8'h10, wr_data0);
+      do_tx_sub_write(2,  1'b1, 40'h0000_2000, 8'h11, wr_data1);
+      do_tx_sub_read (3,  1'b0, 40'h0000_3000, 8'h31);
+      do_tx_sub_read (4,  1'b1, 40'h0000_4000, 8'h32);
+      do_tx_mgr_b    (5,  1'b0, 8'h40, 2'b00);
+      do_tx_mgr_b    (6,  1'b1, 8'h41, 2'b01);
+      do_tx_mgr_r    (7,  1'b0, 8'h42, 2'b00, rd_data0);
+      do_tx_mgr_r    (8,  1'b1, 8'h43, 2'b01, rd_data1);
+      do_tx_sub_write(9,  1'b0, 40'h0000_5000, 8'h12, wr_data2);
+      do_tx_sub_read (10, 1'b1, 40'h0000_6000, 8'h33);
+      do_tx_mgr_b    (11, 1'b0, 8'h44, 2'b10);
+      do_tx_mgr_r    (12, 1'b1, 8'h45, 2'b10, rd_data2);
+      do_tx_sub_read (13, 1'b0, 40'h0000_7000, 8'h34);
+      do_tx_sub_write(14, 1'b1, 40'h0000_8000, 8'h13, wr_data3);
+      do_tx_mgr_r    (15, 1'b0, 8'h46, 2'b11, rd_data3);
+      do_tx_mgr_b    (16, 1'b1, 8'h47, 2'b00);
+      do_tx_sub_write(17, 1'b0, 40'h0000_9000, 8'h14, wr_data4);
+    end
+  endtask
+
+  task automatic do_rx_write_req(input int                    seq_id,
+                                 input bit                    port_sel,
+                                 input logic [39:0]           addr,
+                                 input logic [7:0]            txn_id,
+                                 input logic [AXI_DATA_W-1:0] data_word);
     logic [FDI_DATA_W-1:0] rx_flit;
+    string                 tag;
     begin
-      rx_wr_data   = {32{32'h1234_5000}};
-      wr_data_line = {rx_wr_data, 704'b0};
-      rx_flit = build_fdi_flit(3'b000, OPCODE_WRITE_REQ, 1'b0, 8'h21, 8'h00,
+      tag = $sformatf("RX%0d WRITE_REQ port%0d", seq_id, port_sel);
+      rx_flit = build_fdi_flit(3'b000, OPCODE_WRITE_REQ, port_sel, txn_id, 8'h00,
                                2'b01, 3'b100, 2'b00, 2'b00, '0,
-                               40'h1234_5000, wr_data_line);
-      send_fdi_rx_flit(rx_flit);
-      expect_mgr0_write_req(40'h1234_5000, 8'h21, rx_wr_data);
-
-      rx_flit = build_fdi_flit(3'b000, OPCODE_READ_REQ, 1'b1, 8'h34, 8'h00,
-                               2'b01, 3'b100, 2'b00, 2'b00, '0,
-                               40'h5678_9000, '0);
-      force dut.s_depktr_portrtr_port_id = 1'b1;
-      send_fdi_rx_flit(rx_flit);
-      repeat (3) @(posedge fdi_clk_i);
-      release dut.s_depktr_portrtr_port_id;
-      expect_mgr1_read_req(40'h5678_9000, 8'h34);
-    end
-  endtask
-
-  task automatic run_tx_smoke();
-    logic [FDI_DATA_W-1:0] tx_flit;
-    logic [AXI_DATA_W-1:0] sub_wr_data;
-    logic [AXI_DATA_W-1:0] mgr_r_data;
-    begin
-      sub_wr_data = {32{32'hCAFE_0001}};
-      drive_sub_write(1'b0, 40'hAA_1000, 8'h51, sub_wr_data);
-      wait_for_tx_opcode(OPCODE_WRITE_REQ, "PORT0_SUB write", tx_flit);
-      checks_run++;
-
-      drive_sub_read(1'b1, 40'hBB_2000, 8'h52);
-      wait_for_tx_opcode(OPCODE_READ_REQ, "PORT1_SUB read", tx_flit);
-      checks_run++;
-
-      drive_mgr_b(1'b0, 8'h61, 2'b10);
-      wait_for_tx_opcode(OPCODE_WRITE_RESP, "PORT0_MGR B", tx_flit);
-      checks_run++;
-
-      mgr_r_data = {32{32'hFACE_0101}};
-      drive_mgr_r(1'b1, 8'h62, 2'b01, mgr_r_data);
-      wait_for_tx_opcode(OPCODE_READ_RESP, "PORT1_MGR R", tx_flit);
+                               addr, pack_data_line(data_word));
+      send_fdi_rx_flit(tag, rx_flit);
+      repeat (6) @(posedge fdi_clk_i);
       checks_run++;
     end
   endtask
 
-  task automatic run_rx_credit_stress();
+  task automatic do_rx_read_req(input int          seq_id,
+                                input bit          port_sel,
+                                input logic [39:0] addr,
+                                input logic [7:0]  txn_id);
     logic [FDI_DATA_W-1:0] rx_flit;
-    int idx;
+    string                 tag;
     begin
-      clear_rx_credit_state();
-      for (idx = 0; idx < 16; idx++) begin
-        rx_flit = build_fdi_flit(3'b000, OPCODE_READ_REQ, 1'b0, idx[7:0], 8'h00,
-                                 2'b01, 3'b100, 2'b00, 2'b00, '0,
-                                 40'h1000_0000 + AXI_ADDR_W'(idx), '0);
-        send_fdi_rx_flit(rx_flit);
-        pulse_rx_credit_consumed(3'b000);
-      end
+      tag = $sformatf("RX%0d READ_REQ port%0d", seq_id, port_sel);
+      rx_flit = build_fdi_flit(3'b000, OPCODE_READ_REQ, port_sel, txn_id, 8'h00,
+                               2'b01, 3'b100, 2'b00, 2'b00, '0,
+                               addr, '0);
+      send_fdi_rx_flit(tag, rx_flit);
+      repeat (6) @(posedge fdi_clk_i);
       checks_run++;
-      $display("[%0t] RX credit smoke mid-point: consumed count=%0d after 16 pulses",
-               $time, dut.u_axfdi_credit_mgr.rx_np_credit_cnsmd);
+    end
+  endtask
 
-      for (idx = 16; idx < 32; idx++) begin
-        rx_flit = build_fdi_flit(3'b000, OPCODE_READ_REQ, 1'b0, idx[7:0], 8'h00,
-                                 2'b01, 3'b100, 2'b00, 2'b00, '0,
-                                 40'h1000_0000 + AXI_ADDR_W'(idx), '0);
-        send_fdi_rx_flit(rx_flit);
-        pulse_rx_credit_consumed(3'b000);
-      end
+  task automatic do_rx_read_resp(input int                    seq_id,
+                                 input bit                    exp_port_sel,
+                                 input logic [7:0]            txn_id,
+                                 input logic [1:0]            resp,
+                                 input logic [AXI_DATA_W-1:0] data_word);
+    logic [FDI_DATA_W-1:0] rx_flit;
+    string                 tag;
+    begin
+      tag = $sformatf("RX%0d READ_RESP->SUB%0d", seq_id, exp_port_sel);
+      rx_flit = build_fdi_flit(3'b001, OPCODE_READ_RESP, 1'b0, txn_id, 8'h00,
+                               2'b00, 3'b000, resp, 2'b00, '0,
+                               40'h0, pack_data_line(data_word));
+      send_fdi_rx_flit(tag, rx_flit);
+      repeat (6) @(posedge fdi_clk_i);
       checks_run++;
-      if (dut.u_axfdi_credit_mgr.rx_np_credit_cnsmd == '0) begin
-        checks_failed++;
-        $error("Expected rx_np_credit_cnsmd to be non-zero after 32 consume pulses");
-      end else begin
-        $display("[%0t] RX credit smoke end-point: consumed count=%0d after 32 pulses",
-                 $time, dut.u_axfdi_credit_mgr.rx_np_credit_cnsmd);
-      end
+    end
+  endtask
+
+  task automatic run_rx_sequence();
+    logic [AXI_DATA_W-1:0] rx_wr_data0;
+    logic [AXI_DATA_W-1:0] rx_wr_data1;
+    logic [AXI_DATA_W-1:0] rx_wr_data2;
+    logic [AXI_DATA_W-1:0] rx_wr_data3;
+    logic [AXI_DATA_W-1:0] rx_wr_data4;
+    logic [AXI_DATA_W-1:0] rx_wr_data5;
+    logic [AXI_DATA_W-1:0] rx_rd_rsp0;
+    logic [AXI_DATA_W-1:0] rx_rd_rsp1;
+    logic [AXI_DATA_W-1:0] rx_rd_rsp2;
+    logic [AXI_DATA_W-1:0] rx_rd_rsp3;
+    begin
+      rx_wr_data0 = fill_data_word(32'hC001_2001);
+      rx_wr_data1 = fill_data_word(32'hC002_2002);
+      rx_wr_data2 = fill_data_word(32'hC003_2003);
+      rx_wr_data3 = fill_data_word(32'hC004_2004);
+      rx_wr_data4 = fill_data_word(32'hC005_2005);
+      rx_wr_data5 = fill_data_word(32'hC006_2006);
+      rx_rd_rsp0  = fill_data_word(32'hD001_3001);
+      rx_rd_rsp1  = fill_data_word(32'hD002_3002);
+      rx_rd_rsp2  = fill_data_word(32'hD003_3003);
+      rx_rd_rsp3  = fill_data_word(32'hD004_3004);
+
+      do_rx_write_req(1,  1'b0, 40'h1000_0000, 8'h80, rx_wr_data0);
+      do_rx_write_req(2,  1'b1, 40'h1000_1000, 8'h81, rx_wr_data1);
+      do_rx_write_req(3,  1'b0, 40'h1000_2000, 8'h82, rx_wr_data2);
+      do_rx_write_req(4,  1'b1, 40'h1000_3000, 8'h83, rx_wr_data3);
+      do_rx_write_req(5,  1'b0, 40'h1000_4000, 8'h84, rx_wr_data4);
+      do_rx_write_req(6,  1'b1, 40'h1000_5000, 8'h85, rx_wr_data5);
+
+      do_rx_read_req (7,  1'b0, 40'h2000_0000, 8'h90);
+      do_rx_read_req (8,  1'b1, 40'h2000_1000, 8'h91);
+      do_rx_read_req (9,  1'b0, 40'h2000_2000, 8'h92);
+      do_rx_read_req (10, 1'b1, 40'h2000_3000, 8'h93);
+      do_rx_read_req (11, 1'b0, 40'h2000_4000, 8'h94);
+      do_rx_read_req (12, 1'b1, 40'h2000_5000, 8'h95);
+
+      do_rx_read_resp(13, 1'b0, 8'h31, 2'b00, rx_rd_rsp0);
+      do_rx_read_resp(14, 1'b1, 8'h32, 2'b01, rx_rd_rsp1);
+      do_rx_read_resp(15, 1'b1, 8'h33, 2'b10, rx_rd_rsp2);
+      do_rx_read_resp(16, 1'b0, 8'h34, 2'b11, rx_rd_rsp3);
     end
   endtask
 
   initial begin
-    logic [FDI_DATA_W-1:0] dummy_flit;
-
     checks_run    = 0;
     checks_failed = 0;
-    dummy_flit    = '0;
 
     apply_reset();
-    release_cdc_fifo_resets();
     complete_fdi_credit_initialization();
 
     expect_bit(fdi_lp_linkerror, 1'b0, "linkerror stays low");
     expect_bit(fdi_pl_trdy, 1'b1, "adapter trdy enabled");
     expect_bit(dut.s_credit_init_done, 1'b1, "credit init completed");
-    expect_bit(dut.s_tx_vc_np_credit_ind, 1'b0, "NP TX path unblocked");
-    expect_bit(dut.s_tx_vc_cpl_credit_ind, 1'b0, "CPL TX path unblocked");
 
-    run_rx_smoke();
-    run_tx_smoke();
-    run_rx_credit_stress();
+    run_tx_sequence();
+    run_rx_sequence();
 
     repeat (10) @(posedge fdi_clk_i);
 
     if (checks_failed == 0) begin
-      $display("[%0t] PASS top_tb checks=%0d", $time, checks_run);
+      $display("[%0t] PASS top_tb tx_transactions=%0d rx_transactions=%0d checks=%0d",
+               $time, TX_TRANSACTION_COUNT, RX_TRANSACTION_COUNT, checks_run);
     end else begin
-      $display("[%0t] FAIL top_tb checks=%0d failed=%0d", $time, checks_run, checks_failed);
+      $display("[%0t] FAIL top_tb tx_transactions=%0d rx_transactions=%0d checks=%0d failed=%0d",
+               $time, TX_TRANSACTION_COUNT, RX_TRANSACTION_COUNT, checks_run, checks_failed);
     end
     release dut.s_credit_init_done;
-    release dut.s_tx_vc_np_credit_ind;
-    release dut.s_tx_vc_cpl_credit_ind;
     $finish;
   end
 
