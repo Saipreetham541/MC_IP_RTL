@@ -48,7 +48,7 @@ module axfdi_completion_tracker #(
       }completion_tracker[0:tracker_depth-1];
 
    logic          tx_d_found;
-   localparam int unsigned entry_idx_w = (tracker_depth > 1) ? $clog2(tracker_depth) : 1;
+   localparam integer entry_idx_w = (tracker_depth > 1) ? $clog2(tracker_depth) : 1;
    logic [entry_idx_w-1:0] tx_d_index;
 
    logic                   rx_d_hit;
@@ -116,15 +116,14 @@ module axfdi_completion_tracker #(
               completion_tracker[idx].txn_id <= '0;
            end
         end else begin // if (!fdi_rst_n)
-           r_tx_write_done <= 1'b1;
            if (tx_d_found && tx_txn_valid) begin
               completion_tracker[tx_d_index].port_id <= tx_port_id;
               completion_tracker[tx_d_index].vcn <= tx_vcn;
               completion_tracker[tx_d_index].data_valid <= 1'b1;
               completion_tracker[tx_d_index].txn_id <= tx_txn_id;
+              r_tx_write_done <= 1'b1;
            end
            if (rx_d_hit) begin
-              r_tx_write_done <= 1'b0;
               r_rx_resp_port_id <= s_rx_resp_port_id;
               r_rx_resp_port_id_valid <= 1'b1;
               completion_tracker[rx_d_index].port_id <= '0;
@@ -132,7 +131,6 @@ module axfdi_completion_tracker #(
               completion_tracker[rx_d_index].data_valid <= '0;
               completion_tracker[rx_d_index].txn_id <= '0;
            end else begin
-              r_tx_write_done <= 1'b0;
               r_rx_resp_port_id <= '0;
               r_rx_resp_port_id_valid <= '0;
            end

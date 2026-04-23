@@ -367,11 +367,11 @@ module axfdi_packetizer  #(
 
 
                     WRITE_REQ: begin
-                        flit_tx_data[20:13] = lat_aw[7:0];
-                        flit_tx_data[28:21] = lat_aw[15:8];
-                        flit_tx_data[30:29] = lat_aw[17:16];
-                        flit_tx_data[33:31] = lat_aw[20:18];
-                        flit_tx_data[84:45] = lat_aw[60:21];
+                        flit_tx_data[20:13] = lat_aw[60:53];
+                        flit_tx_data[28:21] = lat_aw[52:45];
+                        flit_tx_data[30:29] = lat_aw[44:43];
+                        flit_tx_data[33:31] = lat_aw[42:40];
+                        flit_tx_data[84:45] = lat_aw[39:0];
                        
                        //width mismatch: 
                         flit_tx_data[1983:256] = {lat_w[1152:129], 704'b0}; 
@@ -379,17 +379,17 @@ module axfdi_packetizer  #(
 
 
                     READ_REQ: begin
-                        flit_tx_data[20:13] = lat_ar[7:0];
-                        flit_tx_data[28:21] = lat_ar[15:8];
-                        flit_tx_data[30:29] = lat_ar[17:16];
-                        flit_tx_data[33:31] = lat_ar[20:18];
-                        flit_tx_data[84:45] = lat_ar[60:21];
+                        flit_tx_data[20:13] = lat_ar[60:53];
+                        flit_tx_data[28:21] = lat_ar[52:45];
+                        flit_tx_data[30:29] = lat_ar[44:43];
+                        flit_tx_data[33:31] = lat_ar[42:40];
+                        flit_tx_data[84:45] = lat_ar[39:0];
                     end
 
 
                     WRITE_RESP: begin
-                        flit_tx_data[20:13] = lat_b[7:0];
-                        flit_tx_data[35:34] = lat_b[9:8];
+                        flit_tx_data[20:13] = lat_b[9:2];
+                        flit_tx_data[35:34] = lat_b[1:0];
                     end
 
 
