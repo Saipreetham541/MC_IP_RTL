@@ -11,7 +11,7 @@ class fdi_inline_credit_rtn_seqs extends uvm_sequence#(fdi_pkt_item);
 		begin
 			fditxn = fdi_pkt_item::type_id::create("credit_txn");
 			start_item(fditxn);
-			assert(fditxn.randomize with {trdy == 1;
+			assert(fditxn.randomize() with {trdy == 1;
 											startofpkt == 1;
 											endofpkt   == 1;
 											opcode inside {[0:3]};

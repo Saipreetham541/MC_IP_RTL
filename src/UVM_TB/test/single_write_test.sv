@@ -15,11 +15,14 @@ class single_write_test extends axfdi_test;
 	endfunction
 	
 	task run_phase(uvm_phase phase);
+	super.run_phase(phase);
 	$display("raise objection started");
 	
 		phase.raise_objection(this);
+		
 			sin_wr_vir_seqh=single_write_virtual_seq::type_id::create("sin_wr_vir_seqh");
 			sin_wr_vir_seqh.start(env.vseqrh);
+			#100;
 		phase.drop_objection(this);
 	endtask
 	

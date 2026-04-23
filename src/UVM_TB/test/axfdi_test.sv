@@ -94,6 +94,16 @@ rst_intf.apb_rst_n=1;
 `uvm_info("RESET","reset completed",UVM_MEDIUM)
 endtask
 
+task run_phase(uvm_phase phase);
+
+	phase.raise_objection(this);
+
+	apply_reset();
+
+	phase.drop_objection(this);
+
+endtask
+
 endclass
 
 

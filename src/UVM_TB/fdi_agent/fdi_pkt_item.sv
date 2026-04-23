@@ -19,6 +19,7 @@ class fdi_pkt_item extends uvm_sequence_item;
     rand bit [1:0] credit_rtn_vcn;
 	rand bit startofpkt;
 	rand bit endofpkt;
+	
     function new(string name="fdi_pkt_item");
     super.new(name);
     endfunction
@@ -62,6 +63,34 @@ class fdi_pkt_item extends uvm_sequence_item;
         wstrb = new[rhs_.wstrb.size()];
         foreach(wstrb[i])
         wstrb[i] = rhs_.wstrb[i];
+	endfunction
+	
+	
+		
+		virtual function void do_print(uvm_printer printer);
+		printer.print_field("VCN",vcn,8,UVM_DEC);
+		printer.print_field("opcode",opcode,4,UVM_DEC);
+		printer.print_field("port_id",port_id,1,UVM_DEC);
+		printer.print_field("txn_id",txn_id,8,UVM_DEC);
+		printer.print_field("burst_len",burst_len,8,UVM_DEC);
+		printer.print_field("burst_type",burst_type,2,UVM_DEC);
+		printer.print_field("burst_size",burst_size,8,UVM_DEC);
+		printer.print_field("resp",resp,2,UVM_DEC);
+		printer.print_field("addr",addr,40,UVM_DEC);
+		foreach(data[i]) begin
+		printer.print_field($sformatf("data[%0d]",i),data[i],8,UVM_DEC);
+		end
+		foreach(wstrb[i]) begin
+		printer.print_field($sformatf("wstrb[%0d]",i),wstrb[i],128,UVM_DEC);
+		end
+		printer.print_field("backpressure_cycle",backpressure_cycles,1,UVM_DEC);
+		printer.print_field("credit_rtn_cnt",credit_rtn_cnt,6,UVM_DEC);
+		printer.print_field("credit_rtn_vcn",credit_rtn_vcn,2,UVM_DEC);
+		endfunction
+		
+	function void display();
+		this.print(uvm_default_tree_printer);
+	endfunction
 
-    endfunction
+   
 endclass

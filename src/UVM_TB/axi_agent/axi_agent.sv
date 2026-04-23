@@ -54,5 +54,15 @@ class axi_agent extends uvm_agent;
             sub_seqr=sub_sequencer::type_id::create($sformatf("sub_seqr[%0d]",agent_id),this);
         end
     endfunction
+	
+	
+	
+function void connect_phase(uvm_phase phase);
+	super.connect_phase(phase);
+	if(agt_cfg.is_active) begin
+mgr_drvh.seq_item_port.connect(mgr_seqr.seq_item_export);
+sub_drvh.seq_item_port.connect(sub_seqr.seq_item_export);
+end
+endfunction
 
 endclass

@@ -5,7 +5,7 @@ typedef enum bit {
 
 class axi4_seq_item extends uvm_sequence_item;
 
-  `uvm_object_utils(axi4_seq_item);
+  `uvm_object_utils(axi4_seq_item)
   typedef enum{read, write}axn_type_e;   
   rand bit [39:0] addr;
   rand bit [7:0] id;

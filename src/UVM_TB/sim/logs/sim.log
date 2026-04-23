@@ -1,0 +1,307 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Thu Apr 23 13:11:22 2026
+# Process ID         : 9608
+# Current directory  : D:/Busbridges/src/UVM_TB/sim
+# Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
+# Log file           : D:/Busbridges/src/UVM_TB/sim/logs/sim.log
+# Journal file       : D:/Busbridges/src/UVM_TB/sim\xsim.jou
+# Running On         : PavanKalyan
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz
+# CPU Frequency      : 1800 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 8465 MB
+# Swap memory        : 6710 MB
+# Total Virtual      : 15176 MB
+# Available Virtual  : 3150 MB
+#-----------------------------------------------------------
+source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
+# xsim {uvm_sim_snapshot} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(18601) @ 0: reporter [UVM/RELNOTES] 
+----------------------------------------------------------------
+UVM-1.2
+(C) 2007-2014 Mentor Graphics Corporation
+(C) 2007-2014 Cadence Design Systems, Inc.
+(C) 2006-2014 Synopsys, Inc.
+(C) 2011-2013 Cypress Semiconductor Corp.
+(C) 2013-2014 NVIDIA Corporation
+----------------------------------------------------------------
+
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  You are using a version of the UVM library that has been compiled
+  with `UVM_NO_DEPRECATED undefined.
+
+  You are using a version of the UVM library that has been compiled
+  with `UVM_OBJECT_DO_NOT_NEED_CONSTRUCTOR undefined.
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_INFO @ 0: reporter [RNTST] Running test single_write_test...
+extended:single_write_test
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(18752) @ 0: reporter [UVMTOP] UVM testbench topology:
+--------------------------------------------------------------
+Name                       Type                    Size  Value
+--------------------------------------------------------------
+uvm_test_top               single_write_test       -     @366 
+  env                      axfdi_env               -     @390 
+    apb_agt                apb_agent               -     @575 
+      apb_drv              apb_driver              -     @603 
+        rsp_port           uvm_analysis_port       -     @622 
+        seq_item_port      uvm_seq_item_pull_port  -     @612 
+      apb_mon              apb_monitor             -     @594 
+      apb_seqr             apb_sequencer           -     @632 
+        rsp_export         uvm_analysis_export     -     @641 
+        seq_item_export    uvm_seq_item_pull_imp   -     @759 
+        arbitration_queue  array                   0     -    
+        lock_queue         array                   0     -    
+        num_last_reqs      integral                32    'd1  
+        num_last_rsps      integral                32    'd1  
+    axi_agt[0]             axi_agent               -     @538 
+      mgr_drv[0]           mgr_driver              -     @843 
+        rsp_port           uvm_analysis_port       -     @862 
+        seq_item_port      uvm_seq_item_pull_port  -     @852 
+      mgr_mon[0]           mgr_monitor             -     @785 
+        req1               uvm_analysis_port       -     @794 
+        res1               uvm_analysis_port       -     @804 
+      mgr_seqr[0]          mgr_sequencer           -     @872 
+        rsp_export         uvm_analysis_export     -     @881 
+        seq_item_export    uvm_seq_item_pull_imp   -     @999 
+        arbitration_queue  array                   0     -    
+        lock_queue         array                   0     -    
+        num_last_reqs      integral                32    'd1  
+        num_last_rsps      integral                32    'd1  
+      sub_drvh[0]          sub_driver              -     @1009
+        rsp_port           uvm_analysis_port       -     @1028
+        seq_item_port      uvm_seq_item_pull_port  -     @1018
+      sub_mon[0]           sub_monitor             -     @814 
+        req                uvm_analysis_port       -     @823 
+        res                uvm_analysis_port       -     @833 
+      sub_seqr[0]          sub_sequencer           -     @1038
+        rsp_export         uvm_analysis_export     -     @1047
+        seq_item_export    uvm_seq_item_pull_imp   -     @1165
+        arbitration_queue  array                   0     -    
+        lock_queue         array                   0     -    
+        num_last_reqs      integral                32    'd1  
+        num_last_rsps      integral                32    'd1  
+    axi_agt[1]             axi_agent               -     @555 
+      mgr_drv[1]           mgr_driver              -     @1266
+        rsp_port           uvm_analysis_port       -     @1285
+        seq_item_port      uvm_seq_item_pull_port  -     @1275
+      mgr_mon[1]           mgr_monitor             -     @1208
+        req1               uvm_analysis_port       -     @1217
+        res1               uvm_analysis_port       -     @1227
+      mgr_seqr[1]          mgr_sequencer           -     @1295
+        rsp_export         uvm_analysis_export     -     @1304
+        seq_item_export    uvm_seq_item_pull_imp   -     @1422
+        arbitration_queue  array                   0     -    
+        lock_queue         array                   0     -    
+        num_last_reqs      integral                32    'd1  
+        num_last_rsps      integral                32    'd1  
+      sub_drvh[1]          sub_driver              -     @1432
+        rsp_port           uvm_analysis_port       -     @1451
+        seq_item_port      uvm_seq_item_pull_port  -     @1441
+      sub_mon[1]           sub_monitor             -     @1237
+        req                uvm_analysis_port       -     @1246
+        res                uvm_analysis_port       -     @1256
+      sub_seqr[1]          sub_sequencer           -     @1461
+        rsp_export         uvm_analysis_export     -     @1470
+        seq_item_export    uvm_seq_item_pull_imp   -     @1588
+        arbitration_queue  array                   0     -    
+        lock_queue         array                   0     -    
+        num_last_reqs      integral                32    'd1  
+        num_last_rsps      integral                32    'd1  
+    fdi_agt                fdi_agent               -     @566 
+      credit_mgr           fdi_credit_manager      -     @1635
+      fdi_drv              fdi_driver              -     @1648
+        rsp_port           uvm_analysis_port       -     @1667
+        seq_item_port      uvm_seq_item_pull_port  -     @1657
+      fdi_mon              fdi_monitor             -     @1626
+      fdi_seqr             fdi_sequencer           -     @1677
+        rsp_export         uvm_analysis_export     -     @1686
+        seq_item_export    uvm_seq_item_pull_imp   -     @1804
+        arbitration_queue  array                   0     -    
+        lock_queue         array                   0     -    
+        num_last_reqs      integral                32    'd1  
+        num_last_rsps      integral                32    'd1  
+    vserqrh                virtual_seqr            -     @401 
+      rsp_export           uvm_analysis_export     -     @410 
+      seq_item_export      uvm_seq_item_pull_imp   -     @528 
+      arbitration_queue    array                   0     -    
+      lock_queue           array                   0     -    
+      num_last_reqs        integral                32    'd1  
+      num_last_rsps        integral                32    'd1  
+--------------------------------------------------------------
+
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(20867) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_INFO ../test/axfdi_test.sv(77) @ 0: uvm_test_top [RESET] Applying reset
+waiting for reset
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_pl2lp             fdi_pkt_item  -     @1855
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd0  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     'd0  
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+monitor data/n
+driver
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_pl2lp             fdi_pkt_item  -     @1972
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd0  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     'd0  
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+monitor data/n
+UVM_INFO ../test/axfdi_test.sv(94) @ 183000: uvm_test_top [RESET] reset completed
+raise objection started
+seqs start
+--------------------------------------------------------
+Name                  Type          Size  Value         
+--------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2010         
+  VCN                 integral      8     'd7           
+  opcode              integral      4     'd5           
+  port_id             integral      1     'd0           
+  txn_id              integral      8     'd114         
+  burst_len           integral      8     'd123         
+  burst_type          integral      2     3             
+  burst_size          integral      8     'd5           
+  resp                integral      2     3             
+  addr                integral      40    'd321798438682
+  backpressure_cycle  integral      1     'd0           
+  credit_rtn_cnt      integral      6     32            
+  credit_rtn_vcn      integral      2     'd0           
+--------------------------------------------------------
+driver1
+--------------------------------------------------------
+Name                  Type          Size  Value         
+--------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2010         
+  VCN                 integral      8     'd7           
+  opcode              integral      4     'd5           
+  port_id             integral      1     'd0           
+  txn_id              integral      8     'd114         
+  burst_len           integral      8     'd123         
+  burst_type          integral      2     3             
+  burst_size          integral      8     'd5           
+  resp                integral      2     3             
+  addr                integral      40    'd321798438682
+  backpressure_cycle  integral      1     'd0           
+  credit_rtn_cnt      integral      6     32            
+  credit_rtn_vcn      integral      2     'd0           
+--------------------------------------------------------
+credit[7] = 0
+entering drive_credit_return
+start of send flit
+after flit
+before making valid 0
+outside while
+after consumecredit
+seqs end
+seqs start
+------------------------------------------------------
+Name                  Type          Size  Value       
+------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2015       
+  VCN                 integral      8     'd6         
+  opcode              integral      4     'd5         
+  port_id             integral      1     'd0         
+  txn_id              integral      8     'd68        
+  burst_len           integral      8     136         
+  burst_type          integral      2     'd1         
+  burst_size          integral      8     'd1         
+  resp                integral      2     'd1         
+  addr                integral      40    900148315331
+  backpressure_cycle  integral      1     -1543669383 
+  credit_rtn_cnt      integral      6     32          
+  credit_rtn_vcn      integral      2     'd0         
+------------------------------------------------------
+driver1
+------------------------------------------------------
+Name                  Type          Size  Value       
+------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2015       
+  VCN                 integral      8     'd6         
+  opcode              integral      4     'd5         
+  port_id             integral      1     'd0         
+  txn_id              integral      8     'd68        
+  burst_len           integral      8     136         
+  burst_type          integral      2     'd1         
+  burst_size          integral      8     'd1         
+  resp                integral      2     'd1         
+  addr                integral      40    900148315331
+  backpressure_cycle  integral      1     -1543669383 
+  credit_rtn_cnt      integral      6     32          
+  credit_rtn_vcn      integral      2     'd0         
+------------------------------------------------------
+credit[6] = 0
+entering drive_credit_return
+start of send flit
+after flit
+before making valid 0
+outside while
+after consumecredit
+seqs end
+txn: (axi4_seq_item@2031) {
+  addr: 'h25ff91fb9c 
+  id: 'h96 
+  len: 'h0 
+  size: 'h2 
+  burst: 'h1 
+}
+txn: (axi4_seq_item@2027) {
+  addr: 'h85ced951dc 
+  id: 'h28 
+  len: 'h0 
+  size: 'h0 
+  burst: 'h1 
+}
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 287000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 287000: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :    7
+UVM_WARNING :    0
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[RESET]     2
+[RNTST]     1
+[TEST_DONE]     1
+[UVM/COMP/NAMECHECK]     1
+[UVM/RELNOTES]     1
+[UVMTOP]     1
+
+$finish called at time : 287 ns : File "E:\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
+exit
+INFO: [Common 17-206] Exiting xsim at Thu Apr 23 13:11:24 2026...

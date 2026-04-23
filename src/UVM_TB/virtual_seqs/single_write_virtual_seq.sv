@@ -16,14 +16,16 @@ class single_write_virtual_seq extends virtual_seq;
 	endfunction
 	
 	task body();
+	
+	if(!$cast(vseqrh, m_sequencer))
+			`uvm_error("error","from base v_seq")
 
 		init_seqh = fdi_init_seqs::type_id::create("init_seqh");
 		
 		sin_wr_seqh0 = single_write_seq::type_id::create("sin_wr_seqh0");
 		sin_wr_seqh1 = single_write_seq::type_id::create("sin_wr_seqh1");
 		
-		//inv_mgr_seqh0 = invalid_mngr_seq::type_id::create("inv_mgr_seqh0");
-		//inv_mgr_seqh1 = invalid_mngr_seq::type_id::create("inv_mgr_seqh1");
+		
 		begin
 				
 				init_seqh.start(vseqrh.fdi_seqr);

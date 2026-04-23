@@ -1,93 +1,98 @@
-# Vivado tools pavan path
+# ================================
+# Vivado Tool Paths (Pavan)
+# ================================
 XVLOG := /cygdrive/E/2025.2/Vivado/bin/xvlog
 XELAB := /cygdrive/E/2025.2/Vivado/bin/xelab
 XSIM  := /cygdrive/E/2025.2/Vivado/bin/xsim
+SNAPSHOT_NAME := uvm_sim_snapshot
 
-# Vivado tools shivasai path
-#XVLOG := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xvlog
-#XELAB := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xelab
-#XSIM  := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xsim
-
-# Base directories pavan path
+# ================================
+# Directories
+# ================================
 INTERFACE_DIR := D:/Busbridges/src/UVM_TB/interfaces
-RTL_DIR    := D:/Busbridges/src/rtl
-TB_DIR     := D:/Busbridges/src/UVM_TB/tb
-TEST_DIR   := D:/Busbridges/src/UVM_TB/test
-V_SEQS_DIR := D:/Busbridges/src/UVM_TB/virtual_seqs
-SEQS_DIR   := D:/Busbridges/src/UVM_TB/sequences
-WORK_DIR   := work
-LOG_DIR    := logs
+RTL_DIR       := D:/Busbridges/src/rtl
+TB_DIR        := D:/Busbridges/src/UVM_TB/tb
+TEST_DIR      := D:/Busbridges/src/UVM_TB/test
+V_SEQS_DIR    := D:/Busbridges/src/UVM_TB/virtual_seqs
+SEQS_DIR      := D:/Busbridges/src/UVM_TB/sequences
 
-# Base directories shivasai path
-#INTERFACE_DIR := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/interfaces
-#RTL_DIR    	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/rtl
-#TB_DIR     	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb
-#TEST_DIR   	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/test
-#V_SEQS_DIR 	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/virtual_seqs
-#SEQS_DIR   	  := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sequences
-#WORK_DIR   	  := work
-#LOG_DIR    	  := logs
+WORK_DIR := work
+LOG_DIR  := logs
 
+# ================================
 # Files
+# ================================
 INTERFACE_FILES := $(wildcard $(INTERFACE_DIR)/*.sv)
-RTL_FILES := $(wildcard $(RTL_DIR)/*.sv)
-PKG_FILE  := $(TEST_DIR)/axfdi_pkg.sv
-TOP_FILE  := $(TB_DIR)/axfdi_top.sv
+RTL_FILES       := $(wildcard $(RTL_DIR)/*.sv)
+SEQ_FILES       := $(wildcard $(SEQS_DIR)/*.sv)
+VSEQ_FILES      := $(wildcard $(V_SEQS_DIR)/*.sv)
+
+PKG_FILE := $(TEST_DIR)/axfdi_pkg.sv
+TOP_FILE := $(TB_DIR)/axfdi_top.sv
 
 TOP := axfdi_bridge_tb
+
 UVM_TEST ?= axfdi_test
 
-UVM_XVLOG_FLAGS := --sv -d SIMULATION --incr --relax -L uvm \
-                    -i $(TB_DIR) -i $(TEST_DIR) -i $(V_SEQS_DIR) -i $(SEQS_DIR) \
-                   -i E:/2025.2/Vivado/data/systemverilog/uvm/src
+# ================================
+# Create folders
+# ================================
+setup:
+	mkdir -p $(WORK_DIR)
+	mkdir -p $(LOG_DIR)
 
-UVM_XELAB_FLAGS := --relax --mt off -L uvm 
+# ================================
+# Compile
+# ================================
 
-all: clean uvm_vivado
+compile: setup
+	@echo "=== Compiling Files ==="
+	$(XVLOG) --sv \
+	-L uvm \
+	-i D:/Busbridges/src/UVM_TB/apb_agent \
+	-i D:/Busbridges/src/UVM_TB/axi_agent \
+	-i D:/Busbridges/src/UVM_TB/fdi_agent \
+	-i D:/Busbridges/src/UVM_TB/test \
+	-i D:/Busbridges/src/UVM_TB/tb \
+	-i D:/Busbridges/src/UVM_TB/sequences \
+	-i D:/Busbridges/src/UVM_TB/virtual_seqs \
+	$(INTERFACE_FILES) \
+	$(RTL_FILES) \
+	$(PKG_FILE) \
+	$(TOP_FILE) \
+	--log $(LOG_DIR)/compile.log
 
-clean:
-	#rm -rf xsim.dir *.log *.jou *.pb $(WORK_DIR) $(LOG_DIR)
-	@echo "=== Cleaning ==="
-	rm -rf $(WORK_DIR) xsim.dir *.log *.jou *.pb *.wdb
-	@mkdir -p $(WORK_DIR) $(LOG_DIR)
-uvm_vivado:
-	#@mkdir -p $(WORK_DIR) $(LOG_DIR)
-	@echo "=== Compiling RTL ==="
-	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(RTL_FILES)
-	@echo "=== Compiling INTERFACE ==="
-	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(INTERFACE_FILES)
-	@echo "=== Compiling UVM package (includes agents/env/test) ==="
-	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(PKG_FILE)
-	@echo "=== Compiling Top TB ==="
-	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(TOP_FILE)
-	@echo "=== Elaborating with xelab ==="
-	cd $(WORK_DIR) && $(XELAB) $(UVM_XELAB_FLAGS) -top $(TOP) -snapshot axfdi_uvm_sim
-	@echo "=== Running UVM test: $(UVM_TEST) ==="
-	cd $(WORK_DIR) && $(XSIM) axfdi_uvm_sim --runall
-	+UVM_TESTNAME=$(UVM_TEST) /
-	+UVM_VERBOSITY=UVM_MEDIUM /
-	--log vivado_sim.log
-		
-# Vivado GUI
-vivado_gui: 
-	@mkdir -p $(WORK_DIR) $(LOG_DIR)
-
-	@echo "=== Compiling RTL ==="
-	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(RTL_FILES)
-
-	@echo "=== Compiling UVM package ==="
-	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(PKG_FILE)
-
-	@echo "=== Compiling Top TB ==="
-	cd $(WORK_DIR) && $(XVLOG) $(UVM_XVLOG_FLAGS) $(TOP_FILE)
-
+# ================================
+# Elaborate
+# ================================
+elab: compile
 	@echo "=== Elaborating ==="
-	cd $(WORK_DIR) && $(XELAB) $(UVM_XELAB_FLAGS) \
-	    -top $(TOP) \
-	    -snapshot axfdi_uvm_sim
+	$(XELAB) $(TOP) \
+	--debug typical \
+	-L uvm \
+	--snapshot $(SNAPSHOT_NAME) \
+	--log $(LOG_DIR)/elab.log
 
-	@echo "=== Launching GUI ==="
-	cd $(WORK_DIR) && $(XSIM) axfdi_uvm_sim --gui &
+# ================================
+# Run Simulation
+# ================================
 
-Ex_test1: 
-	$(MAKE) uvm_vivado UVM_TEST=test_case1
+run: elab
+	@echo "=== Running UVM Test: $(UVM_TEST) ==="
+	$(XSIM) -runall $(SNAPSHOT_NAME) -log $(LOG_DIR)/sim.log
+	
+	
+# ================================
+# Full Flow
+# ================================
+all: compile elab run
+
+# ================================
+# Clean
+# ================================
+clean:
+	rm -rf $(WORK_DIR)
+	rm -rf $(LOG_DIR)
+	rm -rf xsim.dir
+	rm -rf *.jou
+	rm -rf *.pb

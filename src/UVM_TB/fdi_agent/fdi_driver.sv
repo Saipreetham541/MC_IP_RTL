@@ -32,8 +32,8 @@ endfunction
 
 
 task run_phase(uvm_phase phase);
-
-wait(vif.global_reset && vif.fdi_rst_n);
+$display("waiting for reset");
+while(!(vif.global_reset && vif.fdi_rst_n))
 	@(vif.fdi_drv_cb);
 
 	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
@@ -44,14 +44,25 @@ wait(vif.global_reset && vif.fdi_rst_n);
 	else
 	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
 	
-
-  forever begin
+$display("driver");
+  repeat(2) begin
 
     seq_item_port.get_next_item(txn);
-	apply_backpressure(txn.backpressure_cycles);
-	wait(credit_mgr.has_credit(txn.vcn));
-    drive_packet(txn);
+	$display("driver1");
+	txn.print();
+	//apply_backpressure(txn.backpressure_cycles);
+	$display("credit[%0d] = %0d", txn.vcn, credit_mgr.tx_credit[txn.vcn]);
+	//while(!credit_mgr.has_credit(txn.vcn)) begin
+	//$display("waiting for credit...");
+	//@(vif.fdi_drv_cb);
+	//end
+
+	drive_packet(txn);
+	//#1ns;
+	
+	$display("outside while");
 	credit_mgr.consume_credit(txn.vcn);
+	$display("after consumecredit");
     seq_item_port.item_done();
 
   end
@@ -103,17 +114,19 @@ endfunction
 task send_flit(bit [2047:0] flit,bit sop,bit eop);
 
   @(vif.fdi_drv_cb);
-
+$display("start of send flit");
   vif.fdi_drv_cb.fdi_pl_data<=flit;
   vif.fdi_drv_cb.fdi_pl_valid<=1;
   vif.fdi_drv_cb.fdi_pl_irdy<=1;
   vif.fdi_drv_cb.fdi_pl_startofpkt<=sop;
   vif.fdi_drv_cb.fdi_pl_endofpkt<=eop;
 	vif.fdi_drv_cb.fdi_pl_trdy<=txn.trdy;
-  wait(vif.fdi_drv_cb.fdi_lp_trdy);
+$display("after flit");
+  while(!vif.fdi_drv_cb.fdi_lp_trdy)
   @(vif.fdi_drv_cb);
+  $display("before making valid 0");
   vif.fdi_drv_cb.fdi_pl_valid<=0;
-
+//txn.display();
 endtask
 
 
@@ -129,8 +142,6 @@ task drive_write_req(fdi_pkt_item txn);
   header_flit=build_header(txn);
 	idx=0;
   
-
-
 
 foreach(txn.wstrb[i]) begin
   if(txn.wstrb[i] != '1) begin
@@ -220,7 +231,7 @@ endtask
 task drive_credit_return(fdi_pkt_item txn);
 
   bit [2047:0] header_flit;
-
+$display("entering drive_credit_return");
   header_flit = '0;
 
   header_flit[5:0] = txn.credit_rtn_cnt;

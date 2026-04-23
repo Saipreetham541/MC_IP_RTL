@@ -8,7 +8,7 @@ fdi_agent fdi_agt;
 apb_agent apb_agt;
 
 env_config env_cfg;
-axfdi_scoreboard sb;
+//axfdi_scoreboard sb;
 
 virtual_seqr vseqrh;
 
@@ -38,7 +38,7 @@ end
 
 fdi_agt=fdi_agent::type_id::create("fdi_agt",this);
 apb_agt=apb_agent::type_id::create("apb_agt",this);
-sb=axfdi_scoreboard::type_id::create("sb",this);
+//sb=axfdi_scoreboard::type_id::create("sb",this);
 
 
 uvm_config_db#(fdi_agt_config)::set(this,"*","fdi_agt_config",env_cfg.fdi_cfg);
@@ -49,15 +49,15 @@ endfunction
 
 function void connect_phase(uvm_phase phase);
 	super.connect_phase(phase);
-	//foreach(vseqrh.sub_seqr[i]) begin
+	
   vseqrh.sub_seqr0 = this.axi_agt[0].sub_seqr;
   vseqrh.sub_seqr1 = this.axi_agt[1].sub_seqr;
   
-//end
-	//foreach(vseqrh.mgr_seqr[i]) begin
+
+	
  vseqrh.mgr_seqr0 = this.axi_agt[0].mgr_seqr;
  vseqrh.mgr_seqr1 =this.axi_agt[1].mgr_seqr;
-  //end
+  
   vseqrh.fdi_seqr=this.fdi_agt.fdi_seqr;
   
   

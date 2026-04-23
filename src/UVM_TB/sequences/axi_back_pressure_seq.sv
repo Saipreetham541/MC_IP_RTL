@@ -1,4 +1,4 @@
-class axi_back_pressure_seq extends uvm_sequence;
+class axi_back_pressure_seq extends uvm_sequence#(axi4_seq_item);
 	`uvm_object_utils(axi_back_pressure_seq)
 	axi4_seq_item txn;
 	

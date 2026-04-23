@@ -9,7 +9,7 @@ class virtual_seq  extends uvm_sequence #(uvm_sequence_item);
 	
 	//mgr_seqs mgr_seqsh0, mgr_seqsh1 ;
 	
-	virtual_seqr vseqrh;
+	//virtual_seqr vseqrh;
 	
 	function new(string name="virtual_seq");
 		super.new(name);
@@ -17,8 +17,8 @@ class virtual_seq  extends uvm_sequence #(uvm_sequence_item);
 	
 	task body();
 	
-		if(!$cast(vseqrh, m_sequencer))
-			`uvm_error("error","from base v_seq")
+		/* if(!$cast(vseqrh, m_sequencer))
+			`uvm_error("error","from base v_seq") */
 		
 	endtask
 endclass

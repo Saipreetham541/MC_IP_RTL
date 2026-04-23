@@ -11,6 +11,8 @@ super.new(name,parent);
 endfunction
 
 function void build_phase(uvm_phase phase);
+super.build_phase(phase);
+txn=axi4_seq_item::type_id::create("txn");
 if(!uvm_config_db#(axi_agt_config)::get(this,"","axi_agt_config",agt_cfg))
 `uvm_fatal("FATAL","FROM MGR_DRIVER CLASS")
 if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))

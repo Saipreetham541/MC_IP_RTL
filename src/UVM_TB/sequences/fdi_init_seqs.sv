@@ -7,16 +7,20 @@ class fdi_init_seqs extends uvm_sequence#(fdi_pkt_item);
 	endfunction
 	
 	task body();
-		int credit[2]={32, 32};
+		int credit[2]='{32, 32};
 		
-		foreach(credit[vcn]) 
+		foreach(credit[i]) 
 			begin
 			fditxn=fdi_pkt_item:: type_id:: create("fditxn");
+			$display("seqs start");
 			start_item(fditxn);
-			assert(fditxn.randomize() with{fditxn.opcode==4'h5;
-									  fditxn.credit_rtn_vcn==vcn;
-									  fditxn.credit_rtn_cnt==credit[vcn];});
+			assert(fditxn.randomize() with{opcode==4'h5;
+									  credit_rtn_vcn=='0;
+									  credit_rtn_cnt==6'd32;});
+								fditxn.print();
+								
 			finish_item(fditxn);
+			$display("seqs end");
 			end
 	endtask
 endclass
