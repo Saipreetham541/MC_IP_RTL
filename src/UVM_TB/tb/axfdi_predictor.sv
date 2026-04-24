@@ -139,7 +139,16 @@ class axfdi_predictor extends uvm_component;
             pkt_c = fdi_pkt_item::type_id::create("pkt_c");
             pkt_c.copy(pkt);
 
-            if (pkt_c.opcode == CREDIT_RTN) begin
+            $display("\n[PRD] collect_fdi_rx\n");
+            $display(pkt.convert2string);
+            $display("\n\n");
+
+            if (pkt_c.opcode == 4'd4) begin
+                
+                $display("\n[PRD] collect_fdi_rx(credit)\n");
+                $display(pkt.convert2string);
+                $display("\n\n");
+
                 if (pkt_c.credit_rtn_vcn == 2'h0)begin
                    tx_np_credit_cnt  += pkt_c.credit_rtn_cnt; 
                 end 
@@ -147,13 +156,21 @@ class axfdi_predictor extends uvm_component;
                     tx_cpl_credit_cnt += pkt_c.credit_rtn_cnt;
                 end 
             end
-            else if (pkt_c.opcode == WRITE_REQ || pkt_c.opcode == READ_REQ) begin
+            else if (pkt_c.opcode == 4'd0 || pkt_c.opcode == 4'd1 ) begin
+                $display("\n[PRD] collect_fdi_rx(request)\n");
+                $display(pkt.convert2string);
+                $display("\n\n");
+
                 rx_np_consumed++;
                 exp_axi_req = predict_axi_mgr_req_from_fdi_rx_req(pkt_c);
                 port = pkt_c.port_id;
                 exp_mgr_req_ap[port].write(exp_axi_req);
             end
             else if (pkt_c.opcode == WRITE_RESP || pkt_c.opcode == READ_RESP) begin
+                $display("\n[PRD] collect_fdi_rx(response)\n");
+                $display(pkt.convert2string);
+                $display("\n\n");
+
                 rx_cpl_consumed++;
                 exp_axi_rsp = predict_axi_sub_rsp_from_fdi_rx_rsp(pkt_c);
                 port = pkt_c.port_id;
@@ -408,7 +425,13 @@ class axfdi_predictor extends uvm_component;
     endtask
 
     function axi4_seq_item predict_axi_mgr_req_from_fdi_rx_req(fdi_pkt_item pkt);
+    
         axi4_seq_item req = axi4_seq_item::type_id::create("req");
+
+        $display("\n[PRD] predict_axi_mgr_req_from_fdi_rx_req(request)\n");
+        $display(req.convert2string);
+        $display("\n\n");
+
         req.addr  = pkt.addr;
         req.id    = pkt.txn_id;
         req.len   = pkt.burst_len;

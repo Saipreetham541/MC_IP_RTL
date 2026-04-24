@@ -135,8 +135,6 @@ module axfdi_fdi_if #(
 
    //module assign on the local protocol to adapter
    assign fdi_lp_data = r_fdi_lp_data;
-   initial $monitor("credit_rtn_cnt  dut output_credits44444444444444444444444444444=%0b",fdi_lp_data[43:38]);
-			//$display("credit_rtn_vcn dut_outputcredits=%0b ",fdi_lp_data[37:36]);
    assign fdi_lp_irdy = r_fdi_lp_irdy;
    assign fdi_lp_valid = r_fdi_lp_valid;
    assign fdi_lp_startofpkt = r_fdi_lp_startofpkt;
@@ -175,11 +173,7 @@ module axfdi_fdi_if #(
         end
 		
         else if (fdi_pl_irdy && r_fdi_lp_trdy && fdi_pl_valid && r_fdi_trans_en) begin
-		$display("credit_rtn_cnt  dut input_credits55555555555555555555555555555=%0b",r_fdi_pl_data[43:38]);
-			$display("credit_rtn_vcn dut_input credits55555555555555555555555555555=%0b ",r_fdi_pl_data[37:36]);
            r_fdi_pl_data <= fdi_pl_data;
-		   //$display("fdi_pl_data from dut555555555555555555 %0b",fdi_pl_data);
-		    
            r_fdi_pl_startofpkt <= fdi_pl_startofpkt;
            r_fdi_pl_endofpkt <= fdi_pl_endofpkt;
            r_flit_rx_data_valid <= 1'b1;
@@ -221,7 +215,6 @@ module axfdi_fdi_if #(
       s_fdi_lp_state_req = IDLE;
       s_credit_rtn_req_en = 1'b0;
       s_fdi_trans_en = 1'b0;
-	  $display("State Machine states FDI interface endiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii %0b",CS);
       case(CS)
         ST_wait_remote: begin
            s_fdi_lp_state_req = INIT;
@@ -241,25 +234,21 @@ module axfdi_fdi_if #(
            s_fdi_lp_state_req = ACTIVE;
            s_credit_rtn_req_en = 1'b1;
            s_fdi_trans_en =  1'b1;
-           if (credit_init_done) begin NS = ST_TX_RX;
-		   $display("credit_rtn_cnt  dut output_credits33333333333333333333333333333333333333=%0b",fdi_lp_data[43:38]);
-			$display("credit_rtn_vcn dut_outputcredits=%0b ",fdi_lp_data[37:36]);
+           if (credit_init_done) begin 
+            NS = ST_TX_RX;
 			end
-           else begin NS = ST_credit_init;
-		    $display("credit_rtn_cnt  dut output_credits222222222222222222222222222222222222222222=%0b",fdi_lp_data[43:38]);
-			$display("credit_rtn_vcn dut_outputcredits=%0b ",fdi_lp_data[37:36]);
+           else begin 
+            NS = ST_credit_init;
 			end
         end
         ST_TX_RX: begin
            s_fdi_lp_state_req = ACTIVE;
            s_fdi_trans_en =  1'b1;
-           if (fdi_pl_state_sts != 3'h2) begin NS = ST_wait_remote;
-		    $display("credit_rtn_cnt  dut output_credits111111111111111111111111111111=%0b",fdi_lp_data[43:38]);
-			$display("credit_rtn_vcn dut_outputcredits=%0b ",fdi_lp_data[37:36]);
+           if (fdi_pl_state_sts != 3'h2) begin 
+            NS = ST_wait_remote;
 			end
-           else begin NS = ST_TX_RX;
-		    $display("credit_rtn_cnt  dut output_credits00000000000000000000000000000000000000=%0b",fdi_lp_data[43:38]);
-			$display("credit_rtn_vcn dut_outputcredits=%0b ",fdi_lp_data[37:36]);
+           else begin 
+            NS = ST_TX_RX;
 			end
         end
         default: NS=ST_wait_remote;

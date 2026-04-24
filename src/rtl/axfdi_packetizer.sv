@@ -241,7 +241,6 @@ module axfdi_packetizer  #(
                   lat_cr_opcode <= credit_rtn_opcode_en;
                   lat_cr_piggy  <= credit_rtn_piggy_en;
                   lat_cr_cnt    <= rx_credit_rtn_cnt;
-				  $display("lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt%0b",rx_credit_rtn_cnt);
                   lat_cr_vcn    <= rx_credit_rtn_vcn;
                   // credit return standalone
                   if (credit_rtn_opcode_en)
@@ -354,8 +353,6 @@ module axfdi_packetizer  #(
             if (lat_cr_opcode || lat_cr_piggy) begin
                 flit_tx_data[37:36] = lat_cr_vcn;
                 flit_tx_data[43:38] = lat_cr_cnt;
-				$display("lat_cr_cnt  from Dut%0b",lat_cr_cnt);
-				$display("lat_cr_vcn  from Dut%0b",lat_cr_vcn);
             end
 
 

@@ -3,23 +3,23 @@
 # SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
 # IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
 # SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
-# Start of session at: Fri Apr 24 12:05:48 2026
-# Process ID         : 10572
-# Current directory  : D:/Busbridges/src/UVM_TB/sim
+# Start of session at: Fri Apr 24 14:35:35 2026
+# Process ID         : 17468
+# Current directory  : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim
 # Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
-# Log file           : D:/Busbridges/src/UVM_TB/sim/logs/sim.log
-# Journal file       : D:/Busbridges/src/UVM_TB/sim\xsim.jou
-# Running On         : PavanKalyan
+# Log file           : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim/logs/sim.log
+# Journal file       : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim\xsim.jou
+# Running On         : Shivasai
 # Platform           : Windows Server 2016 or Windows 10
 # Operating System   : 26200
-# Processor Detail   : Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz
-# CPU Frequency      : 1800 MHz
-# CPU Physical cores : 4
-# CPU Logical cores  : 8
-# Host memory        : 8465 MB
-# Swap memory        : 7105 MB
-# Total Virtual      : 15571 MB
-# Available Virtual  : 3050 MB
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16745 MB
+# Swap memory        : 3221 MB
+# Total Virtual      : 19966 MB
+# Available Virtual  : 8949 MB
 #-----------------------------------------------------------
 source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
 run -all

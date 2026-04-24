@@ -1,20 +1,39 @@
 # ================================
 # Vivado Tool Paths (Pavan)
 # ================================
-XVLOG := /cygdrive/E/2025.2/Vivado/bin/xvlog
-XELAB := /cygdrive/E/2025.2/Vivado/bin/xelab
-XSIM  := /cygdrive/E/2025.2/Vivado/bin/xsim
+#XVLOG := /cygdrive/E/2025.2/Vivado/bin/xvlog
+#XELAB := /cygdrive/E/2025.2/Vivado/bin/xelab
+#XSIM  := /cygdrive/E/2025.2/Vivado/bin/xsim
+#SNAPSHOT_NAME := uvm_sim_snapshot
+
+# ================================
+# Vivado Tool Paths (shiva)
+# ================================
+XVLOG := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xvlog
+XELAB := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xelab
+XSIM  := /cygdrive/c/AMDDesignTools/2025.2/Vivado/bin/xsim
 SNAPSHOT_NAME := uvm_sim_snapshot
 
 # ================================
-# Directories
+# Directories path (pavan)
 # ================================
-INTERFACE_DIR := D:/Busbridges/src/UVM_TB/interfaces
-RTL_DIR       := D:/Busbridges/src/rtl
-TB_DIR        := D:/Busbridges/src/UVM_TB/tb
-TEST_DIR      := D:/Busbridges/src/UVM_TB/test
-V_SEQS_DIR    := D:/Busbridges/src/UVM_TB/virtual_seqs
-SEQS_DIR      := D:/Busbridges/src/UVM_TB/sequences
+#INTERFACE_DIR := D:/Busbridges/src/UVM_TB/interfaces
+#RTL_DIR       := D:/Busbridges/src/rtl
+#TB_DIR        := D:/Busbridges/src/UVM_TB/tb
+#TEST_DIR      := D:/Busbridges/src/UVM_TB/test
+#V_SEQS_DIR    := D:/Busbridges/src/UVM_TB/virtual_seqs
+#SEQS_DIR      := D:/Busbridges/src/UVM_TB/sequences
+
+# ================================
+# Directories path (shiva)
+# ================================
+INTERFACE_DIR := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/interfaces
+RTL_DIR       := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/rtl
+TB_DIR        := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb
+TEST_DIR      := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/test
+V_SEQS_DIR    := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/virtual_seqs
+SEQS_DIR      := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sequences
+
 
 WORK_DIR := work
 LOG_DIR  := logs
@@ -42,20 +61,42 @@ setup:
 	mkdir -p $(LOG_DIR)
 
 # ================================
-# Compile
+# Compile (pavan)
+# ================================
+
+#compile: setup
+#	@echo "=== Compiling Files ==="
+#	$(XVLOG) --sv \
+#	-L uvm \
+#	-i D:/Busbridges/src/UVM_TB/apb_agent \
+#	-i D:/Busbridges/src/UVM_TB/axi_agent \
+#	-i D:/Busbridges/src/UVM_TB/fdi_agent \
+#	-i D:/Busbridges/src/UVM_TB/test \
+#	-i D:/Busbridges/src/UVM_TB/tb \
+#	-i D:/Busbridges/src/UVM_TB/sequences \
+#	-i D:/Busbridges/src/UVM_TB/virtual_seqs \
+#	$(INTERFACE_FILES) \
+#	$(RTL_FILES) \
+#	$(PKG_FILE) \
+#	$(TOP_FILE) \
+#	--log $(LOG_DIR)/compile.log
+
+
+# ================================
+# Compile (shiva)
 # ================================
 
 compile: setup
 	@echo "=== Compiling Files ==="
 	$(XVLOG) --sv \
 	-L uvm \
-	-i D:/Busbridges/src/UVM_TB/apb_agent \
-	-i D:/Busbridges/src/UVM_TB/axi_agent \
-	-i D:/Busbridges/src/UVM_TB/fdi_agent \
-	-i D:/Busbridges/src/UVM_TB/test \
-	-i D:/Busbridges/src/UVM_TB/tb \
-	-i D:/Busbridges/src/UVM_TB/sequences \
-	-i D:/Busbridges/src/UVM_TB/virtual_seqs \
+	-i D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/apb_agent \
+	-i D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/axi_agent \
+	-i D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/fdi_agent \
+	-i D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/test \
+	-i D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb \
+	-i D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sequences \
+	-i D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/virtual_seqs \
 	$(INTERFACE_FILES) \
 	$(RTL_FILES) \
 	$(PKG_FILE) \

@@ -71,6 +71,6 @@ input fdi_pl_inband_pres;
 endclocking
 
 modport FDI_DRV_MP(input global_reset,input fdi_rst_n,clocking fdi_drv_cb);
-modport FDI_MON_MP(clocking fdi_mon_cb);
+modport FDI_MON_MP(input global_reset,input fdi_rst_n,clocking fdi_mon_cb);
 
 endinterface

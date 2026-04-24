@@ -170,10 +170,17 @@ class axfdi_comparator extends uvm_component;
     act_fdi_tx_fifo.get(act_pkt);
     key = make_key_for_fdi(act_pkt);
 
+    $display("\n[CMP] collect_act_fdi_tx\n");
+    $display(act_pkt.convert2string);
+    $display("\n\n");
+
     if (!exp_fdi_tx_db.exists(key) || exp_fdi_tx_db[key].size() == 0) begin
-      `uvm_error("CMP", $sformatf("Unexpected FDI TX packet key=%s", key))
+      `uvm_error("\nCMP", $sformatf("\nUnexpected FDI TX packet key=%s\n\n", key))
       fail_cnt++;
       total_cnt++;
+
+    `uvm_info("\nCMP collect_act_fdi_tx\n",act_pkt.convert2string(),UVM_LOW)
+
     end
     else begin
       exp_pkt = exp_fdi_tx_db[key].pop_front();
@@ -221,16 +228,16 @@ class axfdi_comparator extends uvm_component;
 
   function string make_key_for_fdi(fdi_pkt_item pkt);
     if (pkt.opcode == CREDIT_RTN) begin
-      return $sformatf("op%0h_rvcn%0h_rcnt%0h", pkt.opcode, pkt.credit_rtn_vcn, pkt.credit_rtn_cnt);
+      return $sformatf("fdi_credit_rtn_op%0d_rvcn%0d", pkt.opcode, pkt.credit_rtn_vcn);
     end
-    return $sformatf("p%0d_op%0h_id%0h", pkt.port_id, pkt.opcode, pkt.txn_id);
+    return $sformatf("fdi_normal_txn_p%0d_op%0d_id%0d", pkt.port_id, pkt.opcode, pkt.txn_id);
   endfunction
 
   function string make_key_for_axi_rsp(axi4_seq_item rsp ,int port);
     string key;
     int port_id = port;
     key = (rsp.axn_type == WRITE) ? "WR_RSP" : "RD_RSP";
-    return $sformatf("p%0d_%s_id%0h",port_id, key, rsp.id);
+    return $sformatf("axi_rsp_p%0d_op%s_id%0h",port_id, key, rsp.id);
   endfunction
 
 
@@ -238,7 +245,7 @@ class axfdi_comparator extends uvm_component;
     string key;
     int port_id = port;
     key = (req.axn_type == WRITE) ? "WR_REQ" : "RD_REQ";
-    return $sformatf("p%0d_%s_id%0h",port_id, key, req.id);
+    return $sformatf("axi_req_p%0d_%s_id%0d",port_id, key, req.id);
   endfunction
 
   // COMPARE FUNCTIONS
@@ -254,6 +261,15 @@ class axfdi_comparator extends uvm_component;
     if (exp.strb       != act.strb)       pass = 0;
     if (exp.resp       != act.resp)       pass = 0;
     if (exp.axn_type   != act.axn_type)   pass = 0;
+
+    if (!pass) begin
+
+      `uvm_error("CMP_AXI_REQ",
+        $sformatf("\nAXI REQ PACKET MISMATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
+        exp.convert2string(),
+        act.convert2string()))
+
+    end
     return pass;
   endfunction
 
@@ -269,6 +285,15 @@ class axfdi_comparator extends uvm_component;
     if (exp.strb       != act.strb)       pass = 0;
     if (exp.resp       != act.resp)       pass = 0;
     if (exp.axn_type   != act.axn_type)   pass = 0;
+
+    if (!pass) begin
+
+      `uvm_error("CMP_AXI_RSP",
+        $sformatf("\nAXI PACKET MISMATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
+        exp.convert2string(),
+        act.convert2string()))
+
+    end
     return pass;
   endfunction
 
@@ -303,6 +328,14 @@ class axfdi_comparator extends uvm_component;
         // common + credit fields already checked
       end
     endcase
+
+    if (!pass) begin
+
+      `uvm_error("CMP_FDI",
+        $sformatf("\nFDI PACKET MISMATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
+        exp.convert2string(),
+        act.convert2string()))
+    end
 
     return pass;
   endfunction
