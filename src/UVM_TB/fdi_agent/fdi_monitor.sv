@@ -37,19 +37,19 @@ endfunction
  task run_phase(uvm_phase phase);
 
     fork
-      monitor_pl_to_lp(); // DUT → fdi
-      monitor_lp_to_pl(); // fdi → DUT
+      monitor_pl_to_lp(); // fdi → DUt
+      monitor_lp_to_pl(); // DUT → fdi
     join_none
 
   endtask
 
-  // PL → LP (DUT - FDI)
+  // PL → LP 
   task monitor_pl_to_lp();
 
     bit [2047:0] flit;
     fdi_pkt_item txn;
 
-    repeat(2) begin
+    forever begin
 
      txn = fdi_pkt_item::type_id::create("txn_pl2lp");
       
@@ -80,7 +80,7 @@ endfunction
     end
   endtask
   
-  // LP - PL (Driver TO DUT)
+  // LP - PL 
 
   task monitor_lp_to_pl();
 
@@ -93,15 +93,20 @@ endfunction
 
       do begin
         @(vif.fdi_mon_cb);
-      end while(!(vif.fdi_mon_cb.fdi_lp_valid && vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy  && vif.fdi_mon_cb.fdi_lp_startofpkt)); // Wait for SOP
-  
+      end
+	  
+	  while(!(vif.fdi_mon_cb.fdi_lp_valid && vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy  && vif.fdi_mon_cb.fdi_lp_startofpkt)); // Wait for SOP
+		$display("start of monitor_lp_to_pl");
 
       flit = vif.fdi_mon_cb.fdi_lp_data;  // Capture header flit
 
       decode_header(flit, txn);
+	$display("start of monitor_lp_to_pl2");
+	
+	
 
       while(!vif.fdi_mon_cb.fdi_lp_endofpkt) begin
-
+	$display("start of monitor_lp_to_pl3");
         @(vif.fdi_mon_cb);
 
         if(vif.fdi_mon_cb.fdi_lp_valid &&  vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy)

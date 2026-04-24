@@ -45,20 +45,23 @@ while(!(vif.global_reset && vif.fdi_rst_n))
 	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
 	
 $display("driver");
-  repeat(2) begin
+  forever begin
 
     seq_item_port.get_next_item(txn);
 	$display("driver1");
 	txn.print();
 	//apply_backpressure(txn.backpressure_cycles);
-	$display("credit[%0d] = %0d", txn.vcn, credit_mgr.tx_credit[txn.vcn]);
-	//while(!credit_mgr.has_credit(txn.vcn)) begin
-	//$display("waiting for credit...");
-	//@(vif.fdi_drv_cb);
-	//end
-
-	drive_packet(txn);
-	//#1ns;
+		if(txn.opcode == 4'h4) begin
+			drive_packet(txn);
+		end
+	    else if (txn.opcode == 4'h0 || txn.opcode == 4'h1 || txn.opcode == 4'h1 || txn.opcode == 4'h1)
+		begin
+			while(!credit_mgr.has_credit(txn.vcn))
+				@(vif.fdi_drv_cb);
+				drive_packet(txn);
+		end
+		
+	
 	
 	$display("outside while");
 	credit_mgr.consume_credit(txn.vcn);
@@ -76,11 +79,11 @@ endtask
 task drive_packet(fdi_pkt_item txn);
 
   case(txn.opcode)
-    4'h1: drive_write_req(txn);
-    4'h2: drive_read_req(txn);
-    4'h3: drive_write_resp(txn);
-    4'h4: drive_read_resp(txn);
-    4'h5: drive_credit_return(txn);
+    4'h0: drive_write_req(txn);
+    4'h1: drive_read_req(txn);
+    4'h2: drive_write_resp(txn);
+    4'h3: drive_read_resp(txn);
+    4'h4: drive_credit_return(txn);
   endcase
 
 endtask

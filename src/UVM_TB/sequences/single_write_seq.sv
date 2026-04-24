@@ -7,6 +7,7 @@ class single_write_seq extends uvm_sequence #(axi4_seq_item);
 	endfunction
 	
 	task body();
+	//repeat(17) 
 		begin
 			txn=axi4_seq_item::type_id::create("txn");
 			start_item(txn);

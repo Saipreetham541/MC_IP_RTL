@@ -24,6 +24,14 @@ class fdi_pkt_item extends uvm_sequence_item;
     super.new(name);
     endfunction
 
+
+	constraint vcn_c1{vcn inside{0,1};}
+	constraint opcode_c2{opcode inside{[0:5]};}
+	constraint addr_c3{addr%(2**burst_size)==0;}
+	constraint b_cycles_c4{backpressure_cycles inside{[5:10]};}
+
+
+
     function string convert2string();
 
         return $sformatf(
@@ -56,6 +64,7 @@ class fdi_pkt_item extends uvm_sequence_item;
         credit_rtn_vcn      = rhs_.credit_rtn_vcn;
 		startofpkt			= rhs_.startofpkt;
 		endofpkt            = rhs_.endofpkt;
+		trdy                = rhs_.trdy;
         data = new[rhs_.data.size()];
         foreach(data[i])
         data[i] = rhs_.data[i];

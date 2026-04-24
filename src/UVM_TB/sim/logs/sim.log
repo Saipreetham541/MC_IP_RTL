@@ -3,8 +3,8 @@
 # SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
 # IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
 # SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
-# Start of session at: Thu Apr 23 13:11:22 2026
-# Process ID         : 9608
+# Start of session at: Fri Apr 24 04:49:46 2026
+# Process ID         : 20428
 # Current directory  : D:/Busbridges/src/UVM_TB/sim
 # Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
 # Log file           : D:/Busbridges/src/UVM_TB/sim/logs/sim.log
@@ -19,7 +19,7 @@
 # Host memory        : 8465 MB
 # Swap memory        : 6710 MB
 # Total Virtual      : 15176 MB
-# Available Virtual  : 3150 MB
+# Available Virtual  : 4933 MB
 #-----------------------------------------------------------
 source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
 # xsim {uvm_sim_snapshot} -autoloadwcfg -runall
@@ -144,6 +144,9 @@ uvm_test_top               single_write_test       -     @366
 UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(20867) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
 UVM_INFO ../test/axfdi_test.sv(77) @ 0: uvm_test_top [RESET] Applying reset
 waiting for reset
+state =0///////////////////////////////////////////////////////////
+start of monitor_lp_to_pl
+start of monitor_lp_to_pl2
 -----------------------------------------------
 Name                  Type          Size  Value
 -----------------------------------------------
@@ -163,12 +166,56 @@ txn_pl2lp             fdi_pkt_item  -     @1855
 -----------------------------------------------
 monitor data/n
 driver
+UVM_INFO ../test/axfdi_test.sv(95) @ 53000: uvm_test_top [RESET] reset completed
+raise objection started
+seqs start
+------------------------------------------------------
+Name                  Type          Size  Value       
+------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2010       
+  VCN                 integral      8     'd0         
+  opcode              integral      4     'd4         
+  port_id             integral      1     1           
+  txn_id              integral      8     'd108       
+  burst_len           integral      8     'd114       
+  burst_type          integral      2     3           
+  burst_size          integral      8     'd1         
+  resp                integral      2     3           
+  addr                integral      40    854177078584
+  backpressure_cycle  integral      1     7           
+  credit_rtn_cnt      integral      6     32          
+  credit_rtn_vcn      integral      2     'd0         
+------------------------------------------------------
+driver1
+------------------------------------------------------
+Name                  Type          Size  Value       
+------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2010       
+  VCN                 integral      8     'd0         
+  opcode              integral      4     'd4         
+  port_id             integral      1     1           
+  txn_id              integral      8     'd108       
+  burst_len           integral      8     'd114       
+  burst_type          integral      2     3           
+  burst_size          integral      8     'd1         
+  resp                integral      2     3           
+  addr                integral      40    854177078584
+  backpressure_cycle  integral      1     7           
+  credit_rtn_cnt      integral      6     32          
+  credit_rtn_vcn      integral      2     'd0         
+------------------------------------------------------
+entering drive_credit_return
+start of send flit
+after flit
+before making valid 0
+outside while
+after consumecredit
 -----------------------------------------------
 Name                  Type          Size  Value
 -----------------------------------------------
 txn_pl2lp             fdi_pkt_item  -     @1972
   VCN                 integral      8     'd0  
-  opcode              integral      4     'd0  
+  opcode              integral      4     'd4  
   port_id             integral      1     'd0  
   txn_id              integral      8     'd0  
   burst_len           integral      8     'd0  
@@ -177,26 +224,25 @@ txn_pl2lp             fdi_pkt_item  -     @1972
   resp                integral      2     'd0  
   addr                integral      40    'd0  
   backpressure_cycle  integral      1     'd0  
-  credit_rtn_cnt      integral      6     'd0  
+  credit_rtn_cnt      integral      6     32   
   credit_rtn_vcn      integral      2     'd0  
 -----------------------------------------------
 monitor data/n
-UVM_INFO ../test/axfdi_test.sv(94) @ 183000: uvm_test_top [RESET] reset completed
-raise objection started
+seqs end
 seqs start
 --------------------------------------------------------
 Name                  Type          Size  Value         
 --------------------------------------------------------
-fditxn                fdi_pkt_item  -     @2010         
-  VCN                 integral      8     'd7           
-  opcode              integral      4     'd5           
+fditxn                fdi_pkt_item  -     @2019         
+  VCN                 integral      8     'd0           
+  opcode              integral      4     'd4           
   port_id             integral      1     'd0           
-  txn_id              integral      8     'd114         
-  burst_len           integral      8     'd123         
-  burst_type          integral      2     3             
-  burst_size          integral      8     'd5           
-  resp                integral      2     3             
-  addr                integral      40    'd321798438682
+  txn_id              integral      8     'd56          
+  burst_len           integral      8     'd68          
+  burst_type          integral      2     'd0           
+  burst_size          integral      8     'd0           
+  resp                integral      2     'd1           
+  addr                integral      40    'd459975380092
   backpressure_cycle  integral      1     'd0           
   credit_rtn_cnt      integral      6     32            
   credit_rtn_vcn      integral      2     'd0           
@@ -205,21 +251,20 @@ driver1
 --------------------------------------------------------
 Name                  Type          Size  Value         
 --------------------------------------------------------
-fditxn                fdi_pkt_item  -     @2010         
-  VCN                 integral      8     'd7           
-  opcode              integral      4     'd5           
+fditxn                fdi_pkt_item  -     @2019         
+  VCN                 integral      8     'd0           
+  opcode              integral      4     'd4           
   port_id             integral      1     'd0           
-  txn_id              integral      8     'd114         
-  burst_len           integral      8     'd123         
-  burst_type          integral      2     3             
-  burst_size          integral      8     'd5           
-  resp                integral      2     3             
-  addr                integral      40    'd321798438682
+  txn_id              integral      8     'd56          
+  burst_len           integral      8     'd68          
+  burst_type          integral      2     'd0           
+  burst_size          integral      8     'd0           
+  resp                integral      2     'd1           
+  addr                integral      40    'd459975380092
   backpressure_cycle  integral      1     'd0           
   credit_rtn_cnt      integral      6     32            
   credit_rtn_vcn      integral      2     'd0           
 --------------------------------------------------------
-credit[7] = 0
 entering drive_credit_return
 start of send flit
 after flit
@@ -227,66 +272,22 @@ before making valid 0
 outside while
 after consumecredit
 seqs end
-seqs start
-------------------------------------------------------
-Name                  Type          Size  Value       
-------------------------------------------------------
-fditxn                fdi_pkt_item  -     @2015       
-  VCN                 integral      8     'd6         
-  opcode              integral      4     'd5         
-  port_id             integral      1     'd0         
-  txn_id              integral      8     'd68        
-  burst_len           integral      8     136         
-  burst_type          integral      2     'd1         
-  burst_size          integral      8     'd1         
-  resp                integral      2     'd1         
-  addr                integral      40    900148315331
-  backpressure_cycle  integral      1     -1543669383 
-  credit_rtn_cnt      integral      6     32          
-  credit_rtn_vcn      integral      2     'd0         
-------------------------------------------------------
-driver1
-------------------------------------------------------
-Name                  Type          Size  Value       
-------------------------------------------------------
-fditxn                fdi_pkt_item  -     @2015       
-  VCN                 integral      8     'd6         
-  opcode              integral      4     'd5         
-  port_id             integral      1     'd0         
-  txn_id              integral      8     'd68        
-  burst_len           integral      8     136         
-  burst_type          integral      2     'd1         
-  burst_size          integral      8     'd1         
-  resp                integral      2     'd1         
-  addr                integral      40    900148315331
-  backpressure_cycle  integral      1     -1543669383 
-  credit_rtn_cnt      integral      6     32          
-  credit_rtn_vcn      integral      2     'd0         
-------------------------------------------------------
-credit[6] = 0
-entering drive_credit_return
-start of send flit
-after flit
-before making valid 0
-outside while
-after consumecredit
-seqs end
-txn: (axi4_seq_item@2031) {
+txn: (axi4_seq_item@2035) {
   addr: 'h25ff91fb9c 
   id: 'h96 
   len: 'h0 
   size: 'h2 
   burst: 'h1 
 }
-txn: (axi4_seq_item@2027) {
+txn: (axi4_seq_item@2031) {
   addr: 'h85ced951dc 
   id: 'h28 
   len: 'h0 
   size: 'h0 
   burst: 'h1 
 }
-UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 287000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
-UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 287000: reporter [UVM/REPORT/SERVER] 
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 559000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 559000: reporter [UVM/REPORT/SERVER] 
 --- UVM Report Summary ---
 
 ** Report counts by severity
@@ -302,6 +303,6 @@ UVM_FATAL :    0
 [UVM/RELNOTES]     1
 [UVMTOP]     1
 
-$finish called at time : 287 ns : File "E:\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
+$finish called at time : 559 ns : File "E:\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
 exit
-INFO: [Common 17-206] Exiting xsim at Thu Apr 23 13:11:24 2026...
+INFO: [Common 17-206] Exiting xsim at Fri Apr 24 04:49:59 2026...

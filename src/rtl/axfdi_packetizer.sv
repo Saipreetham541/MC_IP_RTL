@@ -416,5 +416,5 @@ module axfdi_packetizer  #(
   assign tx_vcn       = (lat_vcn == 3'b00) ? 0 : 1  ;
   assign tx_txn_valid = (state == S_HEADER) && fdi_tx_ready && (lat_type == READ_REQ) && !lat_cr_opcode;
   assign fdi_pktr_eop = flit_tx_valid && fdi_tx_ready && fdi_tx_eop;
-
+initial $monitor("state =%0d///////////////////////////////////////////////////////////", state);
 endmodule

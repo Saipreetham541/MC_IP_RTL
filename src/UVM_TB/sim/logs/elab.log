@@ -5,13 +5,6 @@ Running: E:/2025.2/Vivado/bin/unwrapped/win64.o/xelab.exe axfdi_bridge_tb --debu
 Multi-threading is on. Using 6 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
-WARNING: [VRFC 10-3645] port 'por_n' remains unconnected for this instance [D:/Busbridges/src/rtl/axfdi_bridge.sv:669]
-WARNING: [VRFC 10-3645] port 'por_n' remains unconnected for this instance [D:/Busbridges/src/rtl/axfdi_bridge.sv:749]
-WARNING: [VRFC 10-3645] port 'por_n' remains unconnected for this instance [D:/Busbridges/src/rtl/axfdi_bridge.sv:831]
-WARNING: [VRFC 10-3645] port 'por_n' remains unconnected for this instance [D:/Busbridges/src/rtl/axfdi_bridge.sv:913]
-WARNING: [VRFC 10-3645] port 'por_n' remains unconnected for this instance [D:/Busbridges/src/rtl/axfdi_bridge.sv:1375]
-WARNING: [VRFC 10-3645] port 'por_n' remains unconnected for this instance [D:/Busbridges/src/rtl/axfdi_bridge.sv:1405]
-WARNING: [VRFC 10-3645] port 'por_n' remains unconnected for this instance [D:/Busbridges/src/rtl/axfdi_bridge.sv:1432]
 Completed static elaboration
 Starting simulation data flow analysis
 Completed simulation data flow analysis

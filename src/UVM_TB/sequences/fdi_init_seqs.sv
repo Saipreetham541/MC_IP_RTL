@@ -14,7 +14,7 @@ class fdi_init_seqs extends uvm_sequence#(fdi_pkt_item);
 			fditxn=fdi_pkt_item:: type_id:: create("fditxn");
 			$display("seqs start");
 			start_item(fditxn);
-			assert(fditxn.randomize() with{opcode==4'h5;
+			assert(fditxn.randomize() with{opcode==4'h4;
 									  credit_rtn_vcn=='0;
 									  credit_rtn_cnt==6'd32;});
 								fditxn.print();

@@ -20,6 +20,10 @@ logic fdi_lp_trdy;
 logic [2:0] fdi_pl_state_sts;
 logic fdi_pl_inband_pres;
 
+
+//logic [2:0] packetizer_state;
+
+
 //FDI_DRIVER clocking block
 clocking fdi_drv_cb@(posedge fdi_clk);
 //output global_reset;
