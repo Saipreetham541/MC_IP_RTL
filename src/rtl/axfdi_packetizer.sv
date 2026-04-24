@@ -241,6 +241,7 @@ module axfdi_packetizer  #(
                   lat_cr_opcode <= credit_rtn_opcode_en;
                   lat_cr_piggy  <= credit_rtn_piggy_en;
                   lat_cr_cnt    <= rx_credit_rtn_cnt;
+				  $display("lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt%0b",rx_credit_rtn_cnt);
                   lat_cr_vcn    <= rx_credit_rtn_vcn;
                   // credit return standalone
                   if (credit_rtn_opcode_en)
@@ -353,6 +354,8 @@ module axfdi_packetizer  #(
             if (lat_cr_opcode || lat_cr_piggy) begin
                 flit_tx_data[37:36] = lat_cr_vcn;
                 flit_tx_data[43:38] = lat_cr_cnt;
+				$display("lat_cr_cnt  from Dut%0b",lat_cr_cnt);
+				$display("lat_cr_vcn  from Dut%0b",lat_cr_vcn);
             end
 
 
@@ -416,5 +419,5 @@ module axfdi_packetizer  #(
   assign tx_vcn       = (lat_vcn == 3'b00) ? 0 : 1  ;
   assign tx_txn_valid = (state == S_HEADER) && fdi_tx_ready && (lat_type == READ_REQ) && !lat_cr_opcode;
   assign fdi_pktr_eop = flit_tx_valid && fdi_tx_ready && fdi_tx_eop;
-initial $monitor("state =%0d///////////////////////////////////////////////////////////", state);
+
 endmodule

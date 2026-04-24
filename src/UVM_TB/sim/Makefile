@@ -82,6 +82,10 @@ run: elab
 	$(XSIM) -runall $(SNAPSHOT_NAME) -log $(LOG_DIR)/sim.log
 	
 	
+gui: elab
+	$(XSIM) $(SNAPSHOT_NAME) --gui
+	
+	
 # ================================
 # Full Flow
 # ================================

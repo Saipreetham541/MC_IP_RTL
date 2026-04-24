@@ -9,12 +9,12 @@ class fdi_monitor extends uvm_monitor;
  
  fdi_credit_manager credit_mgr;
  
-  // uvm_analysis_port #(fdi_pkt_item) ap_tx;
-	//uvm_analysis_port #(fdi_pkt_item) ap_rx;
+   uvm_analysis_port #(fdi_pkt_item) ap_tx;
+	uvm_analysis_port #(fdi_pkt_item) ap_rx;
  function new(string name="fdi_monitor",uvm_component parent);
  super.new(name,parent);
- //ap_tx=new("ap_tx",this);
- //ap_rx=new("ap_rx",this);
+ ap_tx=new("ap_tx",this);
+ ap_rx=new("ap_rx",this);
  
  endfunction
  
@@ -39,7 +39,7 @@ endfunction
     fork
       monitor_pl_to_lp(); // fdi → DUt
       monitor_lp_to_pl(); // DUT → fdi
-    join_none
+    join
 
   endtask
 
@@ -59,6 +59,9 @@ endfunction
 	  while(!(vif.fdi_mon_cb.fdi_pl_valid && vif.fdi_mon_cb.fdi_pl_irdy  && vif.fdi_mon_cb.fdi_lp_trdy  &&  vif.fdi_mon_cb.fdi_pl_startofpkt)); // Wait for SOP
 
       flit = vif.fdi_mon_cb.fdi_pl_data;
+ $display("credit_rtn_cnt  driven_credits=%0b",flit[43:38]);
+$display("credit_rtn_vcn driven_credits=%0b ",flit[37:36]);
+
 
       decode_header(flit, txn);
 
@@ -71,12 +74,12 @@ endfunction
           collect_payload(vif.fdi_mon_cb.fdi_pl_data,txn);  // Capture payload
       end
 
-      if(txn.opcode == 4'h5) begin
+      if(txn.opcode == 4'h4) begin
         credit_mgr.add_credit(txn.credit_rtn_vcn, txn.credit_rtn_cnt);  // Credit return
       end
 	  txn.print();
 	 $display("monitor data/n");
-      //ap_tx.write(txn);
+      ap_tx.write(txn);
     end
   endtask
   
@@ -99,7 +102,8 @@ endfunction
 		$display("start of monitor_lp_to_pl");
 
       flit = vif.fdi_mon_cb.fdi_lp_data;  // Capture header flit
-
+$display("credit_rtn_cnt  received credits=%0b",flit[43:38]);
+$display("credit_rtn_vcn received_credits=%0b ",flit[37:36]);
       decode_header(flit, txn);
 	$display("start of monitor_lp_to_pl2");
 	
@@ -120,7 +124,7 @@ endfunction
         credit_mgr.add_credit(txn.credit_rtn_vcn, txn.credit_rtn_cnt );
   //txn.print();
   $display("monitor data2");
-      //ap_rx.write(txn);
+      ap_rx.write(txn);
 
     end
 	end
@@ -130,17 +134,17 @@ endfunction
 
   function void decode_header(bit [2047:0]flit, ref fdi_pkt_item txn);
 
-    txn.vcn = flit[2:0];
-    txn.opcode = flit[6:3];
-    txn.port_id = flit[7];
-    txn.txn_id = flit[15:8];
-    txn.burst_len = flit[23:16];
-    txn.burst_type = flit[25:24];
-    txn.burst_size = flit[28:26];
-    txn.addr = flit[68:29];
+    txn.vcn = flit[5:3];
+    txn.opcode = flit[11:8];
+    txn.port_id = flit[12];
+    txn.txn_id = flit[20:13];
+    txn.burst_len = flit[28:21];
+    txn.burst_type = flit[30:29];
+    txn.burst_size = flit[33:31];
+    txn.addr = flit[84:45];
 
-    txn.credit_rtn_cnt = flit[5:0];
-    txn.credit_rtn_vcn = flit[7:6];
+    txn.credit_rtn_cnt = flit[43:38];
+    txn.credit_rtn_vcn = flit[37:36];
 
   endfunction
 

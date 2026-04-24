@@ -78,20 +78,21 @@ task apply_reset();
 rst_intf.global_reset=0;
 rst_intf.axi_rst_n=0;
 rst_intf.fdi_rst_n=0;
-@(rst_intf.fdi_clk);
+                //@(rst_intf.fdi_clk);
 rst_intf.apb_rst_n=0;
 #50;
+
 rst_intf.global_reset=1;
-repeat(16)
+//repeat(16)
 @(posedge rst_intf.axi_clk);
 rst_intf.axi_rst_n=1;
-wait(rst_intf.axi_rst_n==1);
-repeat(16)
+//wait(rst_intf.axi_rst_n==1);
+//repeat(16)
 @(posedge rst_intf.fdi_clk);
 rst_intf.fdi_rst_n=1;
-repeat(16)
-@(posedge rst_intf.apb_clk);
-rst_intf.apb_rst_n=1;
+//repeat(16)
+//@(posedge rst_intf.apb_clk);
+//rst_intf.apb_rst_n=1;
 `uvm_info("RESET","reset completed",UVM_MEDIUM)
 endtask
 

@@ -3,8 +3,8 @@
 # SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
 # IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
 # SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
-# Start of session at: Fri Apr 24 04:49:46 2026
-# Process ID         : 20428
+# Start of session at: Fri Apr 24 12:05:48 2026
+# Process ID         : 10572
 # Current directory  : D:/Busbridges/src/UVM_TB/sim
 # Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
 # Log file           : D:/Busbridges/src/UVM_TB/sim/logs/sim.log
@@ -17,9 +17,9 @@
 # CPU Physical cores : 4
 # CPU Logical cores  : 8
 # Host memory        : 8465 MB
-# Swap memory        : 6710 MB
-# Total Virtual      : 15176 MB
-# Available Virtual  : 4933 MB
+# Swap memory        : 7105 MB
+# Total Virtual      : 15571 MB
+# Available Virtual  : 3050 MB
 #-----------------------------------------------------------
 source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
 # xsim {uvm_sim_snapshot} -autoloadwcfg -runall
@@ -46,6 +46,7 @@ UVM-1.2
       (Specify +UVM_NO_RELNOTES to turn off this notice)
 
 UVM_INFO @ 0: reporter [RNTST] Running test single_write_test...
+State Machine states FDI interface endiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii xxx
 extended:single_write_test
 UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(18752) @ 0: reporter [UVMTOP] UVM testbench topology:
 --------------------------------------------------------------
@@ -144,9 +145,16 @@ uvm_test_top               single_write_test       -     @366
 UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(20867) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
 UVM_INFO ../test/axfdi_test.sv(77) @ 0: uvm_test_top [RESET] Applying reset
 waiting for reset
-state =0///////////////////////////////////////////////////////////
+before reset sub_drv////////////////////////////////////
+before reset sub_drv////////////////////////////////////
+State Machine states FDI interface endiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii 0
+credit_rtn_cnt  dut output_credits44444444444444444444444444444=0
 start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
 start of monitor_lp_to_pl2
+credit_rtn_cnt  driven_credits=0
+credit_rtn_vcn driven_credits=0 
 -----------------------------------------------
 Name                  Type          Size  Value
 -----------------------------------------------
@@ -165,10 +173,62 @@ txn_pl2lp             fdi_pkt_item  -     @1855
   credit_rtn_vcn      integral      2     'd0  
 -----------------------------------------------
 monitor data/n
-driver
-UVM_INFO ../test/axfdi_test.sv(95) @ 53000: uvm_test_top [RESET] reset completed
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+UVM_INFO ../test/axfdi_test.sv(96) @ 52000: uvm_test_top [RESET] reset completed
 raise objection started
 seqs start
+driver
 ------------------------------------------------------
 Name                  Type          Size  Value       
 ------------------------------------------------------
@@ -205,11 +265,19 @@ fditxn                fdi_pkt_item  -     @2010
   credit_rtn_vcn      integral      2     'd0         
 ------------------------------------------------------
 entering drive_credit_return
+opcode =100
+credit_rtn_cnt=100000
+credit_rtn_vcn=0
+State Machine states FDI interface endiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii 0
+State Machine states FDI interface endiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii 1
 start of send flit
 after flit
 before making valid 0
 outside while
 after consumecredit
+driver
+credit_rtn_cnt  driven_credits=100000
+credit_rtn_vcn driven_credits=0 
 -----------------------------------------------
 Name                  Type          Size  Value
 -----------------------------------------------
@@ -266,28 +334,1124 @@ fditxn                fdi_pkt_item  -     @2019
   credit_rtn_vcn      integral      2     'd0           
 --------------------------------------------------------
 entering drive_credit_return
+opcode =100
+credit_rtn_cnt=100000
+credit_rtn_vcn=0
 start of send flit
 after flit
 before making valid 0
 outside while
 after consumecredit
 seqs end
-txn: (axi4_seq_item@2035) {
-  addr: 'h25ff91fb9c 
+waiting for seq_item=============================================================
+before going write task////////////////////////////////////
+after going write task////////////////////////////////////
+inside w task////////////////////////////////////
+txn: (axi4_seq_item@2028) {
+  addr: 'he4d1e50826 
   id: 'h96 
-  len: 'h0 
-  size: 'h2 
-  burst: 'h1 
-}
-txn: (axi4_seq_item@2031) {
-  addr: 'h85ced951dc 
-  id: 'h28 
   len: 'h0 
   size: 'h0 
   burst: 'h1 
+  data[0]: 'h1612b2a03a280e92cdcaccb42967f81be6b6f0f78c077d64fc4b3b23ecaaba85d3711d9ac1c34f50ad1cbcf7fa0c367238965fcaba87ebd3bf8dfd8dd964e728092cef86f294d1243a7e38e5df3178a2b15afc4dccf92c691ee6ae4329fb76e4c139d4d6ed850c7bc04aca5f875f85690bbf5793b161a1c7e9b0ac8539da4f6d 
 }
-UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 559000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
-UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 559000: reporter [UVM/REPORT/SERVER] 
+inside aw task////////////////////////////////////
+txn: (axi4_seq_item@2028) {
+  addr: 'he4d1e50826 
+  id: 'h96 
+  len: 'h0 
+  size: 'h0 
+  burst: 'h1 
+  data[0]: 'h1612b2a03a280e92cdcaccb42967f81be6b6f0f78c077d64fc4b3b23ecaaba85d3711d9ac1c34f50ad1cbcf7fa0c367238965fcaba87ebd3bf8dfd8dd964e728092cef86f294d1243a7e38e5df3178a2b15afc4dccf92c691ee6ae4329fb76e4c139d4d6ed850c7bc04aca5f875f85690bbf5793b161a1c7e9b0ac8539da4f6d 
+}
+driver
+State Machine states FDI interface endiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii 1
+State Machine states FDI interface endiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii 10
+credit_rtn_cnt  dut output_credits222222222222222222222222222222222222222222=0
+credit_rtn_vcn dut_outputcredits=0 
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+lat_cr_cnt  from Dutttttttttttttttttttttttttttttttttttttttttttt0
+lat_cr_cnt  from Dut0
+lat_cr_vcn  from Dut0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 557000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 557000: reporter [UVM/REPORT/SERVER] 
 --- UVM Report Summary ---
 
 ** Report counts by severity
@@ -303,6 +1467,6 @@ UVM_FATAL :    0
 [UVM/RELNOTES]     1
 [UVMTOP]     1
 
-$finish called at time : 559 ns : File "E:\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
+$finish called at time : 557 ns : File "E:\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
 exit
-INFO: [Common 17-206] Exiting xsim at Fri Apr 24 04:49:59 2026...
+INFO: [Common 17-206] Exiting xsim at Fri Apr 24 12:05:50 2026...

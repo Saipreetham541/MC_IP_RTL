@@ -3,10 +3,10 @@
 # SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
 # IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
 # SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
-# Start of session at: Thu Apr 23 07:04:42 2026
-# Process ID         : 7728
+# Start of session at: Fri Apr 24 11:19:49 2026
+# Process ID         : 11436
 # Current directory  : D:/Busbridges/src/UVM_TB/sim
-# Command line       : xsim.exe -mode tcl -source {xsim.dir/axfdi_bridge_tb_sim/xsim_script.tcl}
+# Command line       : xsim.exe -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
 # Log file           : D:/Busbridges/src/UVM_TB/sim/xsim.log
 # Journal file       : D:/Busbridges/src/UVM_TB/sim\xsim.jou
 # Running On         : PavanKalyan
@@ -17,14 +17,118 @@
 # CPU Physical cores : 4
 # CPU Logical cores  : 8
 # Host memory        : 8465 MB
-# Swap memory        : 6710 MB
-# Total Virtual      : 15176 MB
-# Available Virtual  : 3652 MB
+# Swap memory        : 7102 MB
+# Total Virtual      : 15568 MB
+# Available Virtual  : 3161 MB
 #-----------------------------------------------------------
-source xsim.dir/axfdi_bridge_tb_sim/xsim_script.tcl
-# xsim {axfdi_bridge_tb_sim} -autoloadwcfg -runall
+start_gui
+source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
+# set_param project.enableReportConfiguration 0
+# load_feature core
+# current_fileset
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:emb-plus-vpr-4616:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\emb-plus-vpr-4616\1.0\board.xml as part xcve2302-sfva784-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:emb-plus-vpr-4616:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\emb-plus-vpr-4616\1.1\board.xml as part xcve2302-sfva784-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k24c:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k24c\1.0\board.xml as part xck24-ubva530-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k24c:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k24c\1.1\board.xml as part xck24-ubva530-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k24i:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k24i\1.0\board.xml as part xck24-ubva530-2lvi-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k26c:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k26c\1.2\board.xml as part xck26-sfvc784-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k26c:part0:1.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k26c\1.3\board.xml as part xck26-sfvc784-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k26c:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k26c\1.4\board.xml as part xck26-sfvc784-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k26i:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k26i\1.2\board.xml as part xck26-sfvc784-2lvi-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k26i:part0:1.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k26i\1.3\board.xml as part xck26-sfvc784-2lvi-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:k26i:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\k26i\1.4\board.xml as part xck26-sfvc784-2lvi-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kc705:part0:1.6 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kc705\1.6\board.xml as part xc7k325tffg900-2 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kc705:part0:1.7 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kc705\1.7\board.xml as part xc7k325tffg900-2 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kcu105:part0:1.6 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kcu105\1.6\board.xml as part xcku040-ffva1156-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kcu105:part0:1.7 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kcu105\1.7\board.xml as part xcku040-ffva1156-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kcu116:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kcu116\1.4\board.xml as part xcku5p-ffvb676-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kcu116:part0:1.5 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kcu116\1.5\board.xml as part xcku5p-ffvb676-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kcu1500:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kcu1500\1.2\board.xml as part xcku115-flvb2104-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kd240_som:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kd240_som\1.0\board.xml as part xck24-ubva530-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kd240_som:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kd240_som\1.1\board.xml as part xck24-ubva530-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kr260_som:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kr260_som\1.0\board.xml as part xck26-sfvc784-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kr260_som:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kr260_som\1.1\board.xml as part xck26-sfvc784-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kv260_som:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kv260_som\1.2\board.xml as part xck26-sfvc784-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kv260_som:part0:1.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kv260_som\1.3\board.xml as part xck26-sfvc784-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:kv260_som:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\kv260_som\1.4\board.xml as part xck26-sfvc784-2lv-c specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:scu35:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\scu35\1.0\board.xml as part xcsu35p-sbvb625-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:v80:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\v80\1.0\board.xml as part xcv80-lsva4737-2mhp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vc707:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vc707\1.4\board.xml as part xc7vx485tffg1761-2 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vc707:part0:1.5 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vc707\1.5\board.xml as part xc7vx485tffg1761-2 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vc709:part0:1.8 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vc709\1.8\board.xml as part xc7vx690tffg1761-2 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190:part0:2.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190\production\2.2\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190:part0:3.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190\production\3.0\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190:part0:3.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190\production\3.1\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190:part0:3.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190\production\3.2\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190:part0:3.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190\production\3.3\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190:part0:3.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190\production\3.4\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_newl:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190_newl\production\1.0\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_newl:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190_newl\production\1.1\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_newl:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190_newl\production\1.2\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_newl:part0:1.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vck190_newl\production\1.3\board.xml as part xcvc1902-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu108:part0:1.6 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu108\1.6\board.xml as part xcvu095-ffva2104-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu108:part0:1.7 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu108\1.7\board.xml as part xcvu095-ffva2104-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu110:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu110\1.4\board.xml as part xcvu190-flgc2104-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu118:part0:2.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu118\2.0\board.xml as part xcvu9p-flga2104-2l-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu118:part0:2.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu118\2.3\board.xml as part xcvu9p-flga2104-2l-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu118:part0:2.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu118\2.4\board.xml as part xcvu9p-flga2104-2l-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu128:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu128\production\1.0\board.xml as part xcvu37p-fsvh2892-2l-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu129:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu129\production\1.0\board.xml as part xcvu29p-fsga2577-2l-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vcu1525:part0:1.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vcu1525\1.3\board.xml as part xcvu9p-fsgd2104-2l-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek280:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vek280\production\1.0\board.xml as part xcve2802-vsvh1760-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek280:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vek280\production\1.1\board.xml as part xcve2802-vsvh1760-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek280:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vek280\production\1.2\board.xml as part xcve2802-vsvh1760-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek385:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vek385\1.0\board.xml as part xc2ve3858-ssva2112-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek385:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vek385\1.1\board.xml as part xc2ve3858-ssva2112-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek385_1:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vek385_2\1.0\board.xml as part xc2ve3858-ssva2112-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vermeo_t1_mpsoc:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vermeo_t1_mpsoc\1.0\board.xml as part xczu19eg-ffvd1760-2l-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vermeo_t1_rfsoc:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vermeo_t1_rfsoc\1.0\board.xml as part xczu21dr-ffvd1156-2l-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vhk158:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vhk158\production\1.0\board.xml as part xcvh1582-vsva3697-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vhk158:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vhk158\production\1.1\board.xml as part xcvh1582-vsva3697-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vhk158:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vhk158\production\1.2\board.xml as part xcvh1582-vsva3697-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180:part0:2.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vmk180\production\2.2\board.xml as part xcvm1802-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180:part0:3.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vmk180\production\3.0\board.xml as part xcvm1802-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180:part0:3.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vmk180\production\3.1\board.xml as part xcvm1802-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180:part0:3.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vmk180\production\3.2\board.xml as part xcvm1802-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180:part0:3.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vmk180\production\3.3\board.xml as part xcvm1802-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_newl:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vmk180_newl\production\1.0\board.xml as part xcvm1802-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_newl:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vmk180_newl\production\1.1\board.xml as part xcvm1802-vsva2197-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vpk120:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vpk120\production\1.0\board.xml as part xcvp1202-vsva2785-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vpk120:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vpk120\production\1.1\board.xml as part xcvp1202-vsva2785-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vpk120:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vpk120\production\1.2\board.xml as part xcvp1202-vsva2785-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vpk180:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vpk180\production\1.0\board.xml as part xcvp1802-lsvc4072-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vpk180:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vpk180\production\1.1\board.xml as part xcvp1802-lsvc4072-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vpk180:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vpk180\production\1.2\board.xml as part xcvp1802-lsvc4072-2mp-e-s specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vrk160:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vrk160\1.0\board.xml as part xcvr1602-vsva2488-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vrk160:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\vrk160\1.1\board.xml as part xcvr1602-vsva2488-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zc702:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zc702\1.4\board.xml as part xc7z020clg484-1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zc706:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zc706\1.4\board.xml as part xc7z045ffg900-2 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zc706:part0:1.5 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zc706\1.5\board.xml as part xc7z045ffg900-2 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu102:part0:3.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu102\3.3\board.xml as part xczu9eg-ffvb1156-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu102:part0:3.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu102\3.4\board.xml as part xczu9eg-ffvb1156-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu104:part0:1.1 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu104\1.1\board.xml as part xczu7ev-ffvc1156-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu106:part0:2.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu106\2.4\board.xml as part xczu7ev-ffvc1156-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu106:part0:2.5 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu106\2.5\board.xml as part xczu7ev-ffvc1156-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu106:part0:2.6 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu106\2.6\board.xml as part xczu7ev-ffvc1156-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu111:part0:1.2 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu111\1.2\board.xml as part xczu28dr-ffvg1517-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu111:part0:1.3 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu111\1.3\board.xml as part xczu28dr-ffvg1517-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu111:part0:1.4 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu111\1.4\board.xml as part xczu28dr-ffvg1517-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu1275:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu1275\1.0\board.xml as part xczu29dr-ffvf1760-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu1285:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu1285\1.0\board.xml as part xczu39dr-ffvf1760-2-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu208:part0:2.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu208\production\2.0\board.xml as part xczu48dr-fsvg1517-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu208ld:part0:2.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu208ld\production\2.0\board.xml as part xczu58dr-fsvg1517-2-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu216:part0:2.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu216\production\2.0\board.xml as part xczu49dr-ffvf1760-2-e specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu216ld:part0:2.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu216ld\production\2.0\board.xml as part xczu59dr-ffvf1760-2-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu670:part0:2.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu670\2.0\board.xml as part xczu67dr-fsve1156-2-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu670ld:part0:1.0 available at E:/2025.2/data/xhub/boards\XilinxBoardStore\boards\Xilinx\zcu670ld\1.0\board.xml as part xczu57dr-fsve1156-2-i specified in board_part file is either invalid or not available
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'E:/2025.2/Vivado/data/ip'.
+current_fileset: Time (s): cpu = 00:00:41 ; elapsed = 00:00:20 . Memory (MB): peak = 1568.277 ; gain = 193.875
+# xsim {uvm_sim_snapshot} -autoloadwcfg
 Time resolution is 1 ps
-run -all
+add_wave {{/axfdi_bridge_tb/fdi_intf/fdi_clk}} {{/axfdi_bridge_tb/fdi_intf/global_reset}} {{/axfdi_bridge_tb/fdi_intf/fdi_rst_n}} {{/axfdi_bridge_tb/fdi_intf/fdi_lp_data}} {{/axfdi_bridge_tb/fdi_intf/fdi_lp_valid}} {{/axfdi_bridge_tb/fdi_intf/fdi_lp_irdy}} {{/axfdi_bridge_tb/fdi_intf/fdi_lp_startofpkt}} {{/axfdi_bridge_tb/fdi_intf/fdi_lp_endofpkt}} {{/axfdi_bridge_tb/fdi_intf/fdi_pl_trdy}} {{/axfdi_bridge_tb/fdi_intf/fdi_lp_state_req}} {{/axfdi_bridge_tb/fdi_intf/fdi_lp_link_error}} {{/axfdi_bridge_tb/fdi_intf/fdi_pl_data}} {{/axfdi_bridge_tb/fdi_intf/fdi_pl_valid}} {{/axfdi_bridge_tb/fdi_intf/fdi_pl_irdy}} {{/axfdi_bridge_tb/fdi_intf/fdi_pl_startofpkt}} {{/axfdi_bridge_tb/fdi_intf/fdi_pl_endofpkt}} {{/axfdi_bridge_tb/fdi_intf/fdi_lp_trdy}} {{/axfdi_bridge_tb/fdi_intf/fdi_pl_state_sts}} {{/axfdi_bridge_tb/fdi_intf/fdi_pl_inband_pres}} 
+run all
 UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(18601) @ 0: reporter [UVM/RELNOTES] 
 ----------------------------------------------------------------
 UVM-1.2
@@ -45,110 +149,959 @@ UVM-1.2
 
       (Specify +UVM_NO_RELNOTES to turn off this notice)
 
-UVM_INFO @ 0: reporter [RNTST] Running test axfdi_test...
+UVM_INFO @ 0: reporter [RNTST] Running test single_write_test...
+extended:single_write_test
 UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(18752) @ 0: reporter [UVMTOP] UVM testbench topology:
 --------------------------------------------------------------
 Name                       Type                    Size  Value
 --------------------------------------------------------------
-uvm_test_top               axfdi_test              -     @365 
-  env                      axfdi_env               -     @389 
-    apb_agt                apb_agent               -     @437 
-      apb_drv              apb_driver              -     @465 
-        rsp_port           uvm_analysis_port       -     @484 
-        seq_item_port      uvm_seq_item_pull_port  -     @474 
-      apb_mon              apb_monitor             -     @456 
-      apb_seqr             apb_sequencer           -     @494 
-        rsp_export         uvm_analysis_export     -     @503 
-        seq_item_export    uvm_seq_item_pull_imp   -     @621 
+uvm_test_top               single_write_test       -     @366 
+  env                      axfdi_env               -     @390 
+    apb_agt                apb_agent               -     @575 
+      apb_drv              apb_driver              -     @603 
+        rsp_port           uvm_analysis_port       -     @622 
+        seq_item_port      uvm_seq_item_pull_port  -     @612 
+      apb_mon              apb_monitor             -     @594 
+      apb_seqr             apb_sequencer           -     @632 
+        rsp_export         uvm_analysis_export     -     @641 
+        seq_item_export    uvm_seq_item_pull_imp   -     @759 
         arbitration_queue  array                   0     -    
         lock_queue         array                   0     -    
         num_last_reqs      integral                32    'd1  
         num_last_rsps      integral                32    'd1  
-    axi_agt[0]             axi_agent               -     @400 
-      mgr_drv[0]           mgr_driver              -     @705 
-        rsp_port           uvm_analysis_port       -     @724 
-        seq_item_port      uvm_seq_item_pull_port  -     @714 
-      mgr_mon[0]           mgr_monitor             -     @647 
-        req1               uvm_analysis_port       -     @656 
-        res1               uvm_analysis_port       -     @666 
-      mgr_seqr[0]          mgr_sequencer           -     @734 
-        rsp_export         uvm_analysis_export     -     @743 
-        seq_item_export    uvm_seq_item_pull_imp   -     @861 
+    axi_agt[0]             axi_agent               -     @538 
+      mgr_drv[0]           mgr_driver              -     @843 
+        rsp_port           uvm_analysis_port       -     @862 
+        seq_item_port      uvm_seq_item_pull_port  -     @852 
+      mgr_mon[0]           mgr_monitor             -     @785 
+        req1               uvm_analysis_port       -     @794 
+        res1               uvm_analysis_port       -     @804 
+      mgr_seqr[0]          mgr_sequencer           -     @872 
+        rsp_export         uvm_analysis_export     -     @881 
+        seq_item_export    uvm_seq_item_pull_imp   -     @999 
         arbitration_queue  array                   0     -    
         lock_queue         array                   0     -    
         num_last_reqs      integral                32    'd1  
         num_last_rsps      integral                32    'd1  
-      sub_drvh[0]          sub_driver              -     @871 
-        rsp_port           uvm_analysis_port       -     @890 
-        seq_item_port      uvm_seq_item_pull_port  -     @880 
-      sub_mon[0]           sub_monitor             -     @676 
-        req                uvm_analysis_port       -     @685 
-        res                uvm_analysis_port       -     @695 
-      sub_seqr[0]          sub_sequencer           -     @900 
-        rsp_export         uvm_analysis_export     -     @909 
-        seq_item_export    uvm_seq_item_pull_imp   -     @1027
+      sub_drvh[0]          sub_driver              -     @1009
+        rsp_port           uvm_analysis_port       -     @1028
+        seq_item_port      uvm_seq_item_pull_port  -     @1018
+      sub_mon[0]           sub_monitor             -     @814 
+        req                uvm_analysis_port       -     @823 
+        res                uvm_analysis_port       -     @833 
+      sub_seqr[0]          sub_sequencer           -     @1038
+        rsp_export         uvm_analysis_export     -     @1047
+        seq_item_export    uvm_seq_item_pull_imp   -     @1165
         arbitration_queue  array                   0     -    
         lock_queue         array                   0     -    
         num_last_reqs      integral                32    'd1  
         num_last_rsps      integral                32    'd1  
-    axi_agt[1]             axi_agent               -     @417 
-      mgr_drv[1]           mgr_driver              -     @1124
-        rsp_port           uvm_analysis_port       -     @1143
-        seq_item_port      uvm_seq_item_pull_port  -     @1133
-      mgr_mon[1]           mgr_monitor             -     @1066
-        req1               uvm_analysis_port       -     @1075
-        res1               uvm_analysis_port       -     @1085
-      mgr_seqr[1]          mgr_sequencer           -     @1153
-        rsp_export         uvm_analysis_export     -     @1162
-        seq_item_export    uvm_seq_item_pull_imp   -     @1280
+    axi_agt[1]             axi_agent               -     @555 
+      mgr_drv[1]           mgr_driver              -     @1266
+        rsp_port           uvm_analysis_port       -     @1285
+        seq_item_port      uvm_seq_item_pull_port  -     @1275
+      mgr_mon[1]           mgr_monitor             -     @1208
+        req1               uvm_analysis_port       -     @1217
+        res1               uvm_analysis_port       -     @1227
+      mgr_seqr[1]          mgr_sequencer           -     @1295
+        rsp_export         uvm_analysis_export     -     @1304
+        seq_item_export    uvm_seq_item_pull_imp   -     @1422
         arbitration_queue  array                   0     -    
         lock_queue         array                   0     -    
         num_last_reqs      integral                32    'd1  
         num_last_rsps      integral                32    'd1  
-      sub_drvh[1]          sub_driver              -     @1290
-        rsp_port           uvm_analysis_port       -     @1309
-        seq_item_port      uvm_seq_item_pull_port  -     @1299
-      sub_mon[1]           sub_monitor             -     @1095
-        req                uvm_analysis_port       -     @1104
-        res                uvm_analysis_port       -     @1114
-      sub_seqr[1]          sub_sequencer           -     @1319
-        rsp_export         uvm_analysis_export     -     @1328
-        seq_item_export    uvm_seq_item_pull_imp   -     @1446
+      sub_drvh[1]          sub_driver              -     @1432
+        rsp_port           uvm_analysis_port       -     @1451
+        seq_item_port      uvm_seq_item_pull_port  -     @1441
+      sub_mon[1]           sub_monitor             -     @1237
+        req                uvm_analysis_port       -     @1246
+        res                uvm_analysis_port       -     @1256
+      sub_seqr[1]          sub_sequencer           -     @1461
+        rsp_export         uvm_analysis_export     -     @1470
+        seq_item_export    uvm_seq_item_pull_imp   -     @1588
         arbitration_queue  array                   0     -    
         lock_queue         array                   0     -    
         num_last_reqs      integral                32    'd1  
         num_last_rsps      integral                32    'd1  
-    fdi_agt                fdi_agent               -     @428 
-      fdi_drv              fdi_driver              -     @1509
-        rsp_port           uvm_analysis_port       -     @1528
-        seq_item_port      uvm_seq_item_pull_port  -     @1518
-      fdi_mon              fdi_monitor             -     @1480
-        ap_rx              uvm_analysis_port       -     @1499
-        ap_tx              uvm_analysis_port       -     @1489
-      fdi_seqr             fdi_sequencer           -     @1538
-        rsp_export         uvm_analysis_export     -     @1547
-        seq_item_export    uvm_seq_item_pull_imp   -     @1665
+    fdi_agt                fdi_agent               -     @566 
+      credit_mgr           fdi_credit_manager      -     @1635
+      fdi_drv              fdi_driver              -     @1648
+        rsp_port           uvm_analysis_port       -     @1667
+        seq_item_port      uvm_seq_item_pull_port  -     @1657
+      fdi_mon              fdi_monitor             -     @1626
+      fdi_seqr             fdi_sequencer           -     @1677
+        rsp_export         uvm_analysis_export     -     @1686
+        seq_item_export    uvm_seq_item_pull_imp   -     @1804
         arbitration_queue  array                   0     -    
         lock_queue         array                   0     -    
         num_last_reqs      integral                32    'd1  
         num_last_rsps      integral                32    'd1  
+    vserqrh                virtual_seqr            -     @401 
+      rsp_export           uvm_analysis_export     -     @410 
+      seq_item_export      uvm_seq_item_pull_imp   -     @528 
+      arbitration_queue    array                   0     -    
+      lock_queue           array                   0     -    
+      num_last_reqs        integral                32    'd1  
+      num_last_rsps        integral                32    'd1  
 --------------------------------------------------------------
 
 UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(20867) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
-UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 0: reporter [UVM/REPORT/SERVER] 
+UVM_INFO ../test/axfdi_test.sv(77) @ 0: uvm_test_top [RESET] Applying reset
+waiting for reset
+before reset sub_drv////////////////////////////////////
+before reset sub_drv////////////////////////////////////
+credit_rtn_cnt  dut output_credits44444444444444444444444444444=0
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+credit_rtn_cnt  driven_credits=0
+credit_rtn_vcn driven_credits=0 
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_pl2lp             fdi_pkt_item  -     @1855
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd0  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     'd0  
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+monitor data/n
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+after reset sub_drv////////////////////////////////////
+UVM_INFO ../test/axfdi_test.sv(96) @ 52000: uvm_test_top [RESET] reset completed
+raise objection started
+seqs start
+driver
+------------------------------------------------------
+Name                  Type          Size  Value       
+------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2010       
+  VCN                 integral      8     'd0         
+  opcode              integral      4     'd4         
+  port_id             integral      1     1           
+  txn_id              integral      8     'd108       
+  burst_len           integral      8     'd114       
+  burst_type          integral      2     3           
+  burst_size          integral      8     'd1         
+  resp                integral      2     3           
+  addr                integral      40    854177078584
+  backpressure_cycle  integral      1     7           
+  credit_rtn_cnt      integral      6     32          
+  credit_rtn_vcn      integral      2     'd0         
+------------------------------------------------------
+driver1
+------------------------------------------------------
+Name                  Type          Size  Value       
+------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2010       
+  VCN                 integral      8     'd0         
+  opcode              integral      4     'd4         
+  port_id             integral      1     1           
+  txn_id              integral      8     'd108       
+  burst_len           integral      8     'd114       
+  burst_type          integral      2     3           
+  burst_size          integral      8     'd1         
+  resp                integral      2     3           
+  addr                integral      40    854177078584
+  backpressure_cycle  integral      1     7           
+  credit_rtn_cnt      integral      6     32          
+  credit_rtn_vcn      integral      2     'd0         
+------------------------------------------------------
+entering drive_credit_return
+opcode =100
+credit_rtn_cnt=100000
+credit_rtn_vcn=0
+start of send flit
+after flit
+before making valid 0
+outside while
+after consumecredit
+driver
+credit_rtn_cnt  driven_credits=100000
+credit_rtn_vcn driven_credits=0 
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_pl2lp             fdi_pkt_item  -     @1972
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+monitor data/n
+seqs end
+seqs start
+--------------------------------------------------------
+Name                  Type          Size  Value         
+--------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2019         
+  VCN                 integral      8     'd0           
+  opcode              integral      4     'd4           
+  port_id             integral      1     'd0           
+  txn_id              integral      8     'd56          
+  burst_len           integral      8     'd68          
+  burst_type          integral      2     'd0           
+  burst_size          integral      8     'd0           
+  resp                integral      2     'd1           
+  addr                integral      40    'd459975380092
+  backpressure_cycle  integral      1     'd0           
+  credit_rtn_cnt      integral      6     32            
+  credit_rtn_vcn      integral      2     'd0           
+--------------------------------------------------------
+driver1
+--------------------------------------------------------
+Name                  Type          Size  Value         
+--------------------------------------------------------
+fditxn                fdi_pkt_item  -     @2019         
+  VCN                 integral      8     'd0           
+  opcode              integral      4     'd4           
+  port_id             integral      1     'd0           
+  txn_id              integral      8     'd56          
+  burst_len           integral      8     'd68          
+  burst_type          integral      2     'd0           
+  burst_size          integral      8     'd0           
+  resp                integral      2     'd1           
+  addr                integral      40    'd459975380092
+  backpressure_cycle  integral      1     'd0           
+  credit_rtn_cnt      integral      6     32            
+  credit_rtn_vcn      integral      2     'd0           
+--------------------------------------------------------
+entering drive_credit_return
+opcode =100
+credit_rtn_cnt=100000
+credit_rtn_vcn=0
+start of send flit
+after flit
+before making valid 0
+outside while
+after consumecredit
+seqs end
+waiting for seq_item=============================================================
+before going write task////////////////////////////////////
+after going write task////////////////////////////////////
+inside w task////////////////////////////////////
+txn: (axi4_seq_item@2028) {
+  addr: 'he4d1e50826 
+  id: 'h96 
+  len: 'h0 
+  size: 'h0 
+  burst: 'h1 
+  data[0]: 'h1612b2a03a280e92cdcaccb42967f81be6b6f0f78c077d64fc4b3b23ecaaba85d3711d9ac1c34f50ad1cbcf7fa0c367238965fcaba87ebd3bf8dfd8dd964e728092cef86f294d1243a7e38e5df3178a2b15afc4dccf92c691ee6ae4329fb76e4c139d4d6ed850c7bc04aca5f875f85690bbf5793b161a1c7e9b0ac8539da4f6d 
+}
+inside aw task////////////////////////////////////
+txn: (axi4_seq_item@2028) {
+  addr: 'he4d1e50826 
+  id: 'h96 
+  len: 'h0 
+  size: 'h0 
+  burst: 'h1 
+  data[0]: 'h1612b2a03a280e92cdcaccb42967f81be6b6f0f78c077d64fc4b3b23ecaaba85d3711d9ac1c34f50ad1cbcf7fa0c367238965fcaba87ebd3bf8dfd8dd964e728092cef86f294d1243a7e38e5df3178a2b15afc4dccf92c691ee6ae4329fb76e4c139d4d6ed850c7bc04aca5f875f85690bbf5793b161a1c7e9b0ac8539da4f6d 
+}
+driver
+credit_rtn_cnt  dut output_credits222222222222222222222222222222222222222222=0
+credit_rtn_vcn dut_outputcredits=0 
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+start of monitor_lp_to_pl
+credit_rtn_cnt  received credits=0
+credit_rtn_vcn received_credits=0 
+start of monitor_lp_to_pl2
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 557000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+UVM_INFO ÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 557000: reporter [UVM/REPORT/SERVER] 
 --- UVM Report Summary ---
 
 ** Report counts by severity
-UVM_INFO :    4
+UVM_INFO :    7
 UVM_WARNING :    0
 UVM_ERROR :    0
 UVM_FATAL :    0
 ** Report counts by id
+[RESET]     2
 [RNTST]     1
+[TEST_DONE]     1
 [UVM/COMP/NAMECHECK]     1
 [UVM/RELNOTES]     1
 [UVMTOP]     1
 
-$finish called at time : 0 fs : File "E:\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
+$finish called at time : 557 ns : File "E:\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
+close_sim
+INFO: [Simtcl 6-16] Simulation closed
 exit
-INFO: [Common 17-206] Exiting xsim at Thu Apr 23 07:04:44 2026...
+INFO: [Common 17-206] Exiting xsim at Fri Apr 24 11:35:29 2026...

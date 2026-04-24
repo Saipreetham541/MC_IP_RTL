@@ -35,8 +35,11 @@ task run_phase(uvm_phase phase);
 $display("waiting for reset");
 while(!(vif.global_reset && vif.fdi_rst_n))
 	@(vif.fdi_drv_cb);
+forever begin
+
 
 	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
+	
 	if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
 	@(vif.fdi_drv_cb);
 	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b010;
@@ -45,7 +48,7 @@ while(!(vif.global_reset && vif.fdi_rst_n))
 	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
 	
 $display("driver");
-  forever begin
+  
 
     seq_item_port.get_next_item(txn);
 	$display("driver1");
@@ -98,14 +101,14 @@ function bit [2047:0] build_header(fdi_pkt_item txn);
 
   flit = '0;
 
-  flit[2:0]    =txn.vcn;
-  flit[6:3]    =txn.opcode;
-  flit[7]      =txn.port_id;
-  flit[15:8]   =txn.txn_id;
-  flit[23:16]  =txn.burst_len;
-  flit[25:24]  =txn.burst_type;
-  flit[28:26]  =txn.burst_size;
-  flit[68:29]  =txn.addr;
+  flit[5:3]    =txn.vcn;
+  flit[11:8]    =txn.opcode;
+  flit[12]      =txn.port_id;
+  flit[20:13]   =txn.txn_id;
+  flit[28:21]  =txn.burst_len;
+  flit[30:29]  =txn.burst_type;
+  flit[33:31]  =txn.burst_size;
+  flit[84:45]  =txn.addr;
 
   return flit;
 
@@ -123,11 +126,12 @@ $display("start of send flit");
   vif.fdi_drv_cb.fdi_pl_irdy<=1;
   vif.fdi_drv_cb.fdi_pl_startofpkt<=sop;
   vif.fdi_drv_cb.fdi_pl_endofpkt<=eop;
-	vif.fdi_drv_cb.fdi_pl_trdy<=txn.trdy;
+	vif.fdi_drv_cb.fdi_pl_trdy<=1;
 $display("after flit");
   while(!vif.fdi_drv_cb.fdi_lp_trdy)
   @(vif.fdi_drv_cb);
   $display("before making valid 0");
+             //@(vif.fdi_drv_cb);
   vif.fdi_drv_cb.fdi_pl_valid<=0;
 //txn.display();
 endtask
@@ -236,10 +240,12 @@ task drive_credit_return(fdi_pkt_item txn);
   bit [2047:0] header_flit;
 $display("entering drive_credit_return");
   header_flit = '0;
-
-  header_flit[5:0] = txn.credit_rtn_cnt;
-  header_flit[7:6] = txn.credit_rtn_vcn;
-
+header_flit[11:8] = txn.opcode;
+$display("opcode =%0b", header_flit[11:8]);
+  header_flit[43:38] = txn.credit_rtn_cnt;
+  $display("credit_rtn_cnt=%0b",header_flit[43:38]);
+  header_flit[37:36] = txn.credit_rtn_vcn;
+$display("credit_rtn_vcn=%0b",header_flit[37:36]);
   header_flit[2047:1984]=64'h0;
   send_flit(header_flit,1,1);
 

@@ -162,7 +162,7 @@ module axfdi_credit_mgr #(
                  r_rx_cpl_credit_init_done <= 1'b1;
               end
            end
-           else if (r_rx_np_credit_init_en) begin
+           else if (r_rx_np_credit_init_en) begin	 
               r_rx_credit_rtn_cnt <= r_rx_np_credit_init;
               r_rx_credit_rtn_vcn <= 2'h0;
               if (credit_rtn_done) begin

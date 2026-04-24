@@ -27,20 +27,30 @@ vif=agt_cfg.sub_intf;
 endfunction
 
 task run_phase(uvm_phase phase);
-		wait(vif.axi_rst_n && vif.global_reset);
+$display("before reset sub_drv////////////////////////////////////");
+		while(!(vif.axi_rst_n && vif.global_reset))
 			@(vif.sub_drv_cb)
-		
+	$display("after reset sub_drv////////////////////////////////////");	
 		forever begin
+		
 			seq_item_port.get_next_item(txn);
-			 if(txn.axn_type==txn.write)
+			$display("waiting for seq_item=============================================================");
+			 if(txn.axn_type==0)
+			 begin
+			 $display("before going write task////////////////////////////////////");
 					drive_write(txn);
-				else if (txn.axn_type==txn.read);
+			end
+				else if (txn.axn_type==1)
+				begin
+				$display("going to read sub_drv***************************************************");
 					drive_read(txn);
+				end
 			seq_item_port.item_done();
 		end 
 	endtask
 	
 	task drive_write(axi4_seq_item txn);
+	$display("after going write task////////////////////////////////////");
 		fork
 			drive_aw(txn);
 			drive_w(txn);
@@ -49,22 +59,23 @@ task run_phase(uvm_phase phase);
 	
 	task drive_aw(axi4_seq_item txn);
 		@(vif.sub_drv_cb)
-		
+		$display("inside aw task////////////////////////////////////");
 		vif.sub_drv_cb.awvalid<=1;
 		vif.sub_drv_cb.awaddr<=txn.addr;
 		vif.sub_drv_cb.awid<=txn.id;
 		vif.sub_drv_cb.awlen<=txn.len;
 		vif.sub_drv_cb.awsize<=txn.size;
 		vif.sub_drv_cb.awburst<=txn.burst;
-	//	vif.sub_drv_cb.bready<=txn.bready;
+		vif.sub_drv_cb.bready<=1;
 		
-		wait(vif.sub_drv_cb.awready);
+		while(!vif.sub_drv_cb.awready)
 		@(vif.sub_drv_cb)
 		vif.sub_drv_cb.awvalid<=0;
 		txn.display();
 	endtask
 	
 	task drive_w(axi4_seq_item txn);
+	$display("inside w task////////////////////////////////////");
 		for(int i=0; i<=txn.len; i++)
 			begin
 				@(vif.sub_drv_cb);
@@ -76,8 +87,9 @@ task run_phase(uvm_phase phase);
 					vif.sub_drv_cb.wlast<=1;
 				else
 					vif.sub_drv_cb.wlast<=0;
-				wait(vif.sub_drv_cb.wready);
-			end
+			end		
+				while(!vif.sub_drv_cb.wready)
+			
 					@(vif.sub_drv_cb)
 				
 					vif.sub_drv_cb.wvalid<=0;
@@ -98,7 +110,7 @@ task run_phase(uvm_phase phase);
 			vif.sub_drv_cb.arburst<=txn.burst;
 			//vif.sub _drv_cb.rready<=txn.rready;
 			
-			wait(vif.sub_drv_cb.arready);
+			while(!vif.sub_drv_cb.arready)
 				@(vif.sub_drv_cb)
 			vif.sub_drv_cb.arvalid<=0;
 			txn.display();
