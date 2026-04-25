@@ -82,6 +82,8 @@ module axfdi_credit_mgr #(
    logic                           r_rx_cpl_credit_cnsmd_rtn_done;
    logic                           r_rx_np_credit_cnsmd_rtn_done;
 
+   logic                           r_credit_rtn_opcode_en;
+
 
 
    assign credit_init_done = ((r_tx_vc_cpl_credit_cnt !=0) &&
@@ -95,11 +97,29 @@ module axfdi_credit_mgr #(
    assign s_rx_cpl_credit_cnsmd_rtn_flag = (rx_cpl_credit_cnsmd >= rx_credit_cnsmd_thrshld) ? 1'b1 : 1'b0;
    assign s_rx_np_credit_cnsmd_rtn_flag = (rx_np_credit_cnsmd >= rx_credit_cnsmd_thrshld) ? 1'b1 : 1'b0;
 
-   assign credit_rtn_opcode_en = (credit_init_req) ? 1'b1 : ((r_rx_cpl_credit_cnsmd_rtn_flag | r_rx_np_credit_cnsmd_rtn_flag) & !pending_tx_available);
+   assign credit_rtn_opcode_en = r_credit_rtn_opcode_en;
    assign rx_credit_rtn_cnt = r_rx_credit_rtn_cnt;
    assign rx_credit_rtn_vcn = r_rx_credit_rtn_vcn;
    assign credit_rtn_piggy_en = (r_rx_cpl_credit_cnsmd_rtn_flag | r_rx_np_credit_cnsmd_rtn_flag) & pending_tx_available;
 
+   //assigning credit return opcode
+   always_ff @(posedge fdi_clk or negedge por_n)
+     if (!por_n) begin
+        r_credit_rtn_opcode_en <= 1'b0;
+     end
+     else begin
+        if (!fdi_rst_n) begin
+           r_credit_rtn_opcode_en <= 1'b0;
+        end
+        else begin
+           if (credit_init_req) begin
+              r_credit_rtn_opcode_en <= r_rx_cpl_credit_init_en | r_rx_np_credit_init_en;
+              if (credit_rtn_done) r_credit_rtn_opcode_en <= 1'b0;
+           end //end credit_init_req
+           else
+             r_credit_rtn_opcode_en <= (r_rx_cpl_credit_cnsmd_rtn_flag | r_rx_np_credit_cnsmd_rtn_flag) & !pending_tx_available;
+        end
+     end
 
    always_ff @(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
@@ -122,8 +142,14 @@ module axfdi_credit_mgr #(
               r_rx_cpl_credit_init_en <= 1'b1;
               r_rx_np_credit_init_en <= 1'b1;
            end
-           if (r_rx_cpl_credit_init_done) r_rx_cpl_credit_init <= '0;
-           if (r_rx_np_credit_init_done) r_rx_np_credit_init <= '0;
+           if (r_rx_cpl_credit_init_done || credit_rtn_done) begin
+              r_rx_cpl_credit_init <= '0;
+              r_rx_cpl_credit_init_en <= 1'b0;
+           end
+           if (r_rx_np_credit_init_done || credit_rtn_done) begin
+              r_rx_np_credit_init <= '0;
+              r_rx_np_credit_init_en <= 1'b0;
+           end
         end
      end
 
@@ -162,7 +188,7 @@ module axfdi_credit_mgr #(
                  r_rx_cpl_credit_init_done <= 1'b1;
               end
            end
-           else if (r_rx_np_credit_init_en) begin	 
+           else if (r_rx_np_credit_init_en) begin
               r_rx_credit_rtn_cnt <= r_rx_np_credit_init;
               r_rx_credit_rtn_vcn <= 2'h0;
               if (credit_rtn_done) begin
@@ -170,10 +196,6 @@ module axfdi_credit_mgr #(
                  r_rx_credit_rtn_vcn <= 2'h0;
                  r_rx_np_credit_init_done <= 1'b1;
               end
-           end
-           else begin
-              r_rx_np_credit_init_done <= 1'b0;
-              r_rx_cpl_credit_init_done <= 1'b0;
            end
            if (s_rx_cpl_credit_cnsmd_rtn_flag) begin
               r_rx_credit_rtn_vcn <= 2'h1;

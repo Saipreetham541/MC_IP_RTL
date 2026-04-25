@@ -231,10 +231,10 @@ end
             read_resp_vaild <= read_resp_1;
             end
             default: begin
-            write_req_vaild <= write_req_0;
-            read_req_vaild <= read_req_0;
-            write_resp_vaild <= write_resp_0;
-            read_resp_vaild <= read_resp_0;
+            write_req_vaild <= 1'b0;
+            read_req_vaild <= 1'b0;
+            write_resp_vaild <= 1'b0;
+            read_resp_vaild <= 1'b0;
             end
         endcase
     end

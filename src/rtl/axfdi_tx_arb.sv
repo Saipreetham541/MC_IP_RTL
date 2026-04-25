@@ -115,7 +115,7 @@ always_comb begin
     np_cnt_next  = np_cnt;
 
 
-    if (eop) begin
+    if (eop && (r_txn_type != CREDIT_RTN)) begin
         case (r_vcn_sel)
             VCN_CPL: if (cpl_cnt > 0)
                         cpl_cnt_next = cpl_cnt - 1;
@@ -224,7 +224,7 @@ end
         s_vcn_sel  = VCN_CPL;
         end
 
-
+       else begin
         case (cs)
             IDLE:begin
                 s_txn_type = NOP;
@@ -262,6 +262,7 @@ end
             end
         endcase
     end
+  end
 
 
     always_ff @( posedge fdi_clk, negedge por_n ) begin

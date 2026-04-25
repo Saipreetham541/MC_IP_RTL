@@ -171,7 +171,6 @@ module axfdi_fdi_if #(
            r_fdi_pl_endofpkt <= 1'b0;
         r_flit_rx_data_valid <= 1'b0;
         end
-		
         else if (fdi_pl_irdy && r_fdi_lp_trdy && fdi_pl_valid && r_fdi_trans_en) begin
            r_fdi_pl_data <= fdi_pl_data;
            r_fdi_pl_startofpkt <= fdi_pl_startofpkt;
@@ -234,22 +233,14 @@ module axfdi_fdi_if #(
            s_fdi_lp_state_req = ACTIVE;
            s_credit_rtn_req_en = 1'b1;
            s_fdi_trans_en =  1'b1;
-           if (credit_init_done) begin 
-            NS = ST_TX_RX;
-			end
-           else begin 
-            NS = ST_credit_init;
-			end
+           if (credit_init_done) NS = ST_TX_RX;
+           else NS = ST_credit_init;
         end
         ST_TX_RX: begin
            s_fdi_lp_state_req = ACTIVE;
            s_fdi_trans_en =  1'b1;
-           if (fdi_pl_state_sts != 3'h2) begin 
-            NS = ST_wait_remote;
-			end
-           else begin 
-            NS = ST_TX_RX;
-			end
+           if (fdi_pl_state_sts != 3'h2) NS = ST_wait_remote;
+           else NS = ST_TX_RX;
         end
         default: NS=ST_wait_remote;
       endcase 
