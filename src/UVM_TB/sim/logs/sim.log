@@ -3,8 +3,8 @@
 # SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
 # IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
 # SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
-# Start of session at: Fri Apr 24 14:35:35 2026
-# Process ID         : 17468
+# Start of session at: Sat Apr 25 05:10:09 2026
+# Process ID         : 13348
 # Current directory  : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim
 # Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
 # Log file           : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim/logs/sim.log
@@ -19,7 +19,7 @@
 # Host memory        : 16745 MB
 # Swap memory        : 3221 MB
 # Total Virtual      : 19966 MB
-# Available Virtual  : 8949 MB
+# Available Virtual  : 13801 MB
 #-----------------------------------------------------------
 source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
 # xsim {uvm_sim_snapshot} -autoloadwcfg -runall
@@ -489,4 +489,4 @@ UVM_FATAL :    0
 
 $finish called at time : 557 ns : File "C:\AMDDesignTools\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
 exit
-INFO: [Common 17-206] Exiting xsim at Fri Apr 24 14:35:38 2026...
+INFO: [Common 17-206] Exiting xsim at Sat Apr 25 05:10:15 2026...
