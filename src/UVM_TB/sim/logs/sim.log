@@ -3,8 +3,8 @@
 # SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
 # IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
 # SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
-# Start of session at: Sat Apr 25 05:10:09 2026
-# Process ID         : 13348
+# Start of session at: Sun Apr 26 08:44:59 2026
+# Process ID         : 25212
 # Current directory  : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim
 # Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
 # Log file           : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim/logs/sim.log
@@ -19,7 +19,7 @@
 # Host memory        : 16745 MB
 # Swap memory        : 3221 MB
 # Total Virtual      : 19966 MB
-# Available Virtual  : 13801 MB
+# Available Virtual  : 7093 MB
 #-----------------------------------------------------------
 source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
 # xsim {uvm_sim_snapshot} -autoloadwcfg -runall
@@ -263,64 +263,33 @@ uvm_test_top                 single_write_test           -     @366
 
 UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(20867) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
 UVM_INFO ../test/axfdi_test.sv(77) @ 0: uvm_test_top [RESET] Applying reset
+
+[PRD] run_phase
+
+
+
+
 waiting for reset
-before reset sub_drv////////////////////////////////////
-before reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
-after reset sub_drv////////////////////////////////////
 UVM_INFO ../test/axfdi_test.sv(96) @ 52000: uvm_test_top [RESET] reset completed
 raise objection started
 seqs start
+------------------------------------------------------
+Name                  Type          Size  Value       
+------------------------------------------------------
+fditxn                fdi_pkt_item  -     @3194       
+  VCN                 integral      8     'd0         
+  opcode              integral      4     'd4         
+  port_id             integral      1     1           
+  txn_id              integral      8     'd108       
+  burst_len           integral      8     'd114       
+  burst_type          integral      2     3           
+  burst_size          integral      8     'd1         
+  resp                integral      2     3           
+  addr                integral      40    854177078584
+  backpressure_cycle  integral      1     7           
+  credit_rtn_cnt      integral      6     32          
+  credit_rtn_vcn      integral      2     'd0         
+------------------------------------------------------
 driver
 ------------------------------------------------------
 Name                  Type          Size  Value       
@@ -339,34 +308,9 @@ fditxn                fdi_pkt_item  -     @3194
   credit_rtn_cnt      integral      6     32          
   credit_rtn_vcn      integral      2     'd0         
 ------------------------------------------------------
-driver1
-------------------------------------------------------
-Name                  Type          Size  Value       
-------------------------------------------------------
-fditxn                fdi_pkt_item  -     @3194       
-  VCN                 integral      8     'd0         
-  opcode              integral      4     'd4         
-  port_id             integral      1     1           
-  txn_id              integral      8     'd108       
-  burst_len           integral      8     'd114       
-  burst_type          integral      2     3           
-  burst_size          integral      8     'd1         
-  resp                integral      2     3           
-  addr                integral      40    854177078584
-  backpressure_cycle  integral      1     7           
-  credit_rtn_cnt      integral      6     32          
-  credit_rtn_vcn      integral      2     'd0         
-------------------------------------------------------
-entering drive_credit_return
 opcode =100
 credit_rtn_cnt=100000
 credit_rtn_vcn=0
-start of send flit
-after flit
-before making valid 0
-outside while
-after consumecredit
-driver
 -----------------------------------------------
 Name                  Type          Size  Value
 -----------------------------------------------
@@ -384,23 +328,33 @@ txn_pl2lp             fdi_pkt_item  -     @3198
   credit_rtn_cnt      integral      6     32   
   credit_rtn_vcn      integral      2     'd0  
 -----------------------------------------------
-monitor data/n
 seqs end
 seqs start
 
 [PRD] collect_fdi_rx
 
+
 opcode=4 vcn=0 port=0 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=32 credit_vcn=0 bp=0
+
 
 
 
 
 [PRD] collect_fdi_rx(credit)
 
+
 opcode=4 vcn=0 port=0 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=32 credit_vcn=0 bp=0
 
 
 
+
+
+[PRD] collect_fdi_rx(credit)
+
+tx_np_credit_cnt 32 || tx_cpl_credit_cnt 0
+
+
+
 --------------------------------------------------------
 Name                  Type          Size  Value         
 --------------------------------------------------------
@@ -418,7 +372,7 @@ fditxn                fdi_pkt_item  -     @3207
   credit_rtn_cnt      integral      6     32            
   credit_rtn_vcn      integral      2     'd0           
 --------------------------------------------------------
-driver1
+driver
 --------------------------------------------------------
 Name                  Type          Size  Value         
 --------------------------------------------------------
@@ -436,49 +390,194 @@ fditxn                fdi_pkt_item  -     @3207
   credit_rtn_cnt      integral      6     32            
   credit_rtn_vcn      integral      2     'd0           
 --------------------------------------------------------
-entering drive_credit_return
 opcode =100
 credit_rtn_cnt=100000
 credit_rtn_vcn=0
-start of send flit
-after flit
-before making valid 0
-outside while
-after consumecredit
 seqs end
-waiting for seq_item=============================================================
-before going write task////////////////////////////////////
-after going write task////////////////////////////////////
-inside w task////////////////////////////////////
-txn: (axi4_seq_item@3220) {
-  addr: 'he4d1e50826 
+txn: (axi4_seq_item@3224) {
+  addr: 'h2913fa58ab 
   id: 'h96 
   len: 'h0 
   size: 'h0 
   burst: 'h1 
-  data[0]: 'h1612b2a03a280e92cdcaccb42967f81be6b6f0f78c077d64fc4b3b23ecaaba85d3711d9ac1c34f50ad1cbcf7fa0c367238965fcaba87ebd3bf8dfd8dd964e728092cef86f294d1243a7e38e5df3178a2b15afc4dccf92c691ee6ae4329fb76e4c139d4d6ed850c7bc04aca5f875f85690bbf5793b161a1c7e9b0ac8539da4f6d 
+  data[0]: 128834176592916018334193491250895403329064222359236607486923945282355392599668189534934934984391682073805527897674417319843976759556897616106440521329171982785293751339218271656476134011659260763361240438342630767028274576463681885056950111487115513173294287026575294546695787826511644052750900512754687956522 
+  strb[0]: 'h1 
 }
-inside aw task////////////////////////////////////
-txn: (axi4_seq_item@3220) {
-  addr: 'he4d1e50826 
+txnh: (axi4_seq_item@3228) {
+  addr: 'h2913fa58ab 
   id: 'h96 
   len: 'h0 
   size: 'h0 
   burst: 'h1 
-  data[0]: 'h1612b2a03a280e92cdcaccb42967f81be6b6f0f78c077d64fc4b3b23ecaaba85d3711d9ac1c34f50ad1cbcf7fa0c367238965fcaba87ebd3bf8dfd8dd964e728092cef86f294d1243a7e38e5df3178a2b15afc4dccf92c691ee6ae4329fb76e4c139d4d6ed850c7bc04aca5f875f85690bbf5793b161a1c7e9b0ac8539da4f6d 
+  data[0]: 128834176592916018334193491250895403329064222359236607486923945282355392599668189534934934984391682073805527897674417319843976759556897616106440521329171982785293751339218271656476134011659260763361240438342630767028274576463681885056950111487115513173294287026575294546695787826511644052750900512754687956522 
+  strb[0]: 'h1 
 }
-driver
-UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 557000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
-UVM_INFO D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(398) @ 557000: uvm_test_top.env.sb.cmp [CMP_SUMMARY] Comparator summary: total=0 pass=0 fail=0
-UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 557000: reporter [UVM/REPORT/SERVER] 
+
+[PRD] collect_sub_req
+
+type=WRITE addr=0x2913fa58ab id=150 len=0 size=0 burst=1 resp=0 beats=1
+
+
+
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_lp2pl             fdi_pkt_item  -     @3156
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     1    
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd1  
+-----------------------------------------------
+
+[CMP] collect_act_fdi_tx
+
+
+opcode=4 vcn=0 port=1 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=32 credit_vcn=1 bp=0
+
+
+
+
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_lp2pl             fdi_pkt_item  -     @3246
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     1    
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     'd0  
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+
+[CMP] collect_act_fdi_tx
+
+
+opcode=4 vcn=0 port=1 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=0 credit_vcn=0 bp=0
+
+
+
+
+UVM_ERROR D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(178) @ 78000: uvm_test_top.env.sb.cmp [
+[CMP] Unexpected FDI TX packet key=fdi_credit_rtn_op4_vcn0_cnt 0
+
+
+UVM_INFO D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(181) @ 78000: uvm_test_top.env.sb.cmp [
+
+[CMP collect_act_fdi_tx] 
+opcode=4 vcn=0 port=1 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=0 credit_vcn=0 bp=0
+
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_lp2pl             fdi_pkt_item  -     @3250
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+
+[CMP] collect_act_fdi_tx
+
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=32 credit_vcn=0 bp=0
+
+
+
+
+UVM_ERROR D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(178) @ 81000: uvm_test_top.env.sb.cmp [
+[CMP] Unexpected FDI TX packet key=fdi_credit_rtn_op4_vcn0_cnt32
+
+
+UVM_INFO D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(181) @ 81000: uvm_test_top.env.sb.cmp [
+
+[CMP collect_act_fdi_tx] 
+opcode=4 vcn=0 port=0 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=32 credit_vcn=0 bp=0
+
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_lp2pl             fdi_pkt_item  -     @3258
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     'd0  
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+
+[CMP] collect_act_fdi_tx
+
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=0 credit_vcn=0 bp=0
+
+
+
+
+UVM_ERROR D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(178) @ 87000: uvm_test_top.env.sb.cmp [
+[CMP] Unexpected FDI TX packet key=fdi_credit_rtn_op4_vcn0_cnt 0
+
+
+UVM_INFO D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(181) @ 87000: uvm_test_top.env.sb.cmp [
+
+[CMP collect_act_fdi_tx] 
+opcode=4 vcn=0 port=0 txn_id=0 len=0 type=0 size=0 resp=0 addr=0x0 payload=0 credit_cnt=0 credit_vcn=0 bp=0
+
+UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 559000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+UVM_ERROR D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(375) @ 559000: uvm_test_top.env.sb.cmp [CMPCHK] 
+
+Unmatched expected FDI TX packets remain: key=fdi_normal_txn_p0_op0_id150 count=1
+
+UVM_ERROR D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(392) @ 559000: uvm_test_top.env.sb.cmp [CMP_SUMMARY] 
+
+
+
+Comparator summary: total=5 pass=1 fail=4
+
+
+
+UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 559000: reporter [UVM/REPORT/SERVER] 
 --- UVM Report Summary ---
 
 ** Report counts by severity
-UVM_INFO :    8
+UVM_INFO :   10
 UVM_WARNING :    0
-UVM_ERROR :    0
+UVM_ERROR :    5
 UVM_FATAL :    0
 ** Report counts by id
+[
+
+[CMP collect_act_fdi_tx]     3
+[
+[CMP]     3
+[CMPCHK]     1
 [CMP_SUMMARY]     1
 [RESET]     2
 [RNTST]     1
@@ -487,6 +586,6 @@ UVM_FATAL :    0
 [UVM/RELNOTES]     1
 [UVMTOP]     1
 
-$finish called at time : 557 ns : File "C:\AMDDesignTools\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
+$finish called at time : 559 ns : File "C:\AMDDesignTools\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
 exit
-INFO: [Common 17-206] Exiting xsim at Sat Apr 25 05:10:15 2026...
+INFO: [Common 17-206] Exiting xsim at Sun Apr 26 08:45:02 2026...
