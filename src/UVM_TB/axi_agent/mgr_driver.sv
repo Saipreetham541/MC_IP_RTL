@@ -40,7 +40,7 @@ endfunction
 		vif.mgr_drv_cb.bresp<=txn.resp;
 		wait(vif.mgr_drv_cb.bready);  
 		@(vif.mgr_drv_cb);
-		vif.mgr_drv_cb.bvalid<=1;
+		vif.mgr_drv_cb.bvalid<=0;
 	endtask
 	
 	task drive_r(axi4_seq_item txn);

@@ -38,8 +38,8 @@ import uvm_pkg::*;
 `include "../axi_agent/axi_agent.sv"
 
 `include "virtual_seqr.sv"
-`include "axfdi_predictor.sv"
 `include "axfdi_comparator.sv"
+`include "axfdi_predictor.sv"
 `include "axfdi_scoreboard.sv"
 
 

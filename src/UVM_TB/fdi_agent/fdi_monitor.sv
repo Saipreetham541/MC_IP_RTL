@@ -65,14 +65,16 @@ endfunction
 
 
       decode_header(flit, txn);
-
+@(vif.fdi_mon_cb);
       while(!vif.fdi_mon_cb.fdi_pl_endofpkt) begin
 
-        @(vif.fdi_mon_cb);
+        
 
         if(vif.fdi_mon_cb.fdi_pl_valid && vif.fdi_mon_cb.fdi_pl_irdy  && vif.fdi_mon_cb.fdi_lp_trdy)
 
-          collect_payload(vif.fdi_mon_cb.fdi_pl_data,txn);  // Capture payload
+          collect_payload(vif.fdi_mon_cb.fdi_pl_data,txn); 
+		  // Capture payload
+		  @(vif.fdi_mon_cb);
       end
 
       if(txn.opcode == 4'h4) begin
@@ -105,14 +107,15 @@ endfunction
 
       decode_header(flit, txn);
 
- while(vif.fdi_mon_cb.fdi_lp_endofpkt) begin
+ while(!vif.fdi_mon_cb.fdi_lp_endofpkt) begin
 
-        @(vif.fdi_mon_cb); end
+       
 
         if(vif.fdi_mon_cb.fdi_lp_valid &&  vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy)
 
           collect_payload(vif.fdi_mon_cb.fdi_lp_data, txn);
- 
+		 @(vif.fdi_mon_cb);  
+ end
 	  
 	  if(txn.opcode == 4'h4) begin
 

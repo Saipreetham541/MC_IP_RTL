@@ -31,7 +31,7 @@ class single_write_virtual_seq extends virtual_seq;
 				init_seqh.start(vseqrh.fdi_seqr);
 			fork
 			    sin_wr_seqh0.start(vseqrh.sub_seqr0);//vserh.seqr
-				                  //sin_wr_seqh1.start(vseqrh.sub_seqr1);
+				sin_wr_seqh1.start(vseqrh.sub_seqr1);
 		 
 				//inv_mgr_seqh0.start(mgr_seqr0);
 				//inv_mgr_seqh1.start(mgr_seqr1);

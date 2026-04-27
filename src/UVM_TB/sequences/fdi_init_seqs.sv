@@ -3,7 +3,7 @@ class fdi_init_seqs extends uvm_sequence#(fdi_pkt_item);
 
   fdi_pkt_item fditxn;
 
-  int vcn_list[2] = '{0,1};
+  int vcn_list[2] = '{1,0};
 
   function new(string name="fdi_init_seqs");
     super.new(name);
@@ -20,12 +20,16 @@ class fdi_init_seqs extends uvm_sequence#(fdi_pkt_item);
 											credit_rtn_vcn == vcn_list[i]; 
 											credit_rtn_cnt == 6'd32; 
 											})
+`uvm_info("SEQ_DEBUG",
+  $sformatf("Loop i=%0d credit_rtn_vcn=%0d", i, fditxn.credit_rtn_vcn),
+  UVM_LOW)		
 			else begin
 				`uvm_error("FDI_INIT", "Randomization failed")
-				
+					
 			end
-		finish_item(fditxn);
-		#50;
+			finish_item(fditxn);
+					#50;
+	
     end
 
   endtask
