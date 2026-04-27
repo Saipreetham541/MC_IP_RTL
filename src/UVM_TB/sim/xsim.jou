@@ -1,0 +1,25 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Mon Apr 27 05:42:06 2026
+# Process ID         : 16948
+# Current directory  : D:/Busbridges/src/UVM_TB/sim
+# Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
+# Log file           : D:/Busbridges/src/UVM_TB/sim/logs/sim.log
+# Journal file       : D:/Busbridges/src/UVM_TB/sim\xsim.jou
+# Running On         : PavanKalyan
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz
+# CPU Frequency      : 1800 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 8465 MB
+# Swap memory        : 6710 MB
+# Total Virtual      : 15176 MB
+# Available Virtual  : 5173 MB
+#-----------------------------------------------------------
+source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
+run -all
