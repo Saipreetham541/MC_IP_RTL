@@ -11,7 +11,9 @@ class fdi_init_seqs extends uvm_sequence#(fdi_pkt_item);
 
   task body();
     foreach (vcn_list[i]) 
+	
 		begin
+		
 			fditxn = fdi_pkt_item::type_id::create($sformatf("fditxn_%0d", i));
 			start_item(fditxn);
 			assert(fditxn.randomize() with {opcode == 4'h4;
@@ -20,9 +22,10 @@ class fdi_init_seqs extends uvm_sequence#(fdi_pkt_item);
 											})
 			else begin
 				`uvm_error("FDI_INIT", "Randomization failed")
-		end
-
-			finish_item(fditxn);
+				
+			end
+		finish_item(fditxn);
+		#50;
     end
 
   endtask

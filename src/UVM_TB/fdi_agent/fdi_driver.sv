@@ -55,14 +55,15 @@ forever begin
 		if(txn.opcode == 4'h4) begin
 			drive_packet(txn);
 		end
-	    else if (txn.opcode == 4'h0 || txn.opcode == 4'h1 || txn.opcode == 4'h1 || txn.opcode == 4'h1)
+	    else if (txn.opcode == 4'h0 || txn.opcode == 4'h1 || txn.opcode == 4'h2 || txn.opcode == 4'h1)
 		begin
 			while(!credit_mgr.has_credit(txn.vcn))
 				@(vif.fdi_drv_cb);
 				drive_packet(txn);
+				credit_mgr.consume_credit(txn.vcn);
 		end
 		
-	credit_mgr.consume_credit(txn.vcn);
+	
 	
     seq_item_port.item_done();
 
@@ -124,7 +125,7 @@ task send_flit(bit [2047:0] flit,bit sop,bit eop);
 	vif.fdi_drv_cb.fdi_pl_trdy<=1;
   while(!vif.fdi_drv_cb.fdi_lp_trdy)
   @(vif.fdi_drv_cb);
-             //@(vif.fdi_drv_cb);
+  @(vif.fdi_drv_cb);
   vif.fdi_drv_cb.fdi_pl_valid<=0;
 //txn.display();
 endtask
