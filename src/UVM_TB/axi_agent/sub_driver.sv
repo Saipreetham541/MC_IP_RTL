@@ -101,7 +101,7 @@ task run_phase(uvm_phase phase);
 			vif.sub_drv_cb.arlen<=txn.len;
 			vif.sub_drv_cb.arsize<=txn.size;
 			vif.sub_drv_cb.arburst<=txn.burst;
-			//vif.sub _drv_cb.rready<=txn.rready;
+			vif.sub_drv_cb.rready<=1;
 			
 			while(!vif.sub_drv_cb.arready)
 				@(vif.sub_drv_cb)

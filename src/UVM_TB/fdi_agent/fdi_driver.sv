@@ -112,20 +112,24 @@ endfunction
 
 
 // SENDING FLIT
-
+int count;
 task send_flit(bit [2047:0] flit,bit sop,bit eop);
 
-  @(vif.fdi_drv_cb);
+  //@(vif.fdi_drv_cb);
 
   vif.fdi_drv_cb.fdi_pl_data<=flit;
   vif.fdi_drv_cb.fdi_pl_valid<=1;
+  count=count+1;
+  $display("count=%0d", count);
   vif.fdi_drv_cb.fdi_pl_irdy<=1;
   vif.fdi_drv_cb.fdi_pl_startofpkt<=sop;
   vif.fdi_drv_cb.fdi_pl_endofpkt<=eop;
 	vif.fdi_drv_cb.fdi_pl_trdy<=1;
-  while(!vif.fdi_drv_cb.fdi_lp_trdy)
+  while(!vif.fdi_drv_cb.fdi_lp_trdy) begin
+  
+  @(vif.fdi_drv_cb); end
   @(vif.fdi_drv_cb);
-  @(vif.fdi_drv_cb);
+ 
   vif.fdi_drv_cb.fdi_pl_valid<=0;
 //txn.display();
 endtask

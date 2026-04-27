@@ -28,7 +28,7 @@ class fdi_init_seqs extends uvm_sequence#(fdi_pkt_item);
 					
 			end
 			finish_item(fditxn);
-					#50;
+					//#50;
 	
     end
 
