@@ -62,8 +62,6 @@ endfunction
 	  while(!(vif.fdi_mon_cb.fdi_pl_valid && vif.fdi_mon_cb.fdi_pl_irdy  && vif.fdi_mon_cb.fdi_lp_trdy  &&  vif.fdi_mon_cb.fdi_pl_startofpkt)); // Wait for SOP
 
       flit = vif.fdi_mon_cb.fdi_pl_data;
-      // $display("credit_rtn_cnt  driven_credits=%0b",flit[43:38]);
-      //$display("credit_rtn_vcn driven_credits=%0b ",flit[37:36]);
 
 
       decode_header(flit, txn);
@@ -81,7 +79,6 @@ endfunction
         credit_mgr.add_credit(txn.credit_rtn_vcn, txn.credit_rtn_cnt);  // Credit return
       end
 	  txn.print();
-	 $display("monitor data/n");
       ap_rx.write(txn);
     end
   endtask
@@ -102,31 +99,25 @@ endfunction
       end
 	  
 	  while(!(vif.fdi_mon_cb.fdi_lp_valid && vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy  && vif.fdi_mon_cb.fdi_lp_startofpkt)); // Wait for SOP
-		//$display("start of monitor_lp_to_pl");
+
 
       flit = vif.fdi_mon_cb.fdi_lp_data;  // Capture header flit
-//$display("credit_rtn_cnt  received credits=%0b",flit[43:38]);
-//$display("credit_rtn_vcn received_credits=%0b ",flit[37:36]);
-      decode_header(flit, txn);
-	//$display("start of monitor_lp_to_pl2");
-	
-	
 
-      while(!vif.fdi_mon_cb.fdi_lp_endofpkt) begin
-	//$display("start of monitor_lp_to_pl3");
-        @(vif.fdi_mon_cb);
+      decode_header(flit, txn);
+
+ while(vif.fdi_mon_cb.fdi_lp_endofpkt) begin
+
+        @(vif.fdi_mon_cb); end
 
         if(vif.fdi_mon_cb.fdi_lp_valid &&  vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy)
 
           collect_payload(vif.fdi_mon_cb.fdi_lp_data, txn);
-
-      end
+ 
 	  
-	  if(txn.opcode == 4'h5) begin
+	  if(txn.opcode == 4'h4) begin
 
         credit_mgr.add_credit(txn.credit_rtn_vcn, txn.credit_rtn_cnt );
-  //txn.print();
-  $display("monitor data2");
+  txn.print();
       ap_tx.write(txn);
 
     end

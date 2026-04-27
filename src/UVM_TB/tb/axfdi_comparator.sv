@@ -46,6 +46,8 @@ class axfdi_comparator extends uvm_component;
   } txn_type ;
 
   int total_cnt, pass_cnt, fail_cnt;
+  int total_expected_cnt, total_actual_cnt;
+  int unexpected_actual_tnx, pending_expected_txn;
 
   function new(input string name = "axfdi_comparator",input uvm_component parent);
     super.new(name,parent);
@@ -120,10 +122,12 @@ class axfdi_comparator extends uvm_component;
 
     forever begin
       act_sub_rsp_fifo[port].get(act_axi);
+      total_actual_cnt++;
       key = make_key_for_axi_rsp(act_axi,port);
 
       if (!exp_axi_rsp_db.exists(key) || exp_axi_rsp_db[key].size() == 0) begin
         `uvm_error("CMP", $sformatf("Unexpected AXI SUB RSP  packet key=%s", key))
+        unexpected_actual_tnx++;
         fail_cnt++;
         total_cnt++;
       end
@@ -145,10 +149,12 @@ class axfdi_comparator extends uvm_component;
 
     forever begin
       act_mgr_req_fifo[port].get(act_axi);
+      total_actual_cnt++;
       key = make_key_for_axi_req(act_axi,port);
 
       if (!exp_axi_req_db.exists(key) || exp_axi_req_db[key].size() == 0) begin
         `uvm_error("CMP", $sformatf("Unexpected AXI MGR REQ  packet key=%s", key))
+        unexpected_actual_tnx++;
         fail_cnt++;
         total_cnt++;
       end
@@ -168,19 +174,23 @@ class axfdi_comparator extends uvm_component;
   bit pass;
   forever begin
     act_fdi_tx_fifo.get(act_pkt);
+    total_actual_cnt++;
     key = make_key_for_fdi(act_pkt);
 
-    $display("\n[CMP] collect_act_fdi_tx\n");
-    $display(act_pkt.convert2string);
-    $display("\n\n");
+    //$display("\n[CMP] collect_act_fdi_tx\n");
+    //$display(act_pkt.convert2string);
+    //$display("\n\n");
+    //$display("\n\n\n\n\ncollect_act_fdi_tx\n\n\n\n\n\n");
+    //$display(act_pkt.credit_rtn_vcn);
+    //$display(key);
+    //$display("\n\n\n\n\n\n\n\n\n\n\n");
 
     if (!exp_fdi_tx_db.exists(key) || exp_fdi_tx_db[key].size() == 0) begin
-      `uvm_error("\nCMP", $sformatf("\nUnexpected FDI TX packet key=%s\n\n", key))
+      `uvm_error("\n[CMP", $sformatf("Unexpected FDI TX packet key=%s\n\n", key))
+      unexpected_actual_tnx++;
       fail_cnt++;
       total_cnt++;
-
-    `uvm_info("\nCMP collect_act_fdi_tx\n",act_pkt.convert2string(),UVM_LOW)
-
+      `uvm_info("\n\n[CMP collect_act_fdi_tx",act_pkt.convert2string(),UVM_LOW)
     end
     else begin
       exp_pkt = exp_fdi_tx_db[key].pop_front();
@@ -199,6 +209,7 @@ class axfdi_comparator extends uvm_component;
     string key;
     forever begin
       exp_sub_rsp_fifo[port].get(exp_axi);
+      total_expected_cnt++;
       key = make_key_for_axi_rsp(exp_axi,port);
       exp_axi_rsp_db[key].push_back(exp_axi);
     end
@@ -209,6 +220,7 @@ class axfdi_comparator extends uvm_component;
     string key;
     forever begin
       exp_mgr_req_fifo[port].get(exp_axi);
+      total_expected_cnt++;
       key = make_key_for_axi_req(exp_axi,port);
       exp_axi_req_db[key].push_back(exp_axi);
     end    
@@ -219,8 +231,13 @@ class axfdi_comparator extends uvm_component;
     string key;
     forever begin
       exp_fdi_tx_fifo.get(exp_pkt);
+      total_expected_cnt++;
       key = make_key_for_fdi(exp_pkt);
       exp_fdi_tx_db[key].push_back(exp_pkt);
+      //$display("\n\n\n\n\ncollect_exp_fdi_tx\n\n\n\n\n\n");
+      //$display(exp_pkt.credit_rtn_vcn);
+      //$display(key);
+      //$display("\n\n\n\n\n\n\n\n\n\n\n");
     end
   endtask 
   
@@ -228,7 +245,7 @@ class axfdi_comparator extends uvm_component;
 
   function string make_key_for_fdi(fdi_pkt_item pkt);
     if (pkt.opcode == CREDIT_RTN) begin
-      return $sformatf("fdi_credit_rtn_op%0d_rvcn%0d", pkt.opcode, pkt.credit_rtn_vcn);
+      return $sformatf("fdi_credit_rtn_op%0d_vcn%0d_cnt%d", pkt.opcode, pkt.credit_rtn_vcn, pkt.credit_rtn_cnt);
     end
     return $sformatf("fdi_normal_txn_p%0d_op%0d_id%0d", pkt.port_id, pkt.opcode, pkt.txn_id);
   endfunction
@@ -264,11 +281,17 @@ class axfdi_comparator extends uvm_component;
 
     if (!pass) begin
 
-      `uvm_error("CMP_AXI_REQ",
+      `uvm_error("\n[CMP_AXI_REQ",
         $sformatf("\nAXI REQ PACKET MISMATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
         exp.convert2string(),
         act.convert2string()))
 
+    end
+    else begin
+      `uvm_info("\n[CMP_AXI_REQ",
+        $sformatf("\nAXI REQ PACKET MATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
+        exp.convert2string(),
+        act.convert2string()),UVM_LOW)
     end
     return pass;
   endfunction
@@ -288,11 +311,17 @@ class axfdi_comparator extends uvm_component;
 
     if (!pass) begin
 
-      `uvm_error("CMP_AXI_RSP",
-        $sformatf("\nAXI PACKET MISMATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
+      `uvm_error("\n[CMP_AXI_RSP",
+        $sformatf("\nAXI RSP PACKET MISMATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
         exp.convert2string(),
         act.convert2string()))
 
+    end
+    else begin
+      `uvm_info("\n[CMP_AXI_RSP",
+        $sformatf("\nAXI RSP PACKET MATCH \nEXPECTED:\n%s\nACTUAL:\n%s",
+        exp.convert2string(),
+        act.convert2string()),UVM_LOW)
     end
     return pass;
   endfunction
@@ -300,14 +329,20 @@ class axfdi_comparator extends uvm_component;
   function bit compare_fdi_pkt_item(fdi_pkt_item exp, fdi_pkt_item act);
     bit pass = 1;
 
-    if (exp.vcn              !== act.vcn)              pass = 0;
-    if (exp.opcode           !== act.opcode)           pass = 0;
-    if (exp.port_id          !== act.port_id)          pass = 0;
-    if (exp.credit_rtn_cnt   !== act.credit_rtn_cnt)   pass = 0;
-    if (exp.credit_rtn_vcn   !== act.credit_rtn_vcn)   pass = 0;
-
     case (exp.opcode)
+      CREDIT_RTN: begin
+        if (exp.opcode         !== act.opcode)         pass = 0;
+        if (exp.credit_rtn_cnt !== act.credit_rtn_cnt) pass = 0;
+        if (exp.credit_rtn_vcn !== act.credit_rtn_vcn) pass = 0;
+        //$display("\n\n\n\n\ncompare_fdi_pkt_item\n\n\n\n\n\n");
+        //$display(exp.credit_rtn_vcn);
+        //$display("\n\n\n\n\n\n\n\n\n\n\n");
+      end
+
       WRITE_REQ, READ_REQ: begin
+        if (exp.vcn         !== act.vcn)         pass = 0;
+        if (exp.opcode      !== act.opcode)      pass = 0;
+        if (exp.port_id     !== act.port_id)     pass = 0;
         if (exp.txn_id      !== act.txn_id)      pass = 0;
         if (exp.burst_len   !== act.burst_len)   pass = 0;
         if (exp.burst_type  !== act.burst_type)  pass = 0;
@@ -319,22 +354,27 @@ class axfdi_comparator extends uvm_component;
       end
 
       WRITE_RESP, READ_RESP: begin
+        if (exp.vcn         !== act.vcn)         pass = 0;
+        if (exp.opcode      !== act.opcode)      pass = 0;
+        if (exp.port_id     !== act.port_id)     pass = 0;
         if (exp.txn_id      !== act.txn_id)      pass = 0;
         if (exp.resp        !== act.resp)        pass = 0;
         if (exp.data        !=  act.data)        pass = 0;
-      end
-
-      CREDIT_RTN: begin
-        // common + credit fields already checked
       end
     endcase
 
     if (!pass) begin
 
-      `uvm_error("CMP_FDI",
+      `uvm_error("\n[CMP_FDI",
         $sformatf("\nFDI PACKET MISMATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
         exp.convert2string(),
         act.convert2string()))
+    end
+    else begin
+      `uvm_info("\n[CMP_FDI",
+        $sformatf("\nFDI PACKET MATCH\nEXPECTED:\n%s\nACTUAL:\n%s",
+        exp.convert2string(),
+        act.convert2string()),UVM_LOW)
     end
 
     return pass;
@@ -353,7 +393,7 @@ class axfdi_comparator extends uvm_component;
       if (exp_axi_rsp_db[key].size() != 0) begin
         pending_rsp = pending_rsp + exp_axi_rsp_db[key].size();
         `uvm_error("CMPCHK",
-          $sformatf("Unmatched expected AXI SUB RSP packets remain: key=%s count=%0d",
+          $sformatf("\n\nUnmatched expected AXI SUB RSP packets remain: key=%s count=%0d\n",
                     key, exp_axi_rsp_db[key].size()))
       end
     end
@@ -362,7 +402,7 @@ class axfdi_comparator extends uvm_component;
       if (exp_axi_req_db[key].size() != 0) begin
         pending_req = pending_req + exp_axi_req_db[key].size();
         `uvm_error("CMPCHK",
-          $sformatf("Unmatched expected AXI MGR REQ packets remain: key=%s count=%0d",
+          $sformatf("\n\nUnmatched expected AXI MGR REQ packets remain: key=%s count=%0d\n",
                     key, exp_axi_req_db[key].size()))
       end
     end
@@ -371,12 +411,13 @@ class axfdi_comparator extends uvm_component;
       if (exp_fdi_tx_db[key].size() != 0) begin
         pending_fdi = pending_fdi + exp_fdi_tx_db[key].size();
         `uvm_error("CMPCHK",
-          $sformatf("Unmatched expected FDI TX packets remain: key=%s count=%0d",
+          $sformatf("\n\nUnmatched expected FDI TX packets remain: key=%s count=%0d\n",
                     key, exp_fdi_tx_db[key].size()))
       end
     end
 
     pending_total = pending_rsp + pending_req + pending_fdi;
+    pending_expected_txn = pending_total;
     if (pending_total != 0) begin
       fail_cnt  = fail_cnt+pending_total;
       total_cnt = total_cnt+pending_total;
@@ -384,17 +425,35 @@ class axfdi_comparator extends uvm_component;
   endfunction
 
   function void report_phase(uvm_phase phase);
+    uvm_component test_h;
+    string test_name;
+    string test_status;
+
     super.report_phase(phase);
+
+    test_h = uvm_root::get().find("uvm_test_top");
+    if (test_h != null)
+      test_name = test_h.get_type_name();
+    else
+      test_name = "UNKNOWN_TEST";
+
+    test_status = (fail_cnt == 0) ? "PASSED" : "FAILED";
 
     if (fail_cnt != 0) begin
       `uvm_error("CMP_SUMMARY",
-        $sformatf("Comparator summary: total=%0d pass=%0d fail=%0d",
-                  total_cnt, pass_cnt, fail_cnt))
+        $sformatf("\n\n\n\nComparator summary:\n  test name                       = %s\n  test status                     = %s\n  total comparisons               = %0d\n  pass comparisons                = %0d\n  fail comparisons                = %0d\n  total expected transactions     = %0d\n  total actual transactions       = %0d\n  total unmatched actual txns     = %0d\n  total pending expected txns     = %0d\n\n\n",
+                  test_name, test_status,
+                  total_cnt, pass_cnt, fail_cnt,
+                  total_expected_cnt, total_actual_cnt,
+                  unexpected_actual_tnx, pending_expected_txn))
     end
     else begin
       `uvm_info("CMP_SUMMARY",
-        $sformatf("Comparator summary: total=%0d pass=%0d fail=%0d",
-                  total_cnt, pass_cnt, fail_cnt),
+        $sformatf("\n\n\nComparator summary:\n  test name                       = %s\n  test status                     = %s\n  total comparisons               = %0d\n  pass comparisons                = %0d\n  fail comparisons                = %0d\n  total expected transactions     = %0d\n  total actual transactions       = %0d\n  total unmatched actual txns     = %0d\n  total pending expected txns     = %0d\n\n\n",
+                  test_name, test_status,
+                  total_cnt, pass_cnt, fail_cnt,
+                  total_expected_cnt, total_actual_cnt,
+                  unexpected_actual_tnx, pending_expected_txn),
         UVM_LOW)
     end
   endfunction

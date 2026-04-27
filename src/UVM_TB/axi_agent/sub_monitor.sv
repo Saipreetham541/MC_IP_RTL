@@ -28,12 +28,13 @@ endfunction
 
 
 task run_phase(uvm_phase phase);
-	fork
+/*	fork
 		begin
 			if(vif.sub_mon_cb.awvalid && vif.sub_mon_cb.awready) begin
 				fork
 				monitor_aw();
 				monitor_w();
+				$display("monitor task calling*********************************************************");
 				join
 				end
 			else if(vif.sub_mon_cb.arvalid && vif.sub_mon_cb.arready) 
@@ -47,46 +48,67 @@ task run_phase(uvm_phase phase);
 		
 		end
 	 
-	join
+	join*/
+	
+	
+			fork
+				monitor_aw();
+				monitor_w();
+				//monitor_ar();
+				//monitor_b();
+				//monitor_r();
+		join_none
+	
+	
+	
 		endtask
 		
 		task monitor_aw();
-			//axi4_seq_item txnh;
-		forever begin
+			forever begin
 			@(vif.sub_mon_cb);
-			if(vif.sub_mon_cb.awvalid && vif.sub_mon_cb.awready)
-				begin
-					txnh=axi4_seq_item::type_id::create("txnh");
-					txnh.addr=vif.sub_mon_cb.awaddr;
-					txnh.id=vif.sub_mon_cb.awid;
-					txnh.len=vif.sub_mon_cb.awlen;
-					txnh.size=vif.sub_mon_cb.arsize;
-					txnh.burst=vif.sub_mon_cb.awburst;
-				//	txnh.rready=vif.sub_mon_cb.rready;
-				//	txnh.bready=vif.sub_mon_cb.bready;
-					req.write(txnh);
-				end
-				end
+
+			if(vif.sub_mon_cb.awvalid && vif.sub_mon_cb.awready) begin
+
+				txnh = axi4_seq_item::type_id::create("txnh");
+
+				txnh.addr  = vif.sub_mon_cb.awaddr;
+				txnh.id    = vif.sub_mon_cb.awid;
+				txnh.len   = vif.sub_mon_cb.awlen;
+				txnh.size  = vif.sub_mon_cb.awsize;
+				txnh.burst = vif.sub_mon_cb.awburst;
+			end
+			end
+
 		endtask
 		
-		task monitor_w();
-			int beat_count;
-				beat_count=txnh.len+1;
-				repeat(beat_count)
-			if(vif.sub_mon_cb.awvalid && vif.sub_mon_cb.awready)
-					begin
-					txnh=axi4_seq_item::type_id::create("txnh");
-					@(vif.sub_mon_cb);
-					if(vif.sub_mon_cb.wvalid && vif.sub_mon_cb.wready) begin
-				//	txnh.data.push_back(vif.sub_mon_cb.wdata);
-				//	txnh.strb.push_back(vif.sub_mon_cb.wstrb);
-					if(vif.sub_mon_cb.wlast)
-					break;
-					req.write(txnh);
-					end
-					end
-					
-		endtask
+task monitor_w();
+
+  forever begin
+
+    @(vif.sub_mon_cb);
+
+    if(vif.sub_mon_cb.wvalid && vif.sub_mon_cb.wready) begin
+
+      if(txnh == null)
+        continue;
+
+      txnh.data = new[txnh.data.size()+1](txnh.data);
+      txnh.strb = new[txnh.strb.size()+1](txnh.strb);
+
+      txnh.data[0] = vif.sub_mon_cb.wdata;
+      txnh.strb[0] = vif.sub_mon_cb.wstrb;
+
+      if(vif.sub_mon_cb.wlast) begin
+        req.write(txnh);
+        txnh.display();
+        txnh = null;
+      end
+
+    end
+
+  end
+
+endtask
 		
 		task monitor_ar();
 			forever begin
@@ -99,9 +121,12 @@ task run_phase(uvm_phase phase);
 							txnh.len=vif.sub_mon_cb.arlen;
 							txnh.size=vif.sub_mon_cb.arsize;
 							txnh.burst=vif.sub_mon_cb.arburst;
-						req.write(txnh);
+							req.write(txnh);
+							
 						end
+					
 						end
+					
 		endtask
 		
 		task monitor_b();

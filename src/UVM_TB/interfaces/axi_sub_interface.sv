@@ -81,5 +81,5 @@ endclocking
 
 
 modport SUB_DRV_MP (input global_reset,input axi_rst_n,clocking sub_drv_cb);
-modport SUB_MON_MP (clocking sub_mon_cb);
+modport SUB_MON_MP (input global_reset,input axi_rst_n,clocking sub_mon_cb);
 endinterface
