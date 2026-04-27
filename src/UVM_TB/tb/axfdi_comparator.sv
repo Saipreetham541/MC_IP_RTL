@@ -177,13 +177,13 @@ class axfdi_comparator extends uvm_component;
     total_actual_cnt++;
     key = make_key_for_fdi(act_pkt);
 
-    //$display("\n[CMP] collect_act_fdi_tx\n");
-    //$display(act_pkt.convert2string);
-    //$display("\n\n");
-    //$display("\n\n\n\n\ncollect_act_fdi_tx\n\n\n\n\n\n");
-    //$display(act_pkt.credit_rtn_vcn);
-    //$display(key);
-    //$display("\n\n\n\n\n\n\n\n\n\n\n");
+    $display("\n[CMP] collect_act_fdi_tx\n");
+    $display(act_pkt.convert2string);
+    $display("\n\n");
+    $display("\n\n\n\n\ncollect_act_fdi_tx\n\n\n\n\n\n");
+    $display(act_pkt.credit_rtn_vcn);
+    $display(key);
+    $display("\n\n\n\n\n\n\n\n\n\n\n");
 
     if (!exp_fdi_tx_db.exists(key) || exp_fdi_tx_db[key].size() == 0) begin
       `uvm_error("\n[CMP", $sformatf("Unexpected FDI TX packet key=%s\n\n", key))
