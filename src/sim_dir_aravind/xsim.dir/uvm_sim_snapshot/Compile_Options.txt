@@ -1,0 +1,1 @@
+"axfdi_bridge_tb" --debug "typical" -L "uvm" --snapshot "uvm_sim_snapshot" --log "logs/elab.log" 
