@@ -52,7 +52,7 @@ class fdi_monitor extends uvm_monitor;
   task monitor_pl_to_lp();
     bit [2047:0] flit;
     fdi_pkt_item txn;
-    int count = 0;
+   // int count = 0;
 
     forever begin
       txn = fdi_pkt_item::type_id::create("txn_pl2lp");
@@ -68,8 +68,8 @@ class fdi_monitor extends uvm_monitor;
               vif.fdi_mon_cb.fdi_pl_startofpkt));
 
       flit = vif.fdi_mon_cb.fdi_pl_data;
-      count = count + 1;
-      $display("//////////////////// [mon] pl -> lp count = %0d ////////////////////", count);
+     // count = count + 1;
+     // $display("//////////////////// [mon] pl -> lp count = %0d ////////////////////", count);
 
       decode_header(flit, txn);
       collect_payload_pl(flit, txn);
@@ -100,7 +100,7 @@ class fdi_monitor extends uvm_monitor;
   task monitor_lp_to_pl();
     bit [2047:0] flit;
     fdi_pkt_item txn;
-    int count = 0;
+    //int count = 0;
 
     forever begin
       txn = fdi_pkt_item::type_id::create("txn_lp2pl");
@@ -116,8 +116,8 @@ class fdi_monitor extends uvm_monitor;
               vif.fdi_mon_cb.fdi_lp_startofpkt));
 
       flit = vif.fdi_mon_cb.fdi_lp_data;
-      count = count + 1;
-      $display("//////////////////// [mon] lp -> pl count = %0d ////////////////////", count);
+     // count = count + 1;
+      //$display("//////////////////// [mon] lp -> pl count = %0d ////////////////////", count);
 
       decode_header(flit, txn);
       collect_payload_lp(flit, txn);

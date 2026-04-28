@@ -86,12 +86,12 @@ class fdi_pkt_item extends uvm_sequence_item;
 		printer.print_field("burst_size",burst_size,8,UVM_DEC);
 		printer.print_field("resp",resp,2,UVM_DEC);
 		printer.print_field("addr",addr,40,UVM_DEC);
-		foreach(data[i]) begin
-		printer.print_field($sformatf("data[%0d]",i),data[i],8,UVM_DEC);
-		end
-		foreach(wstrb[i]) begin
-		printer.print_field($sformatf("wstrb[%0d]",i),wstrb[i],128,UVM_DEC);
-		end
+		//foreach(data[i]) begin
+		//printer.print_field($sformatf("data[%0d]",i),data[i],8,UVM_DEC);
+		//end
+		//foreach(wstrb[i]) begin
+		//printer.print_field($sformatf("wstrb[%0d]",i),wstrb[i],128,UVM_DEC);
+		//end
 		printer.print_field("backpressure_cycle",backpressure_cycles,1,UVM_DEC);
 		printer.print_field("credit_rtn_cnt",credit_rtn_cnt,6,UVM_DEC);
 		printer.print_field("credit_rtn_vcn",credit_rtn_vcn,2,UVM_DEC);

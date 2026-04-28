@@ -14,6 +14,8 @@ super.new(name,parent);
 endfunction
 
 function void build_phase(uvm_phase phase);
+	super.build_phase(phase);
+	
 if(!uvm_config_db#(fdi_agt_config)::get(this,"","fdi_agt_config",fdi_cfg))
 `uvm_fatal("FATAL","FROM FDI_DRIVER CLASS")
 if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))
@@ -74,7 +76,7 @@ forever begin
 
 endtask
 
-// SENDING FLIT /////////////////////////////////////////
+// SENDING FLIT 
 task send_flit(bit [2047:0] flit,bit sop,bit eop);
   @(vif.fdi_drv_cb);
   vif.fdi_drv_cb.fdi_pl_data<=flit;

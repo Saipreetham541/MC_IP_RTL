@@ -46,7 +46,6 @@ class sub_monitor extends uvm_monitor;
 			txnh = axi4_seq_item::type_id::create("txnh");
 			@(vif.sub_mon_cb);
 			if(vif.sub_mon_cb.awvalid && vif.sub_mon_cb.awready) begin
-				$display("111111111111111111111111[axi_sub_moniotor] monitor_aw 11111111111111111111111");
 				txnh.addr  = vif.sub_mon_cb.awaddr;
 				txnh.id    = vif.sub_mon_cb.awid;
 				txnh.len   = vif.sub_mon_cb.awlen;
@@ -55,7 +54,6 @@ class sub_monitor extends uvm_monitor;
 			end
 
 			if(vif.sub_mon_cb.wvalid && vif.sub_mon_cb.wready) begin
-				$display("222222222222222222222[axi_sub_moniotor] monitor_w 22222222222222222222222");
 				txnh.data = new[txnh.data.size()+1](txnh.data);
 				txnh.strb = new[txnh.strb.size()+1](txnh.strb);
 				txnh.data[0] = vif.sub_mon_cb.wdata;
