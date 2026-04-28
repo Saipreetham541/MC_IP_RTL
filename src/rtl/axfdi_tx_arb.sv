@@ -296,7 +296,7 @@ end
     end
 
    assign crd_rtn_valid = crd_rtn;
-   assign txn_type = r_txn_type;
+   assign txn_type = s_txn_type;//was r_txn_type
    //to match the width just added 0 to the msb
    assign vcn_sel = {1'b0,r_vcn_sel};
 endmodule
