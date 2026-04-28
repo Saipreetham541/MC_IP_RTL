@@ -1,0 +1,12 @@
+logs/
+tr_db.log
+uvm_sim_snapshot.wdb
+work/
+xelab.pb
+.xil/
+xsim_10529.backup.log
+xsim_12594.backup.jou
+xsim.dir/
+xsim.jou
+xsim.log
+xvlog.pb
