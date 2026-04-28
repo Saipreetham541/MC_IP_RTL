@@ -25,12 +25,20 @@ fdi_mon=fdi_monitor::type_id::create("fdi_mon",this);
 credit_mgr =fdi_credit_manager::type_id::create("credit_mgr",this);
 uvm_config_db#(fdi_credit_manager):: set(this, "*", "fdi_credit_manager" ,credit_mgr); 
 
-
-
-if(fdi_cfg.is_active)
+if(fdi_cfg.is_active==UVM_ACTIVE)
 begin
 fdi_drv=fdi_driver::type_id::create("fdi_drv",this);
 fdi_seqr=fdi_sequencer::type_id::create("fdi_seqr",this);
 end
 endfunction
+
+
+function void connect_phase(uvm_phase phase);
+//	super.connect_phase(phase);
+	if(fdi_cfg.is_active==UVM_ACTIVE)
+	begin
+	fdi_drv.seq_item_port.connect(fdi_seqr.seq_item_export);
+	end
+endfunction
+
 endclass

@@ -47,6 +47,9 @@ logic rready;
 
 //manager driving clocking block
 clocking mgr_drv_cb@(posedge axi_clk);
+output global_reset;
+output axi_rst_n;
+
 
 output awready;
 output wready;
@@ -78,7 +81,7 @@ input rready;
 endclocking
 
 
-modport MGR_DRV_MP(clocking mgr_drv_cb);
+modport MGR_DRV_MP(input global_reset,input axi_rst_n,clocking mgr_drv_cb);
 modport MGR_MON_MP(clocking mgr_mon_cb);
 
 endinterface

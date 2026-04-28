@@ -9,8 +9,13 @@ class fdi_monitor extends uvm_monitor;
  
  fdi_credit_manager credit_mgr;
  
+   uvm_analysis_port #(fdi_pkt_item) ap_tx;
+	uvm_analysis_port #(fdi_pkt_item) ap_rx;
  function new(string name="fdi_monitor",uvm_component parent);
  super.new(name,parent);
+ ap_tx=new("ap_tx",this);
+ ap_rx=new("ap_rx",this);
+ 
  endfunction
  
  function void build_phase(uvm_phase phase);
@@ -30,19 +35,23 @@ endfunction
  
  
  task run_phase(uvm_phase phase);
-
+  
+  wait(vif.fdi_mon_cb.fdi_lp_state_req==3'b010);
     fork
-      monitor_pl_to_lp(); // DUT → fdi
-      monitor_lp_to_pl(); // fdi → DUT
-    join_none
+      monitor_pl_to_lp(); // fdi → DUt
+      monitor_lp_to_pl(); // DUT → fdi
+    join
 
   endtask
 
-  // PL → LP (DUT - FDI)
+  // PL → LP 
   task monitor_pl_to_lp();
 
     bit [2047:0] flit;
     fdi_pkt_item txn;
+
+    while(!(vif.global_reset && vif.fdi_rst_n))
+	  @(vif.fdi_mon_cb);
 
     forever begin
 
@@ -55,25 +64,29 @@ endfunction
 
       flit = vif.fdi_mon_cb.fdi_pl_data;
 
-      decode_header(flit, txn);
 
+      decode_header(flit, txn);
+@(vif.fdi_mon_cb);
       while(!vif.fdi_mon_cb.fdi_pl_endofpkt) begin
 
-        @(vif.fdi_mon_cb);
+        
 
         if(vif.fdi_mon_cb.fdi_pl_valid && vif.fdi_mon_cb.fdi_pl_irdy  && vif.fdi_mon_cb.fdi_lp_trdy)
 
-          collect_payload(vif.fdi_mon_cb.fdi_pl_data,txn);  // Capture payload
+          collect_payload(vif.fdi_mon_cb.fdi_pl_data,txn); 
+		  // Capture payload
+		  @(vif.fdi_mon_cb);
       end
 
-      if(txn.opcode == 4'h5) begin
+      if(txn.opcode == 4'h4) begin
         credit_mgr.add_credit(txn.credit_rtn_vcn, txn.credit_rtn_cnt);  // Credit return
       end
-      analysis_port.write(txn);
+	  txn.print();
+      ap_rx.write(txn);
     end
   endtask
   
-  // LP - PL (Driver TO DUT)
+  // LP - PL 
 
   task monitor_lp_to_pl();
 
@@ -86,28 +99,30 @@ endfunction
 
       do begin
         @(vif.fdi_mon_cb);
-      end while(!(vif.fdi_mon_cb.fdi_lp_valid && vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy  && vif.fdi_mon_cb.fdi_lp_startofpkt)); // Wait for SOP
-  
+      end
+	  
+	  while(!(vif.fdi_mon_cb.fdi_lp_valid && vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy  && vif.fdi_mon_cb.fdi_lp_startofpkt)); // Wait for SOP
+
 
       flit = vif.fdi_mon_cb.fdi_lp_data;  // Capture header flit
 
       decode_header(flit, txn);
 
-      while(!vif.fdi_mon_cb.fdi_lp_endofpkt) begin
+ while(!vif.fdi_mon_cb.fdi_lp_endofpkt) begin
 
-        @(vif.fdi_mon_cb);
+       
 
         if(vif.fdi_mon_cb.fdi_lp_valid &&  vif.fdi_mon_cb.fdi_lp_irdy  && vif.fdi_mon_cb.fdi_pl_trdy)
 
           collect_payload(vif.fdi_mon_cb.fdi_lp_data, txn);
-
-      end
+		 @(vif.fdi_mon_cb);  
+ end
 	  
-	  if(txn.opcode == 4'h5) begin
+	  if(txn.opcode == 4'h4) begin
 
         credit_mgr.add_credit(txn.credit_rtn_vcn, txn.credit_rtn_cnt );
-
-      analysis_port.write(txn);
+  txn.print();
+      ap_tx.write(txn);
 
     end
 	end
@@ -117,17 +132,17 @@ endfunction
 
   function void decode_header(bit [2047:0]flit, ref fdi_pkt_item txn);
 
-    txn.vcn = flit[2:0];
-    txn.opcode = flit[6:3];
-    txn.port_id = flit[7];
-    txn.txn_id = flit[15:8];
-    txn.burst_len = flit[23:16];
-    txn.burst_type = flit[25:24];
-    txn.burst_size = flit[28:26];
-    txn.addr = flit[68:29];
+    txn.vcn = flit[5:3];
+    txn.opcode = flit[11:8];
+    txn.port_id = flit[12];
+    txn.txn_id = flit[20:13];
+    txn.burst_len = flit[28:21];
+    txn.burst_type = flit[30:29];
+    txn.burst_size = flit[33:31];
+    txn.addr = flit[84:45];
 
-    txn.credit_rtn_cnt = flit[5:0];
-    txn.credit_rtn_vcn = flit[7:6];
+    txn.credit_rtn_cnt = flit[43:38];
+    txn.credit_rtn_vcn = flit[37:36];
 
   endfunction
 

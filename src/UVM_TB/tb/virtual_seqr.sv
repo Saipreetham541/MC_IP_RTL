@@ -6,6 +6,8 @@ mgr_sequencer mgr_seqr0;
 
 sub_sequencer sub_seqr1;
 mgr_sequencer mgr_seqr1;
+
+fdi_sequencer fdi_seqr;
 	
 function new (string name="virtual_seqr",uvm_component parent);
 	super.new(name, parent);

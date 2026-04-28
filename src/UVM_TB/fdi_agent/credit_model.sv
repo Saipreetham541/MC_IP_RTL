@@ -3,8 +3,8 @@ class fdi_credit_manager extends uvm_component;
   `uvm_component_utils(fdi_credit_manager)
 
   int tx_credit[2];
-function new(string name="fdi_credit_manager", uvm_component parent);
-super.new(name,parent);
+function new(string name="fdi_credit_manager",uvm_component parent);
+	super.new(name, parent);
 endfunction
   function void add_credit(int vcn, int cnt);
     tx_credit[vcn]+=cnt;

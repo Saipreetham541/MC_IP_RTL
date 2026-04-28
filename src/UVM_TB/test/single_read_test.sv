@@ -15,7 +15,7 @@ class single_read_test extends axfdi_test;
 	task run_phase(uvm_phase phase);
 		phase.raise_objection(this);
 			sin_rd_vir_seqh=single_read_virtual_seq::type_id::create("sin_rd_vir_seqh");
-			sin_rd_vir_seqh.start(env.v_seqrh);
+			sin_rd_vir_seqh.start(env.vseqrh);
 		phase.drop_objection(this);
 	endtask
 	

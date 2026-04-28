@@ -14,7 +14,7 @@ class standalone_credit_test extends axfdi_test;
 	task run_phase(uvm_phase phase);
 		phase.raise_objection(this);
 			sd_cre_vir_seqh=standalone_credit_virtual_seq::type_id::create("sd_cre_vir_seqh");
-			sd_cre_vir_seqh.start(env.v_seqrh);
+			sd_cre_vir_seqh.start(env.vseqrh);
 		phase.drop_objection(this);
 	endtask
 	

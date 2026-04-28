@@ -5,7 +5,7 @@ class fdi_agt_config extends uvm_object;
 virtual fdi_interface fdi_intf;
 uvm_active_passive_enum is_active;
 
-function new(string name="fdi_agent_config");
+function new(string name="fdi_agt_config");
 super.new(name);
 endfunction
 endclass

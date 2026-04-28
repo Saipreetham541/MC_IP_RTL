@@ -20,8 +20,15 @@ logic fdi_lp_trdy;
 logic [2:0] fdi_pl_state_sts;
 logic fdi_pl_inband_pres;
 
+
+//logic [2:0] packetizer_state;
+
+
 //FDI_DRIVER clocking block
 clocking fdi_drv_cb@(posedge fdi_clk);
+//output global_reset;
+//output fdi_rst_n;
+
 
 output fdi_pl_data;
 output fdi_pl_valid;
@@ -63,7 +70,7 @@ input fdi_pl_state_sts;
 input fdi_pl_inband_pres;
 endclocking
 
-modport FDI_DRV_MP(clocking fdi_drv_cb);
-modport FDI_MON_MP(clocking fdi_mon_cb);
+modport FDI_DRV_MP(input global_reset,input fdi_rst_n,clocking fdi_drv_cb);
+modport FDI_MON_MP(input global_reset,input fdi_rst_n,clocking fdi_mon_cb);
 
 endinterface

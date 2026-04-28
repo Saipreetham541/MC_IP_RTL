@@ -14,7 +14,7 @@ class credit_starve_test extends axfdi_test;
 	task run_phase(uvm_phase phase);
 		phase.raise_objection(this);
 			cre_star_vir_seqh=credit_starve_virtual_seq::type_id::create("cre_star_vir_seqh");
-			cre_star_vir_seqh.start(env.v_seqrh);
+			cre_star_vir_seqh.start(env.vseqrh);
 		phase.drop_objection(this);
 	endtask
 	

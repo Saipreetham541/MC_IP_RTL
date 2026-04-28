@@ -1,7 +1,7 @@
-class fdi_data_seqs extends sub_sequence;
+class fdi_data_seqs extends uvm_sequence#(fdi_pkt_item);
 	`uvm_object_utils(fdi_data_seqs)
 
-	fdi_xtn fditxn;
+	fdi_pkt_item fditxn;
 
 	function new(string name="fdi_data_seqs");
 		super.new(name);
@@ -9,7 +9,7 @@ class fdi_data_seqs extends sub_sequence;
 	
 	task body();
 		begin
-			fditxn = fdi_xtn::type_id::create("data_txn");
+			fditxn = fdi_pkt_item::type_id::create("data_txn");
 			start_item(fditxn);
 			assert(fditxn.randomize() with {trdy == 1;
 											startofpkt == 1;

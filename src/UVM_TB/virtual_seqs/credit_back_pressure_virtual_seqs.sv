@@ -1,4 +1,4 @@
-class credit_back_pressure_virtual_seq extends virtual_sequence;
+class credit_back_pressure_virtual_seq extends virtual_seq;
 	`uvm_object_utils(credit_back_pressure_virtual_seq)
 	
 	fdi_init_seqs init_seqh;
@@ -7,6 +7,7 @@ class credit_back_pressure_virtual_seq extends virtual_sequence;
 	axi_back_pressure_seq axi_bp_seqh1;
 	
 	fdi_back_pressure_seqs fdi_bp_seqh;
+	virtual_seqr vseqrh;
 	
 	function new(string name="credit_back_pressure_virtual_seq");
 		super.new(name);
@@ -22,13 +23,13 @@ class credit_back_pressure_virtual_seq extends virtual_sequence;
 		fdi_bp_seqh = fdi_back_pressure_seqs::type_id::create("fdi_bp_seqh");
 		begin
 				
-				init_seqh.start(fdi_seqr);
+				init_seqh.start(vseqrh.fdi_seqr);
 				
 			fork
-			    axi_bp_seqh0.start(sub_sqr0);
-				axi_bp_seqh1.start(sub_sqr1);
+			    axi_bp_seqh0.start(vseqrh.sub_seqr0);
+				axi_bp_seqh1.start(vseqrh.sub_seqr1);
 				
-				fdi_bp_seqh.start(fdi_seqr);
+				fdi_bp_seqh.start(vseqrh.fdi_seqr);
 			join
 		end
 	endtask

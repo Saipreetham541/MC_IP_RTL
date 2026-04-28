@@ -232,11 +232,11 @@ module axfdi_packetizer  #(
           case (state)
 
 
-            S_IDLE: begin
+           S_IDLE: begin
                if (start_txn) begin
                   // latch all arbiter + credit inputs now
                   lat_type      <= txn_type;
-            lat_vcn       <= vcn_sel;
+                  lat_vcn       <= vcn_sel;
                   lat_port      <= port_id_i;
                   lat_cr_opcode <= credit_rtn_opcode_en;
                   lat_cr_piggy  <= credit_rtn_piggy_en;
@@ -244,12 +244,13 @@ module axfdi_packetizer  #(
                   lat_cr_vcn    <= rx_credit_rtn_vcn;
                   // credit return standalone
                   if (credit_rtn_opcode_en)
-              state <= S_HEADER;
-                  else
+                    state <= S_HEADER;
+                  else if (txn_type != NOP && txn_type !=CREDIT_RTN)
                     state <= S_READ;
+                  else
+                    state <= S_IDLE; 
                end
             end
-
 
             // fifo read
             S_READ: begin
@@ -315,11 +316,11 @@ module axfdi_packetizer  #(
    
     // CREDIT DECREMENT
    
-   assign tx_credit_decr_flag = (state == S_HEADER) && fdi_tx_ready && !lat_cr_opcode;
+   assign tx_credit_decr_flag = (state == S_HEADER) && fdi_tx_ready && !credit_rtn_opcode_en && (vcn_sel == 3'b000 || vcn_sel == 3'b001);
   assign tx_credit_vcn       = lat_vcn;
  
   // credit return done
-  assign credit_rtn_done = (state == S_HEADER) && fdi_tx_ready && lat_cr_opcode;
+  assign credit_rtn_done = (state == S_HEADER) && fdi_tx_ready && credit_rtn_opcode_en;
 
 
 

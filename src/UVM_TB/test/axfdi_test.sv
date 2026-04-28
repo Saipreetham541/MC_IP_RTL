@@ -78,48 +78,100 @@ task apply_reset();
 rst_intf.global_reset=0;
 rst_intf.axi_rst_n=0;
 rst_intf.fdi_rst_n=0;
+                //@(rst_intf.fdi_clk);
 rst_intf.apb_rst_n=0;
 #50;
+
 rst_intf.global_reset=1;
-repeat(16)
+//repeat(16)
 @(posedge rst_intf.axi_clk);
 rst_intf.axi_rst_n=1;
-wait(rst_intf.axi_rst_n==1);
-repeat(16)
+//wait(rst_intf.axi_rst_n==1);
+//repeat(16)
 @(posedge rst_intf.fdi_clk);
 rst_intf.fdi_rst_n=1;
-repeat(16)
-@(posedge rst_intf.apb_clk);
-rst_intf.apb_rst_n=1;
+//repeat(16)
+//@(posedge rst_intf.apb_clk);
+//rst_intf.apb_rst_n=1;
 `uvm_info("RESET","reset completed",UVM_MEDIUM)
+endtask
+
+/*rst_intf.global_reset=1;
+	
+	fork 
+		begin
+			repeat(16)
+			@(posedge rst_intf.axi_clk);
+			rst_intf.axi_rst_n=1;
+		end
+		
+		begin
+			@(rst_intf.fdi_clk);
+			repeat(16)
+			@(posedge rst_intf.fdi_clk);	
+			rst_intf.fdi_rst_n=1;
+		end
+	join
+	`uvm_info("RESET","reset completed",UVM_MEDIUM)*/
+
+/*rst_intf.global_reset=1;
+
+	repeat(16) begin
+	@(posedge rst_intf.axi_clk);
+			rst_intf.axi_rst_n=1;
+		wait(rst_intf.axi_rst_n==1);
+		rst_intf.fdi_rst_n=1;
+	end
+endtask*/
+
+/*task apply_reset();
+
+  `uvm_info("RESET","Applying reset",UVM_MEDIUM)
+
+  rst_intf.global_reset = 0;
+  rst_intf.axi_rst_n    = 0;
+  rst_intf.fdi_rst_n    = 0;
+  rst_intf.apb_rst_n    = 0;
+
+  #50;
+
+  rst_intf.global_reset = 1;
+
+  // AXI reset release
+  repeat (16)
+    @(posedge rst_intf.axi_clk);
+
+  rst_intf.axi_rst_n = 1;
+
+  // Ensure AXI domain ready before FDI reset release
+  wait(rst_intf.axi_rst_n == 1);
+
+  repeat (16)
+    @(posedge rst_intf.fdi_clk);
+
+  rst_intf.fdi_rst_n = 1;
+
+  // APB reset release last
+  repeat (16)
+    @(posedge rst_intf.apb_clk);
+
+  rst_intf.apb_rst_n = 1;
+
+  `uvm_info("RESET","Reset completed as per spec",UVM_MEDIUM)
+
+endtask*/
+
+task run_phase(uvm_phase phase);
+
+	phase.raise_objection(this);
+
+	apply_reset();
+
+	phase.drop_objection(this);
+
 endtask
 
 endclass
 
 
-class test_case1 extends axfdi_test;
-	`uvm_component_utils(test_case1)
-	
-	//virtual_seqs vseqh;
-	//virtual_seqr vseqrh;
-	
-function new(string name ="test_case1" , uvm_component parent);
-	super.new(name, parent);
-endfunction
 
-function void build_phase (uvm_phase phase);
-	super.build_phase(phase);
-//vseqh=virtual_seqs :: type_id :: create("vseqh");
-//vseqrh=virtual_seqr:: type_id :: create("vseqrh", this);
-`uvm_info("TESTCASE1","EXTENDED",UVM_MEDIUM)
-endfunction
-
-/*task run_phase(uvm_phase phase);
-	phase.raise_objection(this);
-	apply_reset;
-	vseqh.start(vseqrh);
-	phase.drop_objection(this);
-endtask*/
-endclass
-
-	

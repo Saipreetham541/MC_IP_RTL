@@ -1,6 +1,6 @@
-class credit_starve_axi_seq extends sub_sequence;
+class credit_starve_axi_seq extends uvm_sequence;
 	`uvm_object_utils(credit_starve_axi_seq)
-	axi_xtn txn;
+	axi4_seq_item txn;
 	
 	function new(string name="credit_starve_axi_seq");
 		super.new(name);
@@ -9,7 +9,7 @@ class credit_starve_axi_seq extends sub_sequence;
 	task body();
 		repeat(40)
 		begin
-			txn=axi_xtn::type_id::create("txn");
+			txn=axi4_seq_item::type_id::create("txn");
 			start_item(txn);
 			assert(txn.randomize() with{len==0;
 										burst==2'b01;

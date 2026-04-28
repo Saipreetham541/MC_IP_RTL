@@ -5,7 +5,7 @@ typedef enum bit {
 
 class axi4_seq_item extends uvm_sequence_item;
 
-  `uvm_object_utils(axi4_seq_item);
+  `uvm_object_utils(axi4_seq_item)
   typedef enum{read, write}axn_type_e;   
   rand bit [39:0] addr;
   rand bit [7:0] id;
@@ -27,8 +27,18 @@ class axi4_seq_item extends uvm_sequence_item;
 	
 
 	constraint burst_c1{burst inside{1,2};}
-	constraint len_c2{len inside {[0:255]};}
+	
+	constraint len_c2{len inside {[0:255]}; solve len before data;}
 	constraint addr_align_c3{addr % (2 ** size) == 0;}
+	constraint data_size{data.size==len+1;}
+	constraint strb_size_c {strb.size == len+1;}
+	constraint strb_zero_c {foreach(strb[i])
+								strb[i] == 128'b1;}
+	constraint data_value{foreach(data[i])
+							data[i]==i+1;}							
+								
+								
+								
 	//constraint awaddr_align_c3{awaddr % ((2 ** awsize)) == 0;}
 	
 	function void do_copy(uvm_object rhs);
@@ -69,7 +79,7 @@ class axi4_seq_item extends uvm_sequence_item;
 		printer.print_field("size",size,3,UVM_HEX);
 		printer.print_field("burst",burst,2,UVM_HEX);
 		foreach(data[i]) begin
-		printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_HEX);
+		printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_DEC);
 		end
 		foreach(strb[i]) begin
 		printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_HEX);

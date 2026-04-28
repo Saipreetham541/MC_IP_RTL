@@ -1,6 +1,6 @@
 //fdi_sequencer
  
- class fdi_sequencer extends uvm_sequencer;
+ class fdi_sequencer extends uvm_sequencer #(fdi_pkt_item);
 `uvm_component_utils(fdi_sequencer)
 function new(string name="fdi_sequencer",uvm_component parent);
 super.new(name,parent);
