@@ -236,7 +236,7 @@ module axfdi_packetizer  #(
                if (start_txn) begin
                   // latch all arbiter + credit inputs now
                   lat_type      <= txn_type;
-                  lat_vcn       <= vcn_sel;
+            lat_vcn       <= vcn_sel;
                   lat_port      <= port_id_i;
                   lat_cr_opcode <= credit_rtn_opcode_en;
                   lat_cr_piggy  <= credit_rtn_piggy_en;
@@ -244,11 +244,9 @@ module axfdi_packetizer  #(
                   lat_cr_vcn    <= rx_credit_rtn_vcn;
                   // credit return standalone
                   if (credit_rtn_opcode_en)
-                    state <= S_HEADER;
-                  else if (txn_type != NOP && txn_type !=CREDIT_RTN)
-                    state <= S_READ;
+              state <= S_HEADER;
                   else
-                    state <= S_IDLE; 
+                    state <= S_READ;
                end
             end
 
@@ -317,11 +315,11 @@ module axfdi_packetizer  #(
    
     // CREDIT DECREMENT
    
-   assign tx_credit_decr_flag = (state == S_HEADER) && fdi_tx_ready && !credit_rtn_opcode_en;
+   assign tx_credit_decr_flag = (state == S_HEADER) && fdi_tx_ready && !lat_cr_opcode;
   assign tx_credit_vcn       = lat_vcn;
  
   // credit return done
-  assign credit_rtn_done = (state == S_HEADER) && fdi_tx_ready && credit_rtn_opcode_en;
+  assign credit_rtn_done = (state == S_HEADER) && fdi_tx_ready && lat_cr_opcode;
 
 
 
@@ -416,7 +414,7 @@ module axfdi_packetizer  #(
   assign tx_txn_id    = lat_ar[7:0];
   assign tx_port_id   = lat_port;
   assign tx_vcn       = (lat_vcn == 3'b00) ? 0 : 1  ;
-  assign tx_txn_valid = (state == S_HEADER) && fdi_tx_ready && (lat_type == READ_REQ) && !credit_rtn_opcode_en;
+  assign tx_txn_valid = (state == S_HEADER) && fdi_tx_ready && (lat_type == READ_REQ) && !lat_cr_opcode;
   assign fdi_pktr_eop = flit_tx_valid && fdi_tx_ready && fdi_tx_eop;
 
 endmodule

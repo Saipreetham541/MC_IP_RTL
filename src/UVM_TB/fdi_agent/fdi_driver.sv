@@ -41,7 +41,7 @@ forever begin
 	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
 	
 	if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
-	@(vif.fdi_drv_cb);
+	//@(vif.fdi_drv_cb);
 	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b010;
 	end
 	else
