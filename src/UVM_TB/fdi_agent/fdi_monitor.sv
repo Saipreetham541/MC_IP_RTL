@@ -35,7 +35,8 @@ endfunction
  
  
  task run_phase(uvm_phase phase);
-
+  
+  wait(vif.fdi_mon_cb.fdi_lp_state_req==3'b010);
     fork
       monitor_pl_to_lp(); // fdi → DUt
       monitor_lp_to_pl(); // DUT → fdi

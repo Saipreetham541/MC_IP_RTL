@@ -27,11 +27,16 @@ vif=agt_cfg.sub_intf;
 endfunction
 
 task run_phase(uvm_phase phase);
-		while(!(vif.axi_rst_n && vif.global_reset))
-			@(vif.sub_drv_cb)
+		//while(!(vif.axi_rst_n && vif.global_reset))
+			//@(vif.sub_drv_cb)
+		wait (vif.axi_rst_n && vif.global_reset);
 		forever begin
-		
+			$display("\n\n\n\n\n\n\n\n");
+			$display("time %0t = ",$time);
 			seq_item_port.get_next_item(txn);
+
+			$display("\n\n\n\n\n\n\n\n");
+			$display("time %0t = ",$time);
 			 if(txn.axn_type==0)
 			 begin
 					drive_write(txn);
@@ -52,6 +57,8 @@ task run_phase(uvm_phase phase);
 	endtask
 	
 	task drive_aw(axi4_seq_item txn);
+		$display("inside drive_aw task \n\n\n\n\n\n\n\n");
+		$display("time %0t = ",$time);
 		@(vif.sub_drv_cb)
 		vif.sub_drv_cb.awvalid<=1;
 		vif.sub_drv_cb.awaddr<=txn.addr;
@@ -61,12 +68,12 @@ task run_phase(uvm_phase phase);
 		vif.sub_drv_cb.awburst<=txn.burst;
 		vif.sub_drv_cb.bready<=1;
 		
-	do begin
-    @(vif.sub_drv_cb);
-  end while(!vif.sub_drv_cb.awready);
-  vif.sub_drv_cb.awvalid<=0;
-		//txn.display();
-	endtask
+			do begin
+			@(vif.sub_drv_cb);
+		end while(!vif.sub_drv_cb.awready);
+		vif.sub_drv_cb.awvalid<=0;
+				//txn.display();
+			endtask
 	
 	task drive_w(axi4_seq_item txn);
 		for(int i=0; i<=txn.len; i++)

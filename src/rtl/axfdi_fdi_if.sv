@@ -87,7 +87,7 @@ module axfdi_fdi_if #(
    logic                             r_fdi_lp_valid;
    logic                             r_fdi_lp_startofpkt;
    logic                             r_fdi_lp_endofpkt;
-   link_state                        r_fdi_lp_state_req;
+   //link_state                        r_fdi_lp_state_req;
 
 
    //RX side regs
@@ -140,7 +140,7 @@ module axfdi_fdi_if #(
    assign fdi_lp_startofpkt = r_fdi_lp_startofpkt;
    assign fdi_lp_endofpkt = r_fdi_lp_endofpkt;
    assign fdi_lp_trdy = r_fdi_lp_trdy;
-   assign fdi_lp_state_req = r_fdi_lp_state_req;
+   assign fdi_lp_state_req = s_fdi_lp_state_req;
 
    //drive link erro
    assign fdi_lp_linkerror = 1'b0;
@@ -171,7 +171,7 @@ module axfdi_fdi_if #(
            r_fdi_pl_endofpkt <= 1'b0;
         r_flit_rx_data_valid <= 1'b0;
         end
-        else if (fdi_pl_irdy && r_fdi_lp_trdy && fdi_pl_valid && r_fdi_trans_en) begin
+        else if (fdi_pl_irdy && r_fdi_lp_trdy && fdi_pl_valid && s_fdi_trans_en) begin
            r_fdi_pl_data <= fdi_pl_data;
            r_fdi_pl_startofpkt <= fdi_pl_startofpkt;
            r_fdi_pl_endofpkt <= fdi_pl_endofpkt;
@@ -190,7 +190,7 @@ module axfdi_fdi_if #(
         CS <= ST_wait_remote;
         r_fdi_trans_en <= 1'b0;
         r_credit_rtn_req_en <= 1'b0;
-        r_fdi_lp_state_req <= RESET;
+      //  r_fdi_lp_state_req <= RESET;
         r_fdi_lp_trdy <= 1'b0;
      end
      else begin
@@ -198,14 +198,14 @@ module axfdi_fdi_if #(
            CS <= ST_wait_remote;
            r_fdi_trans_en <= 1'b0;
            r_credit_rtn_req_en <= 1'b0;
-           r_fdi_lp_state_req <= RESET;
+         //  r_fdi_lp_state_req <= RESET;
            r_fdi_lp_trdy <= 1'b0;
         end
         else begin
            CS <= NS;
            r_fdi_trans_en <= s_fdi_trans_en;
            r_credit_rtn_req_en <= s_credit_rtn_req_en;
-           r_fdi_lp_state_req <= s_fdi_lp_state_req;
+          // r_fdi_lp_state_req <= s_fdi_lp_state_req;
            r_fdi_lp_trdy <= fdi_depktr_rx_trdy;
         end
      end

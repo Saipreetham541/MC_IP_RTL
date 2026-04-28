@@ -63,7 +63,7 @@ endclocking
 //subordinate monitoring clocking block
 
 clocking sub_mon_cb @(posedge axi_clk);
-
+default input #0 output #0 ;
 input awaddr,awid,awlen,awsize,awburst,awvalid;
 input wdata,wstrb,wlast,wvalid;
 input araddr,arid,arlen,arsize,arburst,arvalid;

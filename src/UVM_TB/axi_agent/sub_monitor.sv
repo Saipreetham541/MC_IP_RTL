@@ -50,7 +50,7 @@ task run_phase(uvm_phase phase);
 	 
 	join*/
 	
-	
+	wait (vif.axi_rst_n && vif.global_reset);
 			fork
 				monitor_aw();
 				monitor_w();

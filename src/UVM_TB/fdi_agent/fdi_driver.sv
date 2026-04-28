@@ -32,23 +32,29 @@ endfunction
 
 
 task run_phase(uvm_phase phase);
-$display("waiting for reset");
-while(!(vif.global_reset && vif.fdi_rst_n))
-	@(vif.fdi_drv_cb);
+  $display("waiting for reset");
+  while(!(vif.global_reset && vif.fdi_rst_n))
+    @(vif.fdi_drv_cb);
+
+  vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
+    
+  wait(vif.fdi_drv_cb.fdi_lp_state_req==3'b010);
+
+
+    //while(!vif.fdi_drv_cb.fdi_lp_state_req==3'b010)
+      //@(vif.fdi_drv_cb);
+
 forever begin
 
-
-	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
+  if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
+      //@(vif.fdi_drv_cb);
+      vif.fdi_drv_cb.fdi_pl_state_sts<=3'b010;
+    end
+  else begin
+      vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
+  end
 	
-	if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
-	//@(vif.fdi_drv_cb);
-	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b010;
-	end
-	else
-	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
-	
-
-    seq_item_port.get_next_item(txn);
+  seq_item_port.get_next_item(txn);
 	$display("driver");
 	txn.print();
 	//apply_backpressure(txn.backpressure_cycles);
@@ -62,13 +68,28 @@ forever begin
 				drive_packet(txn);
 				credit_mgr.consume_credit(txn.vcn);
 		end
-		
-	
-	
     seq_item_port.item_done();
 
   end
 
+endtask
+
+// SENDING FLIT /////////////////////////////////////////
+task send_flit(bit [2047:0] flit,bit sop,bit eop);
+  @(vif.fdi_drv_cb);
+  vif.fdi_drv_cb.fdi_pl_data<=flit;
+  vif.fdi_drv_cb.fdi_pl_valid<=1;
+  vif.fdi_drv_cb.fdi_pl_irdy<=1;
+  vif.fdi_drv_cb.fdi_pl_startofpkt<=sop;
+  vif.fdi_drv_cb.fdi_pl_endofpkt<=eop;
+	vif.fdi_drv_cb.fdi_pl_trdy<=1;
+  while(!vif.fdi_drv_cb.fdi_lp_trdy) begin
+    @(vif.fdi_drv_cb); 
+  end
+  @(vif.fdi_drv_cb);
+  //#1;
+  vif.fdi_drv_cb.fdi_pl_valid<=0;
+  @(vif.fdi_drv_cb);
 endtask
 
 
@@ -109,30 +130,6 @@ function bit [2047:0] build_header(fdi_pkt_item txn);
   return flit;
 
 endfunction
-
-
-// SENDING FLIT
-int count;
-task send_flit(bit [2047:0] flit,bit sop,bit eop);
-
-  //@(vif.fdi_drv_cb);
-
-  vif.fdi_drv_cb.fdi_pl_data<=flit;
-  vif.fdi_drv_cb.fdi_pl_valid<=1;
-  count=count+1;
-  $display("count=%0d", count);
-  vif.fdi_drv_cb.fdi_pl_irdy<=1;
-  vif.fdi_drv_cb.fdi_pl_startofpkt<=sop;
-  vif.fdi_drv_cb.fdi_pl_endofpkt<=eop;
-	vif.fdi_drv_cb.fdi_pl_trdy<=1;
-  while(!vif.fdi_drv_cb.fdi_lp_trdy) begin
-  
-  @(vif.fdi_drv_cb); end
-  @(vif.fdi_drv_cb);
- 
-  vif.fdi_drv_cb.fdi_pl_valid<=0;
-//txn.display();
-endtask
 
 
 // WRITE REQUEST
