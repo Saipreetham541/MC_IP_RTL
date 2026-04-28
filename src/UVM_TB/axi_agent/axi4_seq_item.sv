@@ -34,9 +34,11 @@ class axi4_seq_item extends uvm_sequence_item;
 	constraint strb_size_c {strb.size == len+1;}
 	constraint strb_zero_c {foreach(strb[i])
 								strb[i] == 128'b1;}
-	constraint data_value{foreach(data[i])
-							data[i]==i+1;}							
-								
+	//constraint data_value{foreach(data[i])
+							//data[i]==i+1;}							
+		constraint data_value{foreach(data[i])
+							data[i]== 'hAA;}							
+														
 								
 								
 	//constraint awaddr_align_c3{awaddr % ((2 ** awsize)) == 0;}
@@ -73,18 +75,18 @@ class axi4_seq_item extends uvm_sequence_item;
 	
 	
 	virtual function void do_print(uvm_printer printer);
-		printer.print_field("addr",addr,40,UVM_HEX);
-		printer.print_field("id",id,8,UVM_HEX);
-		printer.print_field("len",len,8,UVM_HEX);
-		printer.print_field("size",size,3,UVM_HEX);
-		printer.print_field("burst",burst,2,UVM_HEX);
+		printer.print_field("addr",addr,40,UVM_DEC);
+		printer.print_field("id",id,8,UVM_DEC);
+		printer.print_field("len",len,8,UVM_DEC);
+		printer.print_field("size",size,3,UVM_DEC);
+		printer.print_field("burst",burst,2,UVM_DEC);
 		foreach(data[i]) begin
 		printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_DEC);
 		end
 		foreach(strb[i]) begin
-		printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_HEX);
+		printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_DEC);
 		end
-		//printer.print_field("last",last,1,UVM_HEX);
+		//printer.print_field("last",last,1,UVM_DEC);
 	endfunction
 	
 	function void display();

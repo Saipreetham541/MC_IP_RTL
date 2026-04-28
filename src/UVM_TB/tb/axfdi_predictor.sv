@@ -9,8 +9,8 @@ class axfdi_predictor extends uvm_component;
   localparam int unsigned NP_INIT_CREDIT       = 32;
   localparam int unsigned CPL_INIT_CREDIT      = 32;
   localparam int unsigned CREDIT_RTN_THRESHOLD = 16;
-  localparam int unsigned CFG_NP_WEIGHT        = 1;
-  localparam int unsigned CFG_CPL_WEIGHT       = 2;
+  localparam int unsigned CFG_NP_WEIGHT        = 2;
+  localparam int unsigned CFG_CPL_WEIGHT       = 1;
 
   //ENUM DECLEARATION
 
@@ -101,15 +101,15 @@ class axfdi_predictor extends uvm_component;
         credit_rtn_cnt_q   = '0;
 
         last_port         = 1'b1;
-        last_req_txn_type = WRITE_REQ;
-        last_rsp_txn_type = WRITE_RESP;
+        last_req_txn_type = READ_REQ;
+        last_rsp_txn_type = READ_RESP;
     endfunction
 
     task run_phase(uvm_phase phase);
         fork
 
-            $display("\n[PRD] run_phase\n");
-            $display("\n\n");
+            //$display("\n[PRD] run_phase\n");
+            //$display("\n\n");
             collect_sub_req(0);
             collect_sub_req(1);
             collect_mgr_rsp(0);
@@ -167,9 +167,9 @@ class axfdi_predictor extends uvm_component;
             pkt_c = fdi_pkt_item::type_id::create("pkt_c");
             pkt_c.copy(pkt);
 
-            $display("\n[PRD] collect_fdi_rx\n");
-            $display(pkt.convert2string);
-            $display("\n\n");
+            //$display("\n[PRD] collect_fdi_rx\n");
+            //$display(pkt.convert2string);
+            //$display("\n\n");
 
             if (pkt_c.opcode == 4'd4) begin
                 
@@ -316,17 +316,19 @@ class axfdi_predictor extends uvm_component;
 
     function void pack_axi_payload_to_fdi(axi4_seq_item axi, ref fdi_pkt_item pkt);
         pkt.data  = new[BYTES_PER_BEAT];
-        pkt.wstrb = new[1];
+        pkt.wstrb = new[0];
         foreach (pkt.data[i]) pkt.data[i] = (axi.data.size() > 0) ? axi.data[0][(i*8)+:8] : '0;
-        pkt.wstrb[0] = (axi.strb.size() > 0) ? axi.strb[0] : '0;
     endfunction
 
     function void unpack_fdi_payload_to_axi(fdi_pkt_item pkt, ref axi4_seq_item axi);
         axi.data = new[1];
         axi.strb = new[1];
         axi.data[0] = '0;
-        foreach (pkt.data[i]) axi.data[0][(i*8)+:8] = pkt.data[i];
-        axi.strb[0] = pkt.wstrb[0];
+        foreach (pkt.data[i]) begin
+            if (i < BYTES_PER_BEAT)
+                axi.data[0][(i*8)+:8] = pkt.data[i];
+        end
+        axi.strb[0] = (pkt.wstrb.size() > 0) ? pkt.wstrb[0] : '1;
     endfunction
 
     //BULDING EXPECTED FDI PACKET FROM AXI TXN
@@ -337,7 +339,7 @@ class axfdi_predictor extends uvm_component;
         pkt = fdi_pkt_item::type_id::create("pkt");
         pkt.port_id = port;
         pkt.opcode  = txn_type;
-        pkt.vcn     = (txn_type == WRITE_RESP || txn_type == READ_RESP) ? 3'h0 : 3'h1;
+        pkt.vcn     = (txn_type == WRITE_RESP || txn_type == READ_RESP) ? 3'h1 : 3'h0; 
 
         if (txn_type == WRITE_REQ) begin
             axi = wr_req_q[port][0];
@@ -455,12 +457,20 @@ class axfdi_predictor extends uvm_component;
         int         port;
         opcode_e    txn_type;
         fdi_pkt_item exp_pkt;
-        if (!choose_next_tx(port, txn_type)) begin
-             return;
+        //int         guard;
+
+        //guard = 0;
+        while (choose_next_tx(port, txn_type)) begin
+            exp_pkt = build_exp_fdi_pkt(port, txn_type);
+            exp_fdi_tx_ap.write(exp_pkt);
+            update_after_tx(port, txn_type, exp_pkt);
+
+            //guard++;
+            //if (guard > 64) begin
+                //`uvm_error("PRD", "try_schedule_tx guard tripped while draining expected TX queue")
+                //break;
+            //end
         end
-        exp_pkt = build_exp_fdi_pkt(port, txn_type);
-        exp_fdi_tx_ap.write(exp_pkt);
-        update_after_tx(port, txn_type, exp_pkt);
     endtask
 
     function axi4_seq_item predict_axi_mgr_req_from_fdi_rx_req(fdi_pkt_item pkt);
@@ -495,5 +505,3 @@ class axfdi_predictor extends uvm_component;
         return rsp;
     endfunction
 endclass
-
-

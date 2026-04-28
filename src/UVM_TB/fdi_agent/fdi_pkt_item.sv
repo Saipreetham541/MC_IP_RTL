@@ -35,8 +35,8 @@ class fdi_pkt_item extends uvm_sequence_item;
     function string convert2string();
 
         return $sformatf(
-        "\nopcode=%0d vcn=%0d port=%0d txn_id=%0d len=%0d type=%0d size=%0d resp=%0d addr=0x%0h payload=%0d credit_cnt=%0d credit_vcn=%0d bp=%0d\n",
-        opcode,vcn,port_id,txn_id,burst_len,burst_type,burst_size,resp,addr,data.size(),credit_rtn_cnt,credit_rtn_vcn,backpressure_cycles
+        "\nopcode=%0d vcn=%0d port=%0d txn_id=%0d len=%0d burst_type=%0d size=%0d resp=%0d addr=0x%0d payload=%0d credit_cnt=%0d credit_vcn=%0d bp=%0d\n",
+            opcode,vcn,port_id,txn_id,burst_len,burst_type,burst_size,resp,addr,data,credit_rtn_cnt,credit_rtn_vcn,backpressure_cycles
         );
 
     endfunction

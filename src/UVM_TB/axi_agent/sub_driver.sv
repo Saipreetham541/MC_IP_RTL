@@ -30,13 +30,18 @@ task run_phase(uvm_phase phase);
 		//while(!(vif.axi_rst_n && vif.global_reset))
 			//@(vif.sub_drv_cb)
 		wait (vif.axi_rst_n && vif.global_reset);
+
+		if(agt_cfg.role!=axi_agt_config::SUB) begin
+			`uvm_info("from sub_drv","sub_drv disabled",UVM_MEDIUM)
+			return;
+		end
 		forever begin
-			$display("\n\n\n\n\n\n\n\n");
-			$display("time %0t = ",$time);
+			//$display("\n\n\n\n\n\n\n\n");
+			//$display("time %0t = ",$time);
 			seq_item_port.get_next_item(txn);
 
-			$display("\n\n\n\n\n\n\n\n");
-			$display("time %0t = ",$time);
+			//$display("\n\n\n\n\n\n\n\n");
+			//$display("time %0t = ",$time);
 			 if(txn.axn_type==0)
 			 begin
 					drive_write(txn);
@@ -57,8 +62,8 @@ task run_phase(uvm_phase phase);
 	endtask
 	
 	task drive_aw(axi4_seq_item txn);
-		$display("inside drive_aw task \n\n\n\n\n\n\n\n");
-		$display("time %0t = ",$time);
+		//$display("inside drive_aw task \n\n\n\n\n\n\n\n");
+		//$display("time %0t = ",$time);
 		@(vif.sub_drv_cb)
 		vif.sub_drv_cb.awvalid<=1;
 		vif.sub_drv_cb.awaddr<=txn.addr;
