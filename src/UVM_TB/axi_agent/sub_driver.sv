@@ -27,15 +27,24 @@ vif=agt_cfg.sub_intf;
 endfunction
 
 task run_phase(uvm_phase phase);
-		wait(vif.sub_drv_cb.axi_rst_n && vif.sub_drv_cb.global_reset);
-			@(vif.sub_drv_cb)
-		
+		//while(!(vif.axi_rst_n && vif.global_reset))
+			//@(vif.sub_drv_cb)
+		wait (vif.axi_rst_n && vif.global_reset);
 		forever begin
+			$display("\n\n\n\n\n\n\n\n");
+			$display("time %0t = ",$time);
 			seq_item_port.get_next_item(txn);
-			 if(txn.axn_type==txn.write)
+
+			$display("\n\n\n\n\n\n\n\n");
+			$display("time %0t = ",$time);
+			 if(txn.axn_type==0)
+			 begin
 					drive_write(txn);
-				else if (txn.axn_type==txn.read);
+			end
+				else if (txn.axn_type==1)
+				begin
 					drive_read(txn);
+				end
 			seq_item_port.item_done();
 		end 
 	endtask
@@ -48,21 +57,23 @@ task run_phase(uvm_phase phase);
 	endtask
 	
 	task drive_aw(axi4_seq_item txn);
+		$display("inside drive_aw task \n\n\n\n\n\n\n\n");
+		$display("time %0t = ",$time);
 		@(vif.sub_drv_cb)
-		
 		vif.sub_drv_cb.awvalid<=1;
 		vif.sub_drv_cb.awaddr<=txn.addr;
 		vif.sub_drv_cb.awid<=txn.id;
 		vif.sub_drv_cb.awlen<=txn.len;
 		vif.sub_drv_cb.awsize<=txn.size;
 		vif.sub_drv_cb.awburst<=txn.burst;
-	//	vif.sub_drv_cb.bready<=txn.bready;
+		vif.sub_drv_cb.bready<=1;
 		
-		wait(vif.sub_drv_cb.awready);
-		@(vif.sub_drv_cb)
+			do begin
+			@(vif.sub_drv_cb);
+		end while(!vif.sub_drv_cb.awready);
 		vif.sub_drv_cb.awvalid<=0;
-		txn.display();
-	endtask
+				//txn.display();
+			endtask
 	
 	task drive_w(axi4_seq_item txn);
 		for(int i=0; i<=txn.len; i++)
@@ -76,12 +87,13 @@ task run_phase(uvm_phase phase);
 					vif.sub_drv_cb.wlast<=1;
 				else
 					vif.sub_drv_cb.wlast<=0;
-				wait(vif.sub_drv_cb.wready);
 			end
-					@(vif.sub_drv_cb)
-				
+		
+			
+			if(vif.sub_drv_cb.wready) begin
+						@(vif.sub_drv_cb);
 					vif.sub_drv_cb.wvalid<=0;
-					//vif.sub_drv_cb.wready<=0;
+					end
 					txn.display();
 			
 	endtask
@@ -96,9 +108,9 @@ task run_phase(uvm_phase phase);
 			vif.sub_drv_cb.arlen<=txn.len;
 			vif.sub_drv_cb.arsize<=txn.size;
 			vif.sub_drv_cb.arburst<=txn.burst;
-			//vif.sub _drv_cb.rready<=txn.rready;
+			vif.sub_drv_cb.rready<=1;
 			
-			wait(vif.sub_drv_cb.arready);
+			while(!vif.sub_drv_cb.arready)
 				@(vif.sub_drv_cb)
 			vif.sub_drv_cb.arvalid<=0;
 			txn.display();

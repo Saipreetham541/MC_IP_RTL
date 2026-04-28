@@ -14,7 +14,7 @@ class inline_credit_test extends axfdi_test;
 	task run_phase(uvm_phase phase);
 		phase.raise_objection(this);
 			inline_cre_vir_seqh=inline_credit_virtual_seq::type_id::create("inline_cre_vir_seqh");
-			inline_cre_vir_seqh.start(env.v_seqrh);
+			inline_cre_vir_seqh.start(env.vseqrh);
 		phase.drop_objection(this);
 	endtask
 	

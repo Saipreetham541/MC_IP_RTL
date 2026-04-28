@@ -49,6 +49,8 @@ module axfdi_port_merge (
    logic write_resp_1;
    logic read_resp_1;
 
+    logic s_portid; 
+
    assign write_req_0 = ~AW_cdc_fifo_empty_0 & ~W_cdc_fifo_empty_0;
    assign read_req_0 = ~AR_cdc_fifo_empty_0;
    assign write_resp_0 = ~B_cdc_fifo_empty_0;
@@ -98,7 +100,7 @@ end
    
    always_comb begin 
     ns =  cs;
-
+    s_portid = 0;
      case (cs)
         IDLE:begin
             if (crd_rtn) begin
@@ -124,8 +126,8 @@ end
 
             else ns = IDLE;
         end
-
         SEND_P0:begin
+            s_portid = 1'b0;
         if (eop) begin
             if (crd_rtn) begin
                 ns = CRD_RTN;
@@ -149,6 +151,7 @@ end
          
 
         SEND_P1:begin
+            s_portid = 1'b1;
         if (eop)begin
             if (crd_rtn) begin
                 ns = CRD_RTN;
@@ -242,6 +245,6 @@ end
    end
    end
 
-   assign port_id = last_port;
-    
+   assign port_id = s_portid;
+
 endmodule

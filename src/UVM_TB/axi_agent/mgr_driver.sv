@@ -11,6 +11,8 @@ super.new(name,parent);
 endfunction
 
 function void build_phase(uvm_phase phase);
+super.build_phase(phase);
+txn=axi4_seq_item::type_id::create("txn");
 if(!uvm_config_db#(axi_agt_config)::get(this,"","axi_agt_config",agt_cfg))
 `uvm_fatal("FATAL","FROM MGR_DRIVER CLASS")
 if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))
@@ -22,8 +24,9 @@ vif=agt_cfg.mgr_intf;
 endfunction
 	
 	task run_phase(uvm_phase phase);
-	wait(vif.mgr_drv_cb.axi_rst_n && vif.mgr_drv_cb.global_reset);
-			@(vif.sub_drv_cb)
+	
+	while(!(vif.axi_rst_n && vif.global_reset))
+			@(vif.mgr_drv_cb)
 	fork 
 		drive_b(txn);
 		drive_r(txn);
@@ -31,13 +34,13 @@ endfunction
 	endtask 
 	
 	task drive_b(axi4_seq_item txn);
-		@( vif.mgr_drv_cb)
+		@( vif.mgr_drv_cb);
 		vif.mgr_drv_cb.bvalid<=0;
 		vif.mgr_drv_cb.bid<=txn.id;
 		vif.mgr_drv_cb.bresp<=txn.resp;
 		wait(vif.mgr_drv_cb.bready);  
-		@(vif.mgr_drv_cb)
-		vif.mgr_drv_cb.bvalid<=1;
+		@(vif.mgr_drv_cb);
+		vif.mgr_drv_cb.bvalid<=0;
 	endtask
 	
 	task drive_r(axi4_seq_item txn);

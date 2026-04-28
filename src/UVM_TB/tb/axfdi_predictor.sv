@@ -84,10 +84,32 @@ class axfdi_predictor extends uvm_component;
 
         fdi_rx_fifo   = new("fdi_rx_fifo",this);
         exp_fdi_tx_ap = new("exp_fdi_tx_ap",this);
+
+        // Predictor-local scheduling and credit state starts from reset defaults.
+        np_cnt            = CFG_NP_WEIGHT;
+        cpl_cnt           = CFG_CPL_WEIGHT;
+        tx_np_credit_cnt  = 0;
+        tx_cpl_credit_cnt = 0;
+        rx_np_consumed    = 0;
+        rx_cpl_consumed   = 0;
+
+        // Expect the bridge to perform the initial credit exchange once RX credits arrive.
+        init_np_pending   = 1'b1;
+        init_cpl_pending  = 1'b1;
+        credit_rtn_pending = 1'b0;
+        credit_rtn_vcn_q   = '0;
+        credit_rtn_cnt_q   = '0;
+
+        last_port         = 1'b1;
+        last_req_txn_type = WRITE_REQ;
+        last_rsp_txn_type = WRITE_RESP;
     endfunction
 
     task run_phase(uvm_phase phase);
         fork
+
+            $display("\n[PRD] run_phase\n");
+            $display("\n\n");
             collect_sub_req(0);
             collect_sub_req(1);
             collect_mgr_rsp(0);
@@ -102,6 +124,9 @@ class axfdi_predictor extends uvm_component;
         axi4_seq_item req, req_c;
         forever begin
             sub_req_fifo[port].get(req);
+            $display("\n[PRD] collect_sub_req\n");
+            $display(req.convert2string);
+            $display("\n\n");
             req_c = axi4_seq_item::type_id::create("req_c");
             req_c.copy(req);
             if (req_c.axn_type == WRITE) begin
@@ -116,8 +141,11 @@ class axfdi_predictor extends uvm_component;
 
     task collect_mgr_rsp(int port);
         axi4_seq_item rsp, rsp_c;
-        mgr_rsp_fifo[port].get(rsp);
         forever begin
+            mgr_rsp_fifo[port].get(rsp);
+            $display("\n[PRD] collect_mgr_rsp\n");
+            $display(rsp.convert2string);
+            $display("\n\n");
             rsp_c = axi4_seq_item::type_id::create("rsp_c");
             rsp_c.copy(rsp);
             if (rsp_c.axn_type == WRITE) begin
@@ -139,21 +167,41 @@ class axfdi_predictor extends uvm_component;
             pkt_c = fdi_pkt_item::type_id::create("pkt_c");
             pkt_c.copy(pkt);
 
-            if (pkt_c.opcode == CREDIT_RTN) begin
+            $display("\n[PRD] collect_fdi_rx\n");
+            $display(pkt.convert2string);
+            $display("\n\n");
+
+            if (pkt_c.opcode == 4'd4) begin
+                
+                $display("\n[PRD] collect_fdi_rx(credit)\n");
+                $display(pkt.convert2string);
+                $display("\n\n");
+
                 if (pkt_c.credit_rtn_vcn == 2'h0)begin
                    tx_np_credit_cnt  += pkt_c.credit_rtn_cnt; 
                 end 
                 if (pkt_c.credit_rtn_vcn == 2'h1)begin
                     tx_cpl_credit_cnt += pkt_c.credit_rtn_cnt;
-                end 
+                end
+                $display("\n[PRD] collect_fdi_rx(credit)\n");
+                $display("tx_np_credit_cnt %0d || tx_cpl_credit_cnt %0d",tx_np_credit_cnt,tx_cpl_credit_cnt);
+                $display("\n\n");
             end
-            else if (pkt_c.opcode == WRITE_REQ || pkt_c.opcode == READ_REQ) begin
+            else if (pkt_c.opcode == 4'd0 || pkt_c.opcode == 4'd1 ) begin
+                $display("\n[PRD] collect_fdi_rx(request)\n");
+                $display(pkt.convert2string);
+                $display("\n\n");
+
                 rx_np_consumed++;
                 exp_axi_req = predict_axi_mgr_req_from_fdi_rx_req(pkt_c);
                 port = pkt_c.port_id;
                 exp_mgr_req_ap[port].write(exp_axi_req);
             end
             else if (pkt_c.opcode == WRITE_RESP || pkt_c.opcode == READ_RESP) begin
+                $display("\n[PRD] collect_fdi_rx(response)\n");
+                $display(pkt.convert2string);
+                $display("\n\n");
+
                 rx_cpl_consumed++;
                 exp_axi_rsp = predict_axi_sub_rsp_from_fdi_rx_rsp(pkt_c);
                 port = pkt_c.port_id;
@@ -310,14 +358,14 @@ class axfdi_predictor extends uvm_component;
             pkt.resp = axi.resp;
             pkt.addr = axi.addr;
             pkt.data = new[0];
-            pkt.wstrb[0] = '0;
+            pkt.wstrb = new[0];
         end
         else if (txn_type == WRITE_RESP) begin
             axi = wr_rsp_q[port][0];
             pkt.txn_id = axi.id;
             pkt.resp = axi.resp;
             pkt.data = new[0];
-            pkt.wstrb[0] = '0;
+            pkt.wstrb = new[0];
         end
         else if (txn_type == READ_RESP) begin
             axi = rd_rsp_q[port][0];
@@ -326,9 +374,17 @@ class axfdi_predictor extends uvm_component;
             pack_axi_payload_to_fdi(axi, pkt);
         end
         else begin
+            // CREDIT_RTN packets are encoded by the current driver with only opcode/credit fields.
+            pkt.port_id = '0;
+            pkt.vcn     = '0;
             pkt.txn_id = '0;
+            pkt.burst_len = '0;
+            pkt.burst_type = '0;
+            pkt.burst_size = '0;
+            pkt.resp = '0;
+            pkt.addr = '0;
             pkt.data = new[0];
-            pkt.wstrb[0] = '0;
+            pkt.wstrb = new[0];
         end
 
         if (credit_rtn_pending) begin
@@ -408,7 +464,13 @@ class axfdi_predictor extends uvm_component;
     endtask
 
     function axi4_seq_item predict_axi_mgr_req_from_fdi_rx_req(fdi_pkt_item pkt);
+    
         axi4_seq_item req = axi4_seq_item::type_id::create("req");
+
+        $display("\n[PRD] predict_axi_mgr_req_from_fdi_rx_req(request)\n");
+        $display(req.convert2string);
+        $display("\n\n");
+
         req.addr  = pkt.addr;
         req.id    = pkt.txn_id;
         req.len   = pkt.burst_len;
@@ -433,6 +495,5 @@ class axfdi_predictor extends uvm_component;
         return rsp;
     endfunction
 endclass
-
 
 

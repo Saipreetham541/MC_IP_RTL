@@ -217,6 +217,7 @@ module axfdi_depacketizer #(
            //r_credit_rtn_en <= '0;
         end
         else begin
+         r_credit_rtn_en <= s_credit_rtn_en;
            if (flit_rx_data_valid) begin
               r_flit_vcn <= s_flit_vcn;
               r_flit_eop <= s_flit_eop;
@@ -237,7 +238,7 @@ module axfdi_depacketizer #(
               r_read_req_en <= s_read_req_en;
               r_write_resp_en <= s_write_resp_en;
               r_read_resp_en <= s_read_resp_en;
-             // r_credit_rtn_en <= s_credit_rtn_en;
+              
            end // if (flit_rx_data_valid)
            if (portrtr_depktr_read_done) begin
               r_flit_vcn <= '0;

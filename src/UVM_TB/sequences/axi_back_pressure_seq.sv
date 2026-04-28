@@ -1,6 +1,6 @@
-class axi_back_pressure_seq extends sub_sequence;
+class axi_back_pressure_seq extends uvm_sequence#(axi4_seq_item);
 	`uvm_object_utils(axi_back_pressure_seq)
-	axi_xtn txn;
+	axi4_seq_item txn;
 	
 	function new(string name="axi_back_pressure_seq");
 		super.new(name);
@@ -8,7 +8,7 @@ class axi_back_pressure_seq extends sub_sequence;
 	
 	task body();
 		repeat(50) begin
-			txn=axi_xtn::type_id::create("txn");
+			txn=axi4_seq_item::type_id::create("txn");
 			start_item(txn);
 			assert(txn.randomize() with{len==0;
 										burst==2'b01;

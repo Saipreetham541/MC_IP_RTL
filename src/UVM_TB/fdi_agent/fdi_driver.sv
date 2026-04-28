@@ -1,6 +1,6 @@
 //fdi_driver
 
- class fdi_driver extends uvm_driver;
+ class fdi_driver extends uvm_driver#(fdi_pkt_item);
 `uvm_component_utils(fdi_driver)
 
 virtual fdi_interface.FDI_DRV_MP vif;
@@ -32,30 +32,64 @@ endfunction
 
 
 task run_phase(uvm_phase phase);
+  $display("waiting for reset");
+  while(!(vif.global_reset && vif.fdi_rst_n))
+    @(vif.fdi_drv_cb);
 
-wait(vif.fdi_drv_cb.global_reset && vif.fdi_drv_cb.fdi_rst_n);
-	@(vif.fdi_drv_cb)
+  vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
+    
+  wait(vif.fdi_drv_cb.fdi_lp_state_req==3'b010);
 
-	vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
-	if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
-	@(vif.fdi_drv_cb);
-	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b010;
-	end
-	else
-	vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
+
+    //while(!vif.fdi_drv_cb.fdi_lp_state_req==3'b010)
+      //@(vif.fdi_drv_cb);
+
+forever begin
+
+  if(vif.fdi_drv_cb.fdi_lp_state_req==3'b010) begin
+      //@(vif.fdi_drv_cb);
+      vif.fdi_drv_cb.fdi_pl_state_sts<=3'b010;
+    end
+  else begin
+      vif.fdi_drv_cb.fdi_pl_state_sts<=3'b000;
+  end
 	
-
-  forever begin
-
-    seq_item_port.get_next_item(txn);
+  seq_item_port.get_next_item(txn);
+	$display("driver");
+	txn.print();
 	//apply_backpressure(txn.backpressure_cycles);
-	wait(credit_mgr.has_credit(txn.vcn));
-    drive_packet(txn);
-	credit_mgr.consume_credit(txn.vcn);
+		if(txn.opcode == 4'h4) begin
+			drive_packet(txn);
+		end
+	    else if (txn.opcode == 4'h0 || txn.opcode == 4'h1 || txn.opcode == 4'h2 || txn.opcode == 4'h1)
+		begin
+			while(!credit_mgr.has_credit(txn.vcn))
+				@(vif.fdi_drv_cb);
+				drive_packet(txn);
+				credit_mgr.consume_credit(txn.vcn);
+		end
     seq_item_port.item_done();
 
   end
 
+endtask
+
+// SENDING FLIT /////////////////////////////////////////
+task send_flit(bit [2047:0] flit,bit sop,bit eop);
+  @(vif.fdi_drv_cb);
+  vif.fdi_drv_cb.fdi_pl_data<=flit;
+  vif.fdi_drv_cb.fdi_pl_valid<=1;
+  vif.fdi_drv_cb.fdi_pl_irdy<=1;
+  vif.fdi_drv_cb.fdi_pl_startofpkt<=sop;
+  vif.fdi_drv_cb.fdi_pl_endofpkt<=eop;
+	vif.fdi_drv_cb.fdi_pl_trdy<=1;
+  while(!vif.fdi_drv_cb.fdi_lp_trdy) begin
+    @(vif.fdi_drv_cb); 
+  end
+  @(vif.fdi_drv_cb);
+  //#1;
+  vif.fdi_drv_cb.fdi_pl_valid<=0;
+  @(vif.fdi_drv_cb);
 endtask
 
 
@@ -65,11 +99,11 @@ endtask
 task drive_packet(fdi_pkt_item txn);
 
   case(txn.opcode)
-    4'h1: drive_write_req(txn);
-    4'h2: drive_read_req(txn);
-    4'h3: drive_write_resp(txn);
-    4'h4: drive_read_resp(txn);
-    4'h5: drive_credit_return(txn);
+    4'h0: drive_write_req(txn);
+    4'h1: drive_read_req(txn);
+    4'h2: drive_write_resp(txn);
+    4'h3: drive_read_resp(txn);
+    4'h4: drive_credit_return(txn);
   endcase
 
 endtask
@@ -84,37 +118,18 @@ function bit [2047:0] build_header(fdi_pkt_item txn);
 
   flit = '0;
 
-  flit[2:0]    =txn.vcn;
-  flit[6:3]    =txn.opcode;
-  flit[7]      =txn.port_id;
-  flit[15:8]   =txn.txn_id;
-  flit[23:16]  =txn.burst_len;
-  flit[25:24]  =txn.burst_type;
-  flit[28:26]  =txn.burst_size;
-  flit[68:29]  =txn.addr;
+  flit[5:3]    =txn.vcn;
+  flit[11:8]    =txn.opcode;
+  flit[12]      =txn.port_id;
+  flit[20:13]   =txn.txn_id;
+  flit[28:21]  =txn.burst_len;
+  flit[30:29]  =txn.burst_type;
+  flit[33:31]  =txn.burst_size;
+  flit[84:45]  =txn.addr;
 
   return flit;
 
 endfunction
-
-
-// SENDING FLIT
-
-task send_flit(bit [2047:0] flit,bit sop,bit eop);
-
-  @(vif.fdi_drv_cb);
-
-  vif.fdi_drv_cb.fdi_pl_data<=flit;
-  vif.fdi_drv_cb.fdi_pl_valid<=1;
-  vif.fdi_drv_cb.fdi_pl_irdy<=1;
-  vif.fdi_drv_cb.fdi_pl_startofpkt<=sop;
-  vif.fdi_drv_cb.fdi_pl_endofpkt<=eop;
-	vif.fdi_drv_cb.fdi_pl_trdy<=txn.trdy;
-  wait(vif.fdi_drv_cb.fdi_lp_trdy);
-  @(vif.fdi_drv_cb);
-  vif.fdi_drv_cb.fdi_pl_valid<=0;
-
-endtask
 
 
 // WRITE REQUEST
@@ -129,8 +144,6 @@ task drive_write_req(fdi_pkt_item txn);
   header_flit=build_header(txn);
 	idx=0;
   
-
-
 
 foreach(txn.wstrb[i]) begin
   if(txn.wstrb[i] != '1) begin
@@ -153,7 +166,7 @@ end
   end
   header_flit[2047:1984]=64'h0;                                    
   send_flit(header_flit,1,(idx >= txn.data.size()));
-  send_remaining_payload(txn, idx);
+ // send_remaining_payload(txn, idx);
 
 endtask
 
@@ -220,12 +233,13 @@ endtask
 task drive_credit_return(fdi_pkt_item txn);
 
   bit [2047:0] header_flit;
-
   header_flit = '0;
-
-  header_flit[5:0] = txn.credit_rtn_cnt;
-  header_flit[7:6] = txn.credit_rtn_vcn;
-
+header_flit[11:8] = txn.opcode;
+$display("opcode =%0b", header_flit[11:8]);
+  header_flit[43:38] = txn.credit_rtn_cnt;
+  $display("credit_rtn_cnt=%0b",header_flit[43:38]);
+  header_flit[37:36] = txn.credit_rtn_vcn;
+$display("credit_rtn_vcn=%0b",header_flit[37:36]);
   header_flit[2047:1984]=64'h0;
   send_flit(header_flit,1,1);
 
