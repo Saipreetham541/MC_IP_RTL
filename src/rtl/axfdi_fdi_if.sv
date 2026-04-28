@@ -171,7 +171,7 @@ module axfdi_fdi_if #(
            r_fdi_pl_endofpkt <= 1'b0;
         r_flit_rx_data_valid <= 1'b0;
         end
-        else if (fdi_pl_irdy && r_fdi_lp_trdy && fdi_pl_valid && r_fdi_trans_en) begin
+       else if (fdi_pl_irdy && r_fdi_lp_trdy && fdi_pl_valid && s_fdi_trans_en) begin
            r_fdi_pl_data <= fdi_pl_data;
            r_fdi_pl_startofpkt <= fdi_pl_startofpkt;
            r_fdi_pl_endofpkt <= fdi_pl_endofpkt;
