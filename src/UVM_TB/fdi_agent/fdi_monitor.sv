@@ -33,6 +33,7 @@ class fdi_monitor extends uvm_monitor;
 
 
   function void connect_phase(uvm_phase phase);
+	super.connect_phase(phase);
     vif=fdi_cfg.fdi_intf;
   endfunction
   
@@ -153,7 +154,7 @@ class fdi_monitor extends uvm_monitor;
     txn.burst_type     = flit[30:29];
     txn.burst_size     = flit[33:31];
     txn.resp           = flit[35:34];
-    if ((txn.opcode == 4'h2 || txn.opcode == 4'h3) && txn.resp == '0)
+    if (txn.opcode == 4'h2 || txn.opcode == 4'h3) 
       txn.resp         = flit[31:30];
     txn.addr           = flit[84:45];
     txn.credit_rtn_cnt = flit[43:38];
