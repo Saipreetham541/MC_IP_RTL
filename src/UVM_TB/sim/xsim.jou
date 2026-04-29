@@ -1,0 +1,25 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Wed Apr 29 03:02:00 2026
+# Process ID         : 2596
+# Current directory  : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim
+# Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
+# Log file           : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim/logs/sim.log
+# Journal file       : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim\xsim.jou
+# Running On         : Shivasai
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16745 MB
+# Swap memory        : 3221 MB
+# Total Virtual      : 19966 MB
+# Available Virtual  : 10240 MB
+#-----------------------------------------------------------
+source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
+run -all

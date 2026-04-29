@@ -85,7 +85,7 @@ class axfdi_predictor extends uvm_component;
         fdi_rx_fifo   = new("fdi_rx_fifo",this);
         exp_fdi_tx_ap = new("exp_fdi_tx_ap",this);
 
-        // Predictor-local scheduling and credit state starts from reset defaults.
+        // Predictor-local reset defaults.
         np_cnt            = CFG_NP_WEIGHT;
         cpl_cnt           = CFG_CPL_WEIGHT;
         tx_np_credit_cnt  = 0;
@@ -93,7 +93,6 @@ class axfdi_predictor extends uvm_component;
         rx_np_consumed    = 0;
         rx_cpl_consumed   = 0;
 
-        // Expect the bridge to perform the initial credit exchange once RX credits arrive.
         init_np_pending   = 1'b1;
         init_cpl_pending  = 1'b1;
         credit_rtn_pending = 1'b0;
@@ -457,19 +456,11 @@ class axfdi_predictor extends uvm_component;
         int         port;
         opcode_e    txn_type;
         fdi_pkt_item exp_pkt;
-        //int         guard;
 
-        //guard = 0;
-        while (choose_next_tx(port, txn_type)) begin
+        if (choose_next_tx(port, txn_type)) begin
             exp_pkt = build_exp_fdi_pkt(port, txn_type);
             exp_fdi_tx_ap.write(exp_pkt);
             update_after_tx(port, txn_type, exp_pkt);
-
-            //guard++;
-            //if (guard > 64) begin
-                //`uvm_error("PRD", "try_schedule_tx guard tripped while draining expected TX queue")
-                //break;
-            //end
         end
     endtask
 
