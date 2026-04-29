@@ -314,10 +314,21 @@ class axfdi_predictor extends uvm_component;
     //DATA AND STROBE PACKING AND UNPACKING FUNCTIONS
 
     function void pack_axi_payload_to_fdi(axi4_seq_item axi, ref fdi_pkt_item pkt);
-        pkt.data  = new[BYTES_PER_BEAT];
-        pkt.wstrb = new[0];
-        foreach (pkt.data[i]) pkt.data[i] = (axi.data.size() > 0) ? axi.data[0][(i*8)+:8] : '0;
-    endfunction
+
+    pkt.data  = new[216];
+    pkt.wstrb = new[0];
+
+    // Fill zeros
+    for (int i = 0; i < 216; i++) begin
+        pkt.data[i] = 8'h00;
+    end
+
+    // Fill AXI data (MSB-first)
+    for (int i = 0; i <=127; i++) begin
+        pkt.data[215-i] = axi.data[0][1023 - (i*8) -: 8];
+    end
+
+endfunction
 
     function void unpack_fdi_payload_to_axi(fdi_pkt_item pkt, ref axi4_seq_item axi);
         axi.data = new[1];

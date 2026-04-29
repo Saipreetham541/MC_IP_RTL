@@ -36,9 +36,14 @@ class axi4_seq_item extends uvm_sequence_item;
 								strb[i] == 128'b1;}
 	//constraint data_value{foreach(data[i])
 							//data[i]==i+1;}							
-		constraint data_value{foreach(data[i])
-							data[i]== 'hAA;}							
-														
+		//constraint data_value{foreach(data[i])
+		//					data[i]== 'hAA;}							
+		constraint data_value {
+	foreach (data[i]) {
+		data[i][1023 : 1016 ] == 8'hAA;  // MSB byte
+		data[i][1015:0]    == 'b0;      // remaining bits
+		}
+	}												
 								
 								
 	//constraint awaddr_align_c3{awaddr % ((2 ** awsize)) == 0;}

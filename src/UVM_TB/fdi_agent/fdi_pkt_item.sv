@@ -37,7 +37,7 @@ class fdi_pkt_item extends uvm_sequence_item;
         string data_str = "";
 
         foreach (data[i]) begin
-            data_str = {data_str, $sformatf("%0h", data[i])};
+            data_str = {$sformatf("%0h", data[i]),data_str};
         end
 
         return $sformatf(

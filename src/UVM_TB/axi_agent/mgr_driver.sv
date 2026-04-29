@@ -25,8 +25,7 @@ endfunction
 	
 	task run_phase(uvm_phase phase);
 	
-	while(!(vif.axi_rst_n && vif.global_reset))
-			@(vif.mgr_drv_cb)
+			wait(vif.axi_rst_n && vif.global_reset);
 
 			if(agt_cfg.role!=axi_agt_config::MGR) begin
 			`uvm_info("from mgr_drv","mgr_drv disabled",UVM_MEDIUM)
