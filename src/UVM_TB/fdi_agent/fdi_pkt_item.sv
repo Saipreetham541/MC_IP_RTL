@@ -35,10 +35,12 @@ class fdi_pkt_item extends uvm_sequence_item;
     function string convert2string();
 
         string data_str = "";
-
-        foreach (data[i]) begin
-            data_str = {$sformatf("%0h", data[i]),data_str};
-        end
+		if(opcode==3'd0 || opcode==3'd3) begin
+			foreach (data[i]) begin
+				data_str = {$sformatf("%0h", data[i]),data_str};
+			end
+		end
+		else data_str="";
 
         return $sformatf(
             "\nopcode=%0d vcn=%0d port=%0d txn_id=%0d len=%0d burst_type=%0d size=%0d resp=%0d addr=0x%0h data=[%s] credit_cnt=%0d credit_vcn=%0d bp=%0d\n",

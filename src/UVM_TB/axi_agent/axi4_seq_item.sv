@@ -1,12 +1,13 @@
 typedef enum bit {
-  READ  = 1,
-  WRITE = 0
+  WRITE = 0,
+  READ = 1
+  
 } axn_type_e;
 
 class axi4_seq_item extends uvm_sequence_item;
 
   `uvm_object_utils(axi4_seq_item)
-  typedef enum{read, write}axn_type_e;   
+  //typedef enum{read, write}axn_type_e;   
   rand bit [39:0] addr;
   rand bit [7:0] id;
   rand bit [7:0] len; // AWLEN/ARLEN
@@ -16,7 +17,7 @@ class axi4_seq_item extends uvm_sequence_item;
   rand bit [127:0] strb[]; // write strobes per beat
   rand bit [1:0] resp; // expected/actual BRESP/RRESP
   //rand bit [3:0] qos; // AWQOS/ARQOS
-  rand  bit axn_type; // READ / WRITE
+  rand axn_type_e axn_type; // READ / WRITE
  
  //rand bit [31:0] delay_cycles; // inter-transaction delay
  
@@ -77,6 +78,7 @@ class axi4_seq_item extends uvm_sequence_item;
 
 	endfunction
 
+
 	
 	
 	virtual function void do_print(uvm_printer printer);
@@ -85,13 +87,15 @@ class axi4_seq_item extends uvm_sequence_item;
 		printer.print_field("len",len,8,UVM_DEC);
 		printer.print_field("size",size,3,UVM_DEC);
 		printer.print_field("burst",burst,2,UVM_DEC);
-		foreach(data[i]) begin
-		printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_DEC);
+		if(axn_type == WRITE )begin
+			foreach(data[i]) begin
+			printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_DEC);
+			end
+			foreach(strb[i]) begin
+			printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_DEC);
+			end
+			//printer.print_field("last",last,1,UVM_DEC);
 		end
-		foreach(strb[i]) begin
-		printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_DEC);
-		end
-		//printer.print_field("last",last,1,UVM_DEC);
 	endfunction
 	
 	function void display();
@@ -102,7 +106,7 @@ class axi4_seq_item extends uvm_sequence_item;
 
 		return $sformatf(
 		"type=%s addr=0x%0h id=%0d len=%0d size=%0d burst=%0d resp=%0d beats=%0d",
-		(axn_type == WRITE) ? "WRITE" : "READ",addr,id,len,size,burst,resp,len+1);
+		(axn_type == WRITE ) ? "WRITE" : "READ",addr,id,len,size,burst,resp,len+1);
 
 	endfunction
 endclass

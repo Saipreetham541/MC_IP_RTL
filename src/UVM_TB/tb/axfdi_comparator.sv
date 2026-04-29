@@ -40,10 +40,7 @@ class axfdi_comparator extends uvm_component;
         RESERVED    = 4'h6
   } opcode_e;
 
-  typedef enum bit {
-        WRITE = 1'b0 ,
-        READ = 1'b1 
-  } txn_type ;
+
 
   int total_cnt, pass_cnt, fail_cnt;
   int total_expected_cnt, total_actual_cnt;

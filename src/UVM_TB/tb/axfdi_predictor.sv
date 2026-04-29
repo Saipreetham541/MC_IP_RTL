@@ -24,10 +24,6 @@ class axfdi_predictor extends uvm_component;
         RESERVED    = 4'h6
     } opcode_e;
 
-    typedef enum bit {
-        WRITE = 1'b0 ,
-        READ = 1'b1 
-    } txn_type ;
 
     //PREDICTOR INPUTS
 
@@ -125,6 +121,7 @@ class axfdi_predictor extends uvm_component;
             sub_req_fifo[port].get(req);
             $display("\n[PRD] collect_sub_req\n");
             $display(req.convert2string);
+			$display("axn_type=%0s",req.axn_type);
             $display("\n\n");
             req_c = axi4_seq_item::type_id::create("req_c");
             req_c.copy(req);

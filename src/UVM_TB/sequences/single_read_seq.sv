@@ -10,9 +10,10 @@ class single_read_seq extends uvm_sequence#(axi4_seq_item);
 		begin
 			txn=axi4_seq_item::type_id::create("txn");
 			start_item(txn);
-			assert(txn.randomize() with{txn.axn_type==1;
+			assert(txn.randomize() with{axn_type== READ;
 										len==0;
 										burst==2'b01;
+										//data.size==0;
 										});
 			finish_item(txn);
 		end

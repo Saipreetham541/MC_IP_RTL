@@ -11,7 +11,7 @@ class single_write_seq extends uvm_sequence #(axi4_seq_item);
 		begin
 			txn=axi4_seq_item::type_id::create("txn");
 			start_item(txn);
-			assert(txn.randomize() with{txn.axn_type==0;
+			assert(txn.randomize() with{axn_type==0;
 										len==0;
 										burst==2'b01;
 										});

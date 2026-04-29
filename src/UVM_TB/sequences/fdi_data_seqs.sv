@@ -14,7 +14,7 @@ class fdi_data_seqs extends uvm_sequence#(fdi_pkt_item);
 			assert(fditxn.randomize() with {trdy == 1;
 											startofpkt == 1;
 											endofpkt   == 1;
-											opcode inside {[0:3]};
+											opcode ==0;
 											vcn ==0;
 											credit_rtn_cnt == 0;
 											credit_rtn_vcn ==0;

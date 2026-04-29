@@ -14,7 +14,9 @@ class single_read_virtual_seq extends virtual_seq;
 	endfunction
 	
 	task body();
-		super.body();
+	if(!$cast(vseqrh, m_sequencer))
+			`uvm_error("error","from base v_seq")
+	//	super.body();
 		
 		init_seqh = fdi_init_seqs::type_id::create("init_seqh");
 		sin_rd_seqh0 = single_read_seq::type_id::create("sin_rd_seqh0");

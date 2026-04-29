@@ -39,15 +39,19 @@ task run_phase(uvm_phase phase);
 			//$display("\n\n\n\n\n\n\n\n");
 			//$display("time %0t = ",$time);
 			seq_item_port.get_next_item(txn);
-
+			$display("sub_drv_runphaseeeeeeeeeeeeeeeeeeeeeeeeeeee\n\n");
+			//display(txn.convert2string());
+				$display("txn.axn_type=%0d", txn.axn_type);
 			//$display("\n\n\n\n\n\n\n\n");
 			//$display("time %0t = ",$time);
-			 if(txn.axn_type==0)
+			 if(txn.axn_type== WRITE )
 			 begin
+			 $display("calling write_reqqqqqqqqqqqqqqqqqqqqqqq");
 					drive_write(txn);
 			end
-				else if (txn.axn_type==1)
+				else if (txn.axn_type== READ)
 				begin
+				 $display("calling read_reqrrrrrrrrrrrrrrrrrrrrrrrrrr");
 					drive_read(txn);
 				end
 			seq_item_port.item_done();
@@ -114,8 +118,8 @@ task run_phase(uvm_phase phase);
 			vif.sub_drv_cb.arsize<=txn.size;
 			vif.sub_drv_cb.arburst<=txn.burst;
 			vif.sub_drv_cb.rready<=1;
-			
-			while(!vif.sub_drv_cb.arready)
+			wait(vif.sub_drv_cb.arready);
+			//while(!vif.sub_drv_cb.arready)
 				@(vif.sub_drv_cb)
 			vif.sub_drv_cb.arvalid<=0;
 			txn.display();

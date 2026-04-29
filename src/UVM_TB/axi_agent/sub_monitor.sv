@@ -51,6 +51,7 @@ class sub_monitor extends uvm_monitor;
 				txnh.len   = vif.sub_mon_cb.awlen;
 				txnh.size  = vif.sub_mon_cb.awsize;
 				txnh.burst = vif.sub_mon_cb.awburst;
+				txnh.axn_type=WRITE;
 			end
 
 			if(vif.sub_mon_cb.wvalid && vif.sub_mon_cb.wready) begin
@@ -58,6 +59,7 @@ class sub_monitor extends uvm_monitor;
 				txnh.strb = new[txnh.strb.size()+1](txnh.strb);
 				txnh.data[0] = vif.sub_mon_cb.wdata;
 				txnh.strb[0] = vif.sub_mon_cb.wstrb;
+				txnh.axn_type=WRITE;
 				if(vif.sub_mon_cb.wlast) begin
 					req.write(txnh);
 					txnh.display();
@@ -118,6 +120,11 @@ class sub_monitor extends uvm_monitor;
 					txnh.len=vif.sub_mon_cb.arlen;
 					txnh.size=vif.sub_mon_cb.arsize;
 					txnh.burst=vif.sub_mon_cb.arburst;
+					txnh.axn_type=READ;
+					$display("\n[sub_mon] monitor_ar\n");
+					//$display(req.convert2string);
+					$display("axn_type=%0s",txnh.axn_type);
+					$display("\n\n");
 					req.write(txnh);
 					
 				end
