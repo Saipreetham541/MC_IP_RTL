@@ -386,7 +386,6 @@ endfunction
             pack_axi_payload_to_fdi(axi, pkt);
         end
         else begin
-            // CREDIT_RTN packets are encoded by the current driver with only opcode/credit fields.
             pkt.port_id = '0;
             pkt.vcn     = '0;
             pkt.txn_id = '0;
