@@ -170,7 +170,7 @@ class axfdi_predictor extends uvm_component;
             if (pkt_c.opcode == 4'd4) begin
                 
                 $display("\n[PRD] collect_fdi_rx(credit)\n");
-                $display(pkt.convert2string);
+                $display(pkt_c.convert2string);
                 $display("\n\n");
 
                 if (pkt_c.credit_rtn_vcn == 2'h0)begin
@@ -185,7 +185,7 @@ class axfdi_predictor extends uvm_component;
             end
             else if (pkt_c.opcode == 4'd0 || pkt_c.opcode == 4'd1 ) begin
                 $display("\n[PRD] collect_fdi_rx(request)\n");
-                $display(pkt.convert2string);
+                $display(pkt_c.convert2string);
                 $display("\n\n");
 
                 rx_np_consumed++;
@@ -195,7 +195,7 @@ class axfdi_predictor extends uvm_component;
             end
             else if (pkt_c.opcode == WRITE_RESP || pkt_c.opcode == READ_RESP) begin
                 $display("\n[PRD] collect_fdi_rx(response)\n");
-                $display(pkt.convert2string);
+                $display(pkt_c.convert2string);
                 $display("\n\n");
 
                 rx_cpl_consumed++;
@@ -312,31 +312,45 @@ class axfdi_predictor extends uvm_component;
 
     function void pack_axi_payload_to_fdi(axi4_seq_item axi, ref fdi_pkt_item pkt);
 
-    pkt.data  = new[216];
-    pkt.wstrb = new[0];
+        pkt.data  = new[216];
+        pkt.wstrb = new[0];
 
-    // Fill zeros
-    for (int i = 0; i < 216; i++) begin
-        pkt.data[i] = 8'h00;
-    end
+        // Fill zeros
+        for (int i = 0; i < 216; i++) begin
+            pkt.data[i] = 8'h00;
+        end
 
-    // Fill AXI data (MSB-first)
-    for (int i = 0; i <=127; i++) begin
-        pkt.data[215-i] = axi.data[0][1023 - (i*8) -: 8];
-    end
+        // Fill AXI data (MSB-first)
+        for (int i = 0; i <=127; i++) begin
+            pkt.data[215-i] = axi.data[0][1023 - (i*8) -: 8];
+        end
 
-endfunction
+    endfunction
 
     function void unpack_fdi_payload_to_axi(fdi_pkt_item pkt, ref axi4_seq_item axi);
-        axi.data = new[1];
-        axi.strb = new[1];
-        axi.data[0] = '0;
-        foreach (pkt.data[i]) begin
-            if (i < BYTES_PER_BEAT)
-                axi.data[0][(i*8)+:8] = pkt.data[i];
-        end
-        axi.strb[0] = (pkt.wstrb.size() > 0) ? pkt.wstrb[0] : '1;
-    endfunction
+
+    axi.data = new[1];
+    axi.strb = new[1];
+
+    axi.data[0] = '0;
+
+    // Only 128 bytes map to AXI (1024 bits)
+    for (int i = 0; i < 128; i++) begin
+        axi.data[0][1023 - (i*8) -: 8] = pkt.data[215 - i];
+
+        //$display("pkt.data[%0d] = %0h\n", 215-i, pkt.data[215-i]);
+        //$display("axi.data[0][%0d] = %0h", 1023 - (i*8), axi.data[0][1023 - (i*8) -: 8]);
+    end
+
+    //$display("\nAXI DATA = %0h\n", axi.data[0]);
+
+    // WSTRB handling
+    if (pkt.wstrb.size() > 0)
+        axi.strb[0] = pkt.wstrb[0];
+    else
+        axi.strb[0] = '1;
+
+endfunction
 
     //BULDING EXPECTED FDI PACKET FROM AXI TXN
 
@@ -474,11 +488,6 @@ endfunction
     function axi4_seq_item predict_axi_mgr_req_from_fdi_rx_req(fdi_pkt_item pkt);
     
         axi4_seq_item req = axi4_seq_item::type_id::create("req");
-
-        $display("\n[PRD] predict_axi_mgr_req_from_fdi_rx_req(request)\n");
-        $display(req.convert2string);
-        $display("\n\n");
-
         req.addr  = pkt.addr;
         req.id    = pkt.txn_id;
         req.len   = pkt.burst_len;
@@ -487,6 +496,10 @@ endfunction
         req.resp  = pkt.resp;
         unpack_fdi_payload_to_axi(pkt, req);
         req.axn_type = (pkt.opcode == WRITE_REQ) ? WRITE : READ;
+        $display("\n[PRD] predict_axi_mgr_req_from_fdi_rx_req(request)\n");
+        $display(req.convert2string);
+        $display("\n\n");
+        $display("dsts_size = %0d",req.data.size()  );
         return req;
     endfunction
 
@@ -500,6 +513,11 @@ endfunction
         rsp.resp   = pkt.resp;
         unpack_fdi_payload_to_axi(pkt, rsp);
         rsp.axn_type = (pkt.opcode == WRITE_RESP) ? WRITE : READ;
+
+        $display("\n[PRD] predict_axi_sub_rsp_from_fdi_rx_rsp(request)\n");
+        $display(rsp.convert2string);
+        $display("\n\n");
+
         return rsp;
     endfunction
 endclass

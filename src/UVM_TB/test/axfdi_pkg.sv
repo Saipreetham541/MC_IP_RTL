@@ -47,7 +47,6 @@ import uvm_pkg::*;
 //`include "credit_starve_axi_seq.sv"
 //`include "fdi_back_pressure_seqs.sv"
 //`include "fdi_credit_starve_seqs.sv"
-//`include "fdi_data_seqs.sv"
 `include "fdi_init_seqs.sv"
 //`include "fdi_inline_credit_rtn_seqs.sv"
 //`include "fdi_standalone_credit_rtn_seqs.sv"
@@ -55,6 +54,7 @@ import uvm_pkg::*;
 //`include "single_rw_port_seq.sv"
 `include "single_write_seq.sv"
 `include "fdi_data_seqs.sv"
+`include "mgr_axi_req_ready_seq.sv"
 
 
 

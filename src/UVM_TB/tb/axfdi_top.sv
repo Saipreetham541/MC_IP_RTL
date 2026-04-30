@@ -207,7 +207,7 @@ begin
    
   //uvm_factory::get().print();
   //run_test("single_write_test");
- //  run_test("single_read_test");
-   run_test("fdi_data_test");
+  //run_test("single_read_test");
+  run_test("fdi_data_test");
 end
 endmodule

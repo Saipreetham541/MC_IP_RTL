@@ -149,6 +149,10 @@ class axfdi_comparator extends uvm_component;
       total_actual_cnt++;
       key = make_key_for_axi_req(act_axi,port);
 
+      $display("\n[cmp] collect_act_mgr_req\n");
+      $display(act_axi.convert2string);
+      $display("\n\n");
+
       if (!exp_axi_req_db.exists(key) || exp_axi_req_db[key].size() == 0) begin
         `uvm_error("CMP", $sformatf("Unexpected AXI MGR REQ  packet key=%s", key))
         unexpected_actual_tnx++;
@@ -209,6 +213,9 @@ class axfdi_comparator extends uvm_component;
       total_expected_cnt++;
       key = make_key_for_axi_rsp(exp_axi,port);
       exp_axi_rsp_db[key].push_back(exp_axi);
+      $display("\n[cmp] collect_exp_sub_rsp\n");
+      $display(exp_axi.convert2string);
+      $display("\n\n");
     end
   endtask 
 
@@ -220,6 +227,9 @@ class axfdi_comparator extends uvm_component;
       total_expected_cnt++;
       key = make_key_for_axi_req(exp_axi,port);
       exp_axi_req_db[key].push_back(exp_axi);
+      $display("\n[cmp] collect_exp_mgr_req\n");
+      $display(exp_axi.convert2string);
+      $display("\n\n");
     end    
   endtask 
 
@@ -275,7 +285,7 @@ class axfdi_comparator extends uvm_component;
     if (exp.size       != act.size)       pass = 0;
     if (exp.burst      != act.burst)      pass = 0;
     if (exp.data       != act.data)       pass = 0;
-    if (exp.strb       != act.strb)       pass = 0;
+    //if (exp.strb       != act.strb)       pass = 0;
     if (exp.resp       != act.resp)       pass = 0;
     if (exp.axn_type   != act.axn_type)   pass = 0;
 

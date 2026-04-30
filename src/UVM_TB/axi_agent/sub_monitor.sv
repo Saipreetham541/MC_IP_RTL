@@ -68,46 +68,6 @@ class sub_monitor extends uvm_monitor;
 			
 		end
 	endtask
-
-	/*task monitor_aw();
-		forever begin
-			@(vif.sub_mon_cb);
-			if(vif.sub_mon_cb.awvalid && vif.sub_mon_cb.awready) begin
-				txnh = axi4_seq_item::type_id::create("txnh");
-				$display("111111111111111111111111[axi_sub_moniotor] monitor_aw 11111111111111111111111");
-				txnh.addr  = vif.sub_mon_cb.awaddr;
-				txnh.id    = vif.sub_mon_cb.awid;
-				txnh.len   = vif.sub_mon_cb.awlen;
-				txnh.size  = vif.sub_mon_cb.awsize;
-				txnh.burst = vif.sub_mon_cb.awburst;
-			end
-		end
-	endtask
-		
-	task monitor_w();
-
-		forever begin
-
-			@(vif.sub_mon_cb);
-
-			if(vif.sub_mon_cb.wvalid && vif.sub_mon_cb.wready) begin
-				if(txnh == null)
-					continue;
-				$display("222222222222222222222[axi_sub_moniotor] monitor_w 22222222222222222222222");
-				txnh.data = new[txnh.data.size()+1](txnh.data);
-				txnh.strb = new[txnh.strb.size()+1](txnh.strb);
-				txnh.data[0] = vif.sub_mon_cb.wdata;
-				txnh.strb[0] = vif.sub_mon_cb.wstrb;
-				if(vif.sub_mon_cb.wlast) begin
-					req.write(txnh);
-					txnh.display();
-					txnh = null;
-				end
-			end
-
-		end
-
-	endtask*/
 			
 	task monitor_ar();
 		forever begin

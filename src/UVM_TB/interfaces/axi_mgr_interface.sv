@@ -82,6 +82,6 @@ endclocking
 
 
 modport MGR_DRV_MP(input global_reset,input axi_rst_n,clocking mgr_drv_cb);
-modport MGR_MON_MP(clocking mgr_mon_cb);
+modport MGR_MON_MP(input global_reset,input axi_rst_n,clocking mgr_mon_cb);
 
 endinterface

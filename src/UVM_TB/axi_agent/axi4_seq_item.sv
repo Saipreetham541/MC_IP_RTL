@@ -39,12 +39,12 @@ class axi4_seq_item extends uvm_sequence_item;
 							//data[i]==i+1;}							
 		//constraint data_value{foreach(data[i])
 		//					data[i]== 'hAA;}							
-		constraint data_value {
-	foreach (data[i]) {
-		data[i][1023 : 1016 ] == 8'hAA;  // MSB byte
-		data[i][1015:0]    == 'b0;      // remaining bits
-		}
-	}												
+	constraint data_value {
+		foreach (data[i]) {
+			data[i][1023 : 1016 ] == 8'hAA;  // MSB byte
+			data[i][1015:0]    == 'b0;      // remaining bits
+			}
+		}												
 								
 								
 	//constraint awaddr_align_c3{awaddr % ((2 ** awsize)) == 0;}
@@ -89,10 +89,10 @@ class axi4_seq_item extends uvm_sequence_item;
 		printer.print_field("burst",burst,2,UVM_DEC);
 		if(axn_type == WRITE )begin
 			foreach(data[i]) begin
-			printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_DEC);
+			printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_HEX);
 			end
 			foreach(strb[i]) begin
-			printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_DEC);
+			printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_HEX);
 			end
 			//printer.print_field("last",last,1,UVM_DEC);
 		end
@@ -104,9 +104,17 @@ class axi4_seq_item extends uvm_sequence_item;
 
 	function string convert2string();
 
+		string data_str = "";
+		//if(opcode==3'd0 || opcode==3'd3) begin
+			foreach (data[i]) begin
+				data_str = {$sformatf("%0h", data[i]),data_str};
+			end
+		//end
+		//else data_str="";
+
 		return $sformatf(
-		"type=%s addr=0x%0h id=%0d len=%0d size=%0d burst=%0d resp=%0d beats=%0d",
-		(axn_type == WRITE ) ? "WRITE" : "READ",addr,id,len,size,burst,resp,len+1);
+		"type=%s addr=%0d id=%0d len=%0d size=%0d burst=%0d resp=%0d beats=%0d \n data[%s]",
+		(axn_type == WRITE ) ? "WRITE" : "READ",addr,id,len,size,burst,resp,len+1,data_str);
 
 	endfunction
 endclass

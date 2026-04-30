@@ -59,8 +59,8 @@ class axfdi_env extends uvm_env;
         foreach(axi_agt[i]) begin
           axi_agt[i].sub_mon.req.connect(sb.prd_sub_req_xp[i]);
           axi_agt[i].sub_mon.res.connect(sb.cmp_sub_rsp_xp[i]);
-          //axi_agt[i].mgr_mon.req1.connect(sb.cmp_mgr_req_xp[i]);
-          //axi_agt[i].mgr_mon.res1.connect(sb.prd_mgr_rsp_xp[i]);
+          axi_agt[i].mgr_mon.req1.connect(sb.cmp_mgr_req_xp[i]);
+          axi_agt[i].mgr_mon.res1.connect(sb.prd_mgr_rsp_xp[i]);
         end
 
         fdi_agt.fdi_mon.ap_tx.connect(sb.cmp_fdi_tx_xp);

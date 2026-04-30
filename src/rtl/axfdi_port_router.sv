@@ -109,6 +109,8 @@ module axfdi_port_router #(
    logic [cdc_r_d_w-1:0]             r_port1_cdc_r_d;
    logic                             r_port1_cdc_r_d_valid;
 
+   logic r_eop;   
+
    assign portrtr_depktr_read_done = r_portrtr_depktr_read_done;
    assign portrtr_depktr_bakpres = port0_cdc_aw_d_full & port0_cdc_w_d_full &
                                    port0_cdc_ar_d_full & port0_cdc_b_d_full &
@@ -160,6 +162,7 @@ module axfdi_port_router #(
             r_port0_cdc_r_d <= '0;
             r_port1_cdc_r_d_valid <= 1'b0;
             r_port1_cdc_r_d <= '0;
+             r_portrtr_depktr_read_done <= 1'b0;
       end else begin
          if (!fdi_rst_n) begin
             r_port0_cdc_aw_d_valid <= 1'b0;
@@ -182,9 +185,10 @@ module axfdi_port_router #(
             r_port0_cdc_r_d <= '0;
             r_port1_cdc_r_d_valid <= 1'b0;
             r_port1_cdc_r_d <= '0;
+             r_portrtr_depktr_read_done <= 1'b0;
          end else begin //write request
             if (depktr_portrtr_write_req_valid) begin
-               if (depktr_portrtr_port_id == 1'b0 & !port0_cdc_aw_d_full) begin
+               if (depktr_portrtr_port_id == 1'b0 && !port0_cdc_aw_d_full) begin
                   r_port0_cdc_aw_d_valid <= 1'b1;
                   r_portrtr_depktr_read_done <= 1'b1;
                   r_port0_cdc_aw_d <= {depktr_portrtr_txn_id,
@@ -195,8 +199,8 @@ module axfdi_port_router #(
                   r_port0_cdc_w_d_valid <= 1'b1;
                   r_port0_cdc_w_d <= {depktr_portrtr_axi_data,
                                      depktr_portrtr_axi_wstrb,
-                                    depktr_portrtr_flit_endofpkt};
-               end else if (depktr_portrtr_port_id == 1'b1 & !port1_cdc_aw_d_full) begin
+                                    r_eop};
+               end else if (depktr_portrtr_port_id == 1'b1 && !port1_cdc_aw_d_full) begin
                   r_port1_cdc_aw_d_valid <= 1'b1;
                   r_portrtr_depktr_read_done <= 1'b1;
                   r_port1_cdc_aw_d <= {depktr_portrtr_txn_id,
@@ -207,7 +211,55 @@ module axfdi_port_router #(
                   r_port1_cdc_w_d_valid <= 1'b1;
                   r_port1_cdc_w_d <= {depktr_portrtr_axi_data,
                                      depktr_portrtr_axi_wstrb,
-                                    depktr_portrtr_flit_endofpkt};
+                                    r_eop};
+               end
+            end else if (depktr_portrtr_read_req_valid) begin
+               if (depktr_portrtr_port_id == 1'b0 && !port0_cdc_ar_d_full) begin
+                  r_port0_cdc_ar_d_valid <= 1'b1;
+                  r_portrtr_depktr_read_done <= 1'b1;
+                  r_port0_cdc_ar_d <= {depktr_portrtr_txn_id,
+                                     depktr_portrtr_axi_burst_len,
+                                     depktr_portrtr_axi_burst_type,
+                                     depktr_portrtr_axi_burst_size,
+                                     depktr_portrtr_axi_addr};
+               end else if (depktr_portrtr_port_id == 1'b1 && !port1_cdc_ar_d_full) begin
+                  r_port1_cdc_ar_d_valid <= 1'b1;
+                  r_portrtr_depktr_read_done <= 1'b1;
+                  r_port1_cdc_ar_d <= {depktr_portrtr_txn_id,
+                                     depktr_portrtr_axi_burst_len,
+                                     depktr_portrtr_axi_burst_type,
+                                     depktr_portrtr_axi_burst_size,
+                                     depktr_portrtr_axi_addr};
+               end
+            end else if (depktr_portrtr_write_resp_valid) begin
+               if (depktr_portrtr_port_id == 1'b0 && !port0_cdc_b_d_full) begin
+                  r_port0_cdc_b_d_valid <= 1'b1;
+                  r_portrtr_depktr_read_done <= 1'b1;
+                  r_port0_cdc_b_d <= {depktr_portrtr_txn_id,
+                                      depktr_portrtr_axi_resp};
+               end else if (depktr_portrtr_port_id == 1'b1 && !port1_cdc_b_d_full) begin
+                  r_port1_cdc_b_d_valid <= 1'b1;
+                  r_portrtr_depktr_read_done <= 1'b1;
+                  r_portrtr_depktr_read_done <= 1'b1;
+                  r_port1_cdc_b_d <= {depktr_portrtr_txn_id,
+                                      depktr_portrtr_axi_resp};
+               end
+            end else if (depktr_portrtr_read_resp_valid && !port0_cdc_r_d_full) begin
+               if (depktr_portrtr_port_id == 1'b0) begin
+                  r_port0_cdc_r_d_valid <= 1'b1;
+                  r_portrtr_depktr_read_done <= 1'b1;
+                  r_portrtr_depktr_read_done <= 1'b1;
+                 r_port0_cdc_r_d <= {depktr_portrtr_axi_data,
+                                     depktr_portrtr_txn_id,
+                                     depktr_portrtr_axi_resp,
+                                     r_eop};
+               end else if (depktr_portrtr_port_id == 1'b1 && !port1_cdc_r_d_full) begin
+                  r_port1_cdc_r_d_valid <= 1'b1;
+                  r_portrtr_depktr_read_done <= 1'b1;
+                  r_port1_cdc_r_d <= {depktr_portrtr_axi_data,
+                                      depktr_portrtr_txn_id,
+                                      depktr_portrtr_axi_resp,
+                                      r_eop};
                end
             end else begin // if (depktr_portrtr_write_req_valid)
                r_portrtr_depktr_read_done <= 1'b0;
@@ -219,76 +271,21 @@ module axfdi_port_router #(
                r_port0_cdc_w_d <= '0;
                r_port1_cdc_w_d_valid <= 1'b0;
                r_port1_cdc_w_d <= '0;
-            end
-            if (depktr_portrtr_read_req_valid) begin
-               if (depktr_portrtr_port_id == 1'b0 & !port0_cdc_ar_d_full) begin
-                  r_port0_cdc_ar_d_valid <= 1'b1;
-                  r_portrtr_depktr_read_done <= 1'b1;
-                  r_port0_cdc_ar_d <= {depktr_portrtr_txn_id,
-                                     depktr_portrtr_axi_burst_len,
-                                     depktr_portrtr_axi_burst_type,
-                                     depktr_portrtr_axi_burst_size,
-                                     depktr_portrtr_axi_addr};
-               end else if (depktr_portrtr_port_id == 1'b1 & !port1_cdc_ar_d_full) begin
-                  r_port1_cdc_ar_d_valid <= 1'b1;
-                  r_portrtr_depktr_read_done <= 1'b1;
-                  r_port1_cdc_ar_d <= {depktr_portrtr_txn_id,
-                                     depktr_portrtr_axi_burst_len,
-                                     depktr_portrtr_axi_burst_type,
-                                     depktr_portrtr_axi_burst_size,
-                                     depktr_portrtr_axi_addr};
-               end
-            end else begin // if (depktr_portrtr_write_req_valid)
                r_port0_cdc_ar_d_valid <= 1'b0;
-               r_portrtr_depktr_read_done <= 1'b0;
                r_port0_cdc_ar_d <= '0;
                r_port1_cdc_ar_d_valid <= 1'b0;
                r_port1_cdc_ar_d <= '0;
-            end //write resp
-            if (depktr_portrtr_write_resp_valid) begin
-               if (depktr_portrtr_port_id == 1'b0 & !port0_cdc_b_d_full) begin
-                  r_port0_cdc_b_d_valid <= 1'b1;
-                  r_portrtr_depktr_read_done <= 1'b1;
-                  r_port0_cdc_b_d <= {depktr_portrtr_txn_id,
-                                      depktr_portrtr_axi_resp};
-               end else if (depktr_portrtr_port_id == 1'b1 & !port1_cdc_b_d_full) begin
-                  r_port1_cdc_b_d_valid <= 1'b1;
-                  r_portrtr_depktr_read_done <= 1'b1;
-                  r_portrtr_depktr_read_done <= 1'b1;
-                  r_port1_cdc_b_d <= {depktr_portrtr_txn_id,
-                                      depktr_portrtr_axi_resp};
-               end
-            end else begin // if (depktr_portrtr_write_req_valid)
-               r_port0_cdc_b_d_valid <= 1'b0;
-               r_portrtr_depktr_read_done <= 1'b0;
-               r_port0_cdc_b_d <= '0;
-               r_port1_cdc_b_d_valid <= 1'b0;
-               r_port1_cdc_b_d <= '0;
-            end //read_resp
-            if (depktr_portrtr_read_resp_valid & !port0_cdc_r_d_full) begin
-               if (depktr_portrtr_port_id == 1'b0) begin
-                  r_port0_cdc_r_d_valid <= 1'b1;
-                  r_portrtr_depktr_read_done <= 1'b1;
-                  r_portrtr_depktr_read_done <= 1'b1;
-                 r_port0_cdc_r_d <= {depktr_portrtr_axi_data,
-                                     depktr_portrtr_txn_id,
-                                     depktr_portrtr_axi_resp,
-                                     depktr_portrtr_flit_endofpkt};
-               end else if (depktr_portrtr_port_id == 1'b1 & !port1_cdc_r_d_full) begin
-                  r_port1_cdc_r_d_valid <= 1'b1;
-                  r_portrtr_depktr_read_done <= 1'b1;
-                  r_port1_cdc_r_d <= {depktr_portrtr_axi_data,
-                                      depktr_portrtr_txn_id,
-                                      depktr_portrtr_axi_resp,
-                                      depktr_portrtr_flit_endofpkt};
-               end
-            end else begin // if (depktr_portrtr_write_req_valid)
                r_port0_cdc_r_d_valid <= 1'b0;
-               r_portrtr_depktr_read_done <= 1'b0;
                r_port0_cdc_r_d <= '0;
                r_port1_cdc_r_d_valid <= 1'b0;
                r_port1_cdc_r_d <= '0;
+               r_port0_cdc_b_d_valid <= 1'b0;
+               r_port0_cdc_b_d <= '0;
+               r_port1_cdc_b_d_valid <= 1'b0;
+               r_port1_cdc_b_d <= '0;
             end
          end
       end
+
+
 endmodule

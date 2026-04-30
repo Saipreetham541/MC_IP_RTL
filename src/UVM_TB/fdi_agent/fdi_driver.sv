@@ -35,8 +35,8 @@ endfunction
 
 task run_phase(uvm_phase phase);
   $display("waiting for reset");
-  while(!(vif.global_reset && vif.fdi_rst_n))
-    @(vif.fdi_drv_cb);
+  wait(vif.global_reset && vif.fdi_rst_n);
+    
 
   vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
     
@@ -63,7 +63,7 @@ forever begin
 		if(txn.opcode == 4'h4) begin
 			drive_packet(txn);
 		end
-	    else if (txn.opcode == 4'h0 || txn.opcode == 4'h1 || txn.opcode == 4'h2 || txn.opcode == 4'h1)
+	    else if (txn.opcode == 4'h0 || txn.opcode == 4'h1 || txn.opcode == 4'h2 || txn.opcode == 4'h3)
 		begin
 			while(!credit_mgr.has_credit(txn.vcn))
 				@(vif.fdi_drv_cb);

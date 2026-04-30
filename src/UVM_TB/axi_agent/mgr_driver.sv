@@ -28,13 +28,28 @@ endfunction
 			wait(vif.axi_rst_n && vif.global_reset);
 
 			if(agt_cfg.role!=axi_agt_config::MGR) begin
-			`uvm_info("from mgr_drv","mgr_drv disabled",UVM_MEDIUM)
-			return;
-		end
-	fork 
-		drive_b(txn);
-		drive_r(txn);
-	join
+				`uvm_info("from mgr_drv","mgr_drv disabled",UVM_MEDIUM)
+				return;
+			end
+			seq_item_port.get_next_item(txn);
+			if(agt_cfg.typ == axi_agt_config::REQ) begin
+				`uvm_info("from mgr_drv","mgr_as_req",UVM_MEDIUM)
+				driv_req_ready(txn); 
+			end
+			else begin
+				drive_b(txn);
+				drive_r(txn);
+			end
+			seq_item_port.item_done();
+
+	endtask 
+
+	task driv_req_ready(axi4_seq_item txn);
+		@(vif.mgr_drv_cb);
+		vif.mgr_drv_cb.awready<=1;
+		vif.mgr_drv_cb.wready<=1;
+		vif.mgr_drv_cb.arready<=1;
+		txn.display();
 	endtask 
 	
 	task drive_b(axi4_seq_item txn);
@@ -50,17 +65,11 @@ endfunction
 	task drive_r(axi4_seq_item txn);
 		@(vif.mgr_drv_cb)
 		vif.mgr_drv_cb.rvalid<=0;
-		
 		vif.mgr_drv_cb.rid<=txn.id;
 		foreach(txn.data[i]) begin
-		vif.mgr_drv_cb.rdata<=txn.data[i];
+			vif.mgr_drv_cb.rdata<=txn.data[i];
 		end
 		vif.mgr_drv_cb.rresp<=txn.resp;
-	//	vif.mgr_drv_cb.rlast<=txn.last;
-	//	vif.mgr_drv_cb.rvalid<=txn.rvalid;
-	//	vif.mgr_drv_cb.awready<=txn.awready;
-	//	vif.mgr_drv_cb.wreday<=txn.wready;
-		
 		wait(vif.mgr_drv_cb.rready);
 		@(vif.mgr_drv_cb)
 		vif.mgr_drv_cb.rvalid<=0;
