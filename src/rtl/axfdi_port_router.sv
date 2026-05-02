@@ -109,8 +109,6 @@ module axfdi_port_router #(
    logic [cdc_r_d_w-1:0]             r_port1_cdc_r_d;
    logic                             r_port1_cdc_r_d_valid;
 
-   logic r_eop;   
-
    assign portrtr_depktr_read_done = r_portrtr_depktr_read_done;
    assign portrtr_depktr_bakpres = port0_cdc_aw_d_full & port0_cdc_w_d_full &
                                    port0_cdc_ar_d_full & port0_cdc_b_d_full &
@@ -185,7 +183,7 @@ module axfdi_port_router #(
             r_port0_cdc_r_d <= '0;
             r_port1_cdc_r_d_valid <= 1'b0;
             r_port1_cdc_r_d <= '0;
-             r_portrtr_depktr_read_done <= 1'b0;
+            r_portrtr_depktr_read_done <= 1'b0;
          end else begin //write request
             if (depktr_portrtr_write_req_valid) begin
                if (depktr_portrtr_port_id == 1'b0 && !port0_cdc_aw_d_full) begin
@@ -198,8 +196,8 @@ module axfdi_port_router #(
                                      depktr_portrtr_axi_addr};
                   r_port0_cdc_w_d_valid <= 1'b1;
                   r_port0_cdc_w_d <= {depktr_portrtr_axi_data,
-                                     depktr_portrtr_axi_wstrb,
-                                    r_eop};
+                                      depktr_portrtr_axi_wstrb,
+                                      depktr_portrtr_flit_endofpkt};
                end else if (depktr_portrtr_port_id == 1'b1 && !port1_cdc_aw_d_full) begin
                   r_port1_cdc_aw_d_valid <= 1'b1;
                   r_portrtr_depktr_read_done <= 1'b1;
@@ -210,8 +208,8 @@ module axfdi_port_router #(
                                      depktr_portrtr_axi_addr};
                   r_port1_cdc_w_d_valid <= 1'b1;
                   r_port1_cdc_w_d <= {depktr_portrtr_axi_data,
-                                     depktr_portrtr_axi_wstrb,
-                                    r_eop};
+                                      depktr_portrtr_axi_wstrb,
+                                      depktr_portrtr_flit_endofpkt};
                end
             end else if (depktr_portrtr_read_req_valid) begin
                if (depktr_portrtr_port_id == 1'b0 && !port0_cdc_ar_d_full) begin
@@ -252,14 +250,14 @@ module axfdi_port_router #(
                  r_port0_cdc_r_d <= {depktr_portrtr_axi_data,
                                      depktr_portrtr_txn_id,
                                      depktr_portrtr_axi_resp,
-                                     r_eop};
+                                     depktr_portrtr_flit_endofpkt};
                end else if (depktr_portrtr_port_id == 1'b1 && !port1_cdc_r_d_full) begin
                   r_port1_cdc_r_d_valid <= 1'b1;
                   r_portrtr_depktr_read_done <= 1'b1;
                   r_port1_cdc_r_d <= {depktr_portrtr_axi_data,
                                       depktr_portrtr_txn_id,
                                       depktr_portrtr_axi_resp,
-                                      r_eop};
+                                      depktr_portrtr_flit_endofpkt};
                end
             end else begin // if (depktr_portrtr_write_req_valid)
                r_portrtr_depktr_read_done <= 1'b0;
@@ -287,5 +285,4 @@ module axfdi_port_router #(
          end
       end
 
-
-endmodule
+  endmodule
