@@ -88,6 +88,8 @@ module axfdi_depacketizer #(
    logic [39:0]                       s_flit_addr;
    logic [127:0]                      s_flit_wstrb_b0;
    logic [1727:0]                     s_flit_data_line;
+   logic                              s_flit_endofpkt;
+   logic                              s_flit_startofpkt;
 
    logic [2:0]                        r_flit_vcn;
    logic                              r_flit_sop;
@@ -105,6 +107,8 @@ module axfdi_depacketizer #(
    logic [39:0]                       r_flit_addr;
    logic [127:0]                      r_flit_wstrb_b0;
    logic [1727:0]                     r_flit_data_line;
+   logic                              r_flit_endofpkt;
+   logic                              r_flit_startofpkt;
 
 
    //opcode enable signal
@@ -145,8 +149,8 @@ module axfdi_depacketizer #(
    assign depktr_portrtr_txn_id = r_flit_txn_id;
 
    //assign startofkt and endofpkt
-   assign depktr_portrtr_flit_endofpkt = fdi_depktr_rx_endofpkt;
-   assign depktr_portrtr_flit_startofpkt = fdi_depktr_rx_startofpkt;
+   assign depktr_portrtr_flit_endofpkt = r_flit_endofpkt;
+   assign depktr_portrtr_flit_startofpkt = r_flit_startofpkt;
    assign fdi_depktr_rx_trdy  = !portrtr_depktr_bakpres;
    //module port assignment Completion tracker
 
@@ -155,22 +159,24 @@ module axfdi_depacketizer #(
    assign depktr_cmpltkr_txn_id = s_flit_txn_id;
 
    //internal signal assignment
-   assign s_flit_vcn =  flit_rx_data[5:3];
-   assign s_flit_sop = flit_rx_data[6];
-   assign s_flit_eop = flit_rx_data[7];
-   assign s_flit_opcode = flit_rx_data[11:8];
-   assign s_flit_port_id =flit_rx_data[12];
-   assign s_flit_txn_id = flit_rx_data[20:13];
-   assign s_flit_burst_len = flit_rx_data[28:21];
-   assign s_flit_burst_type = flit_rx_data[30:29];
-   assign s_flit_burst_size =  flit_rx_data[33:31];
-   assign s_flit_resp =  flit_rx_data[35:34];
-   assign s_flit_credit_rtn_vcn = flit_rx_data[37:36];
-   assign s_flit_credit_rtn_cnt = flit_rx_data[43:38];
-   assign s_flit_addr = flit_rx_data[84:45];
-   assign s_flit_wstrb_present = flit_rx_data[44];
-   assign s_flit_wstrb_b0 = flit_rx_data[255:128];
-   assign s_flit_data_line = flit_rx_data[1983:256];
+   assign s_flit_vcn            = (flit_rx_data_valid) ? flit_rx_data[5:3] : '0;
+   assign s_flit_sop            = (flit_rx_data_valid) ? flit_rx_data[6] : '0;
+   assign s_flit_eop            = (flit_rx_data_valid) ? flit_rx_data[7] : '0;
+   assign s_flit_opcode         = (flit_rx_data_valid) ? flit_rx_data[11:8] : '0;
+   assign s_flit_port_id        = (flit_rx_data_valid) ? flit_rx_data[12] : '0;
+   assign s_flit_txn_id         = (flit_rx_data_valid) ? flit_rx_data[20:13] : '0;
+   assign s_flit_burst_len      = (flit_rx_data_valid) ? flit_rx_data[28:21] : '0;
+   assign s_flit_burst_type     = (flit_rx_data_valid) ? flit_rx_data[30:29] : '0;
+   assign s_flit_burst_size     = (flit_rx_data_valid) ? flit_rx_data[33:31] : '0;
+   assign s_flit_resp           = (flit_rx_data_valid) ? flit_rx_data[35:34] : '0;
+   assign s_flit_credit_rtn_vcn = (flit_rx_data_valid) ? flit_rx_data[37:36] : '0;
+   assign s_flit_credit_rtn_cnt = (flit_rx_data_valid) ? flit_rx_data[43:38] : '0;
+   assign s_flit_addr           = (flit_rx_data_valid) ? flit_rx_data[84:45] : '0;
+   assign s_flit_wstrb_present  = (flit_rx_data_valid) ? flit_rx_data[44] : '0;
+   assign s_flit_wstrb_b0       = (flit_rx_data_valid) ? flit_rx_data[255:128] : '0;
+   assign s_flit_data_line      = (flit_rx_data_valid) ? flit_rx_data[1983:256] : '0;
+   assign s_flit_startofpkt     = (flit_rx_data_valid) ? fdi_depktr_rx_startofpkt : 1'b0;
+   assign s_flit_endofpkt       = (flit_rx_data_valid) ? fdi_depktr_rx_endofpkt : 1'b0;
 
  always_ff @(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
@@ -193,6 +199,8 @@ module axfdi_depacketizer #(
         r_write_resp_en <= '0;
         r_read_resp_en <='0;
         //r_credit_rtn_en <= '0;
+        r_flit_endofpkt <= 1'b0;
+        r_flit_startofpkt <= 1'b0;
      end
      else begin
         if (!fdi_rst_n) begin
@@ -215,31 +223,33 @@ module axfdi_depacketizer #(
            r_write_resp_en <= '0;
            r_read_resp_en <='0;
            r_credit_rtn_en <= '0;
+           r_flit_endofpkt <= 1'b0;
+           r_flit_startofpkt <= 1'b0;
         end
         else begin
-         r_credit_rtn_en <= s_credit_rtn_en;
-           if (flit_rx_data_valid) begin
-              r_flit_vcn <= s_flit_vcn;
-              r_flit_eop <= s_flit_eop;
-              r_flit_sop <= s_flit_sop;
-              r_flit_txn_id <= s_flit_txn_id;
-              r_flit_port_id  <= s_flit_port_id;
-              r_flit_burst_len <= s_flit_burst_len;
-              r_flit_burst_type <= s_flit_burst_type;
-              r_flit_burst_size <= s_flit_burst_size;
-              r_flit_resp <= s_flit_resp;
-              r_flit_credit_rtn_vcn <= s_flit_credit_rtn_vcn;
-              r_flit_credit_rtn_cnt <= s_flit_credit_rtn_cnt;
-              r_flit_addr <= s_flit_addr;
-              if (s_flit_wstrb_present) r_flit_wstrb_b0 <= s_flit_wstrb_b0;
-              else r_flit_wstrb_b0 <= 128'b1;
-              r_flit_data_line <= s_flit_data_line;
-              r_write_req_en <= s_write_req_en;
-              r_read_req_en <= s_read_req_en;
-              r_write_resp_en <= s_write_resp_en;
-              r_read_resp_en <= s_read_resp_en;
-              
-           end // if (flit_rx_data_valid)
+           r_credit_rtn_en <= s_credit_rtn_en;
+           r_flit_vcn <= s_flit_vcn;
+           r_flit_eop <= s_flit_eop;
+           r_flit_sop <= s_flit_sop;
+           r_flit_txn_id <= s_flit_txn_id;
+           r_flit_port_id  <= s_flit_port_id;
+           r_flit_burst_len <= s_flit_burst_len;
+           r_flit_burst_type <= s_flit_burst_type;
+           r_flit_burst_size <= s_flit_burst_size;
+           r_flit_resp <= s_flit_resp;
+           r_flit_credit_rtn_vcn <= s_flit_credit_rtn_vcn;
+           r_flit_credit_rtn_cnt <= s_flit_credit_rtn_cnt;
+           r_flit_addr <= s_flit_addr;
+           if (s_flit_wstrb_present) r_flit_wstrb_b0 <= s_flit_wstrb_b0;
+           else r_flit_wstrb_b0 <= 128'b1;
+           r_flit_data_line <= s_flit_data_line;
+           r_write_req_en <= s_write_req_en;
+           r_read_req_en <= s_read_req_en;
+           r_write_resp_en <= s_write_resp_en;
+           r_read_resp_en <= s_read_resp_en;
+           r_flit_endofpkt <= s_flit_endofpkt;
+           r_flit_startofpkt <= s_flit_startofpkt;
+        /* -----\/----- EXCLUDED -----\/-----
            if (portrtr_depktr_read_done) begin
               r_flit_vcn <= '0;
               r_flit_txn_id <= '0;
@@ -260,6 +270,7 @@ module axfdi_depacketizer #(
               r_write_resp_en <= '0;
               r_read_resp_en <='0;
            end
+ -----/\----- EXCLUDED -----/\----- */
         end
      end // else: !if(!por_n)
 
@@ -270,14 +281,23 @@ module axfdi_depacketizer #(
       s_read_resp_en = 1'b0;
       s_credit_rtn_en = 1'b0;
       s_nop_en = 1'b0;
-      case(s_flit_opcode)
-        4'b0000:s_write_req_en = 1'b1;
-        4'b0001:s_read_req_en = 1'b1;
-        4'b0010:s_write_resp_en = 1'b1;
-        4'b0011:s_read_resp_en = 1'b1;
-        4'b0100:s_credit_rtn_en = 1'b1;
-        4'b0101: s_nop_en = 1'b1;
+      if (flit_rx_data_valid) begin
+        case(s_flit_opcode)
+          4'b0000:s_write_req_en = 1'b1;
+          4'b0001:s_read_req_en = 1'b1;
+          4'b0010:s_write_resp_en = 1'b1;
+          4'b0011:s_read_resp_en = 1'b1;
+          4'b0100:s_credit_rtn_en = 1'b1;
+          4'b0101: s_nop_en = 1'b1;
         default: s_nop_en = 1'b1;
-      endcase // case (s_flit_opcode)
+        endcase // case (s_flit_opcode)
+      end // if (flit_rx_data_valid)
+      else begin
+         s_write_req_en = 1'b0;
+         s_read_req_en =  1'b0;
+         s_write_resp_en = 1'b0;
+         s_read_resp_en = 1'b0;
+         s_credit_rtn_en = 1'b0;
+      end
    end
 endmodule
