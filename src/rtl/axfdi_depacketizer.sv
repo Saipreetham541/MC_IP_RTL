@@ -122,10 +122,10 @@ module axfdi_depacketizer #(
    logic                              r_read_req_en;
    logic                              r_write_resp_en;
    logic                              r_read_resp_en;
- //  logic                              r_credit_rtn_en;
+   logic                              r_credit_rtn_en;
 
    //module port  assignment CREDIT_MGR
-   assign depktr_crdtmgr_rtn_valid = s_credit_rtn_en | r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
+   assign depktr_crdtmgr_rtn_valid = r_credit_rtn_en | r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
    assign depktr_crdtmgr_credit_vcn = r_flit_credit_rtn_vcn;
    assign depktr_crdtmgr_credit_cnt = r_flit_credit_rtn_cnt;
    assign depktr_crdtmgr_credit_rx_incr = (portrtr_depktr_read_done) ? 1'b1 : 1'b0; //?
@@ -198,7 +198,7 @@ module axfdi_depacketizer #(
         r_read_req_en <= '0;
         r_write_resp_en <= '0;
         r_read_resp_en <='0;
-        //r_credit_rtn_en <= '0;
+        r_credit_rtn_en <= '0;
         r_flit_endofpkt <= 1'b0;
         r_flit_startofpkt <= 1'b0;
      end
