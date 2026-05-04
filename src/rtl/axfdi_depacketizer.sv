@@ -90,8 +90,6 @@ module axfdi_depacketizer #(
    logic [1727:0]                     s_flit_data_line;
    logic                              s_flit_endofpkt;
    logic                              s_flit_startofpkt;
-   logic                              s_flit_endofpkt;
-   logic                              s_flit_startofpkt;
 
    logic [2:0]                        r_flit_vcn;
    logic                              r_flit_sop;
@@ -111,8 +109,6 @@ module axfdi_depacketizer #(
    logic [1727:0]                     r_flit_data_line;
    logic                              r_flit_endofpkt;
    logic                              r_flit_startofpkt;
-   logic                              r_flit_endofpkt;
-   logic                              r_flit_startofpkt;
 
 
    //opcode enable signal
@@ -127,10 +123,8 @@ module axfdi_depacketizer #(
    logic                              r_write_resp_en;
    logic                              r_read_resp_en;
    logic                              r_credit_rtn_en;
-   logic                              r_credit_rtn_en;
 
    //module port  assignment CREDIT_MGR
-   assign depktr_crdtmgr_rtn_valid = r_credit_rtn_en | r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
    assign depktr_crdtmgr_rtn_valid = r_credit_rtn_en | r_write_resp_en | r_write_req_en | r_read_req_en | r_read_resp_en;
    assign depktr_crdtmgr_credit_vcn = r_flit_credit_rtn_vcn;
    assign depktr_crdtmgr_credit_cnt = r_flit_credit_rtn_cnt;
@@ -157,8 +151,6 @@ module axfdi_depacketizer #(
    //assign startofkt and endofpkt
    assign depktr_portrtr_flit_endofpkt = r_flit_endofpkt;
    assign depktr_portrtr_flit_startofpkt = r_flit_startofpkt;
-   assign depktr_portrtr_flit_endofpkt = r_flit_endofpkt;
-   assign depktr_portrtr_flit_startofpkt = r_flit_startofpkt;
    assign fdi_depktr_rx_trdy  = !portrtr_depktr_bakpres;
    //module port assignment Completion tracker
 
@@ -167,24 +159,6 @@ module axfdi_depacketizer #(
    assign depktr_cmpltkr_txn_id = s_flit_txn_id;
 
    //internal signal assignment
-   assign s_flit_vcn            = (flit_rx_data_valid) ? flit_rx_data[5:3] : '0;
-   assign s_flit_sop            = (flit_rx_data_valid) ? flit_rx_data[6] : '0;
-   assign s_flit_eop            = (flit_rx_data_valid) ? flit_rx_data[7] : '0;
-   assign s_flit_opcode         = (flit_rx_data_valid) ? flit_rx_data[11:8] : '0;
-   assign s_flit_port_id        = (flit_rx_data_valid) ? flit_rx_data[12] : '0;
-   assign s_flit_txn_id         = (flit_rx_data_valid) ? flit_rx_data[20:13] : '0;
-   assign s_flit_burst_len      = (flit_rx_data_valid) ? flit_rx_data[28:21] : '0;
-   assign s_flit_burst_type     = (flit_rx_data_valid) ? flit_rx_data[30:29] : '0;
-   assign s_flit_burst_size     = (flit_rx_data_valid) ? flit_rx_data[33:31] : '0;
-   assign s_flit_resp           = (flit_rx_data_valid) ? flit_rx_data[35:34] : '0;
-   assign s_flit_credit_rtn_vcn = (flit_rx_data_valid) ? flit_rx_data[37:36] : '0;
-   assign s_flit_credit_rtn_cnt = (flit_rx_data_valid) ? flit_rx_data[43:38] : '0;
-   assign s_flit_addr           = (flit_rx_data_valid) ? flit_rx_data[84:45] : '0;
-   assign s_flit_wstrb_present  = (flit_rx_data_valid) ? flit_rx_data[44] : '0;
-   assign s_flit_wstrb_b0       = (flit_rx_data_valid) ? flit_rx_data[255:128] : '0;
-   assign s_flit_data_line      = (flit_rx_data_valid) ? flit_rx_data[1983:256] : '0;
-   assign s_flit_startofpkt     = (flit_rx_data_valid) ? fdi_depktr_rx_startofpkt : 1'b0;
-   assign s_flit_endofpkt       = (flit_rx_data_valid) ? fdi_depktr_rx_endofpkt : 1'b0;
    assign s_flit_vcn            = (flit_rx_data_valid) ? flit_rx_data[5:3] : '0;
    assign s_flit_sop            = (flit_rx_data_valid) ? flit_rx_data[6] : '0;
    assign s_flit_eop            = (flit_rx_data_valid) ? flit_rx_data[7] : '0;
@@ -224,7 +198,7 @@ module axfdi_depacketizer #(
         r_read_req_en <= '0;
         r_write_resp_en <= '0;
         r_read_resp_en <='0;
-        r_credit_rtn_en <= '0;
+        //r_credit_rtn_en <= '0;
         r_flit_endofpkt <= 1'b0;
         r_flit_startofpkt <= 1'b0;
      end
@@ -248,9 +222,6 @@ module axfdi_depacketizer #(
            r_read_req_en <= '0;
            r_write_resp_en <= '0;
            r_read_resp_en <='0;
-           r_credit_rtn_en <= '0;
-           r_flit_endofpkt <= 1'b0;
-           r_flit_startofpkt <= 1'b0;
            r_credit_rtn_en <= '0;
            r_flit_endofpkt <= 1'b0;
            r_flit_startofpkt <= 1'b0;
@@ -300,7 +271,6 @@ module axfdi_depacketizer #(
               r_read_resp_en <='0;
            end
  -----/\----- EXCLUDED -----/\----- */
- -----/\----- EXCLUDED -----/\----- */
         end
      end // else: !if(!por_n)
 
@@ -319,24 +289,7 @@ module axfdi_depacketizer #(
           4'b0011:s_read_resp_en = 1'b1;
           4'b0100:s_credit_rtn_en = 1'b1;
           4'b0101: s_nop_en = 1'b1;
-      if (flit_rx_data_valid) begin
-        case(s_flit_opcode)
-          4'b0000:s_write_req_en = 1'b1;
-          4'b0001:s_read_req_en = 1'b1;
-          4'b0010:s_write_resp_en = 1'b1;
-          4'b0011:s_read_resp_en = 1'b1;
-          4'b0100:s_credit_rtn_en = 1'b1;
-          4'b0101: s_nop_en = 1'b1;
         default: s_nop_en = 1'b1;
-        endcase // case (s_flit_opcode)
-      end // if (flit_rx_data_valid)
-      else begin
-         s_write_req_en = 1'b0;
-         s_read_req_en =  1'b0;
-         s_write_resp_en = 1'b0;
-         s_read_resp_en = 1'b0;
-         s_credit_rtn_en = 1'b0;
-      end
         endcase // case (s_flit_opcode)
       end // if (flit_rx_data_valid)
       else begin
