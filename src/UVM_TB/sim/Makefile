@@ -37,6 +37,7 @@ SEQS_DIR      := D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sequences
 
 WORK_DIR := work
 LOG_DIR  := logs
+REG_SUMMARY := regression_summary.log
 
 # ================================
 # Files
@@ -51,7 +52,8 @@ TOP_FILE := $(TB_DIR)/axfdi_top.sv
 
 TOP := axfdi_bridge_tb
 
-UVM_TEST ?= axfdi_test
+UVM_TEST ?= single_read_test
+REG_TESTS ?= single_read_test single_write_test fdi_data_test
 
 # ================================
 # Create folders
@@ -120,11 +122,75 @@ elab: compile
 
 run: elab
 	@echo "=== Running UVM Test: $(UVM_TEST) ==="
-	$(XSIM) -runall $(SNAPSHOT_NAME) -log $(LOG_DIR)/sim.log
+	@args_file=.xsim_$(UVM_TEST).args; \
+	sim_log=$(UVM_TEST).log; \
+	rm -f $$args_file $$sim_log; \
+	printf '%s\n' \
+		'--runall' \
+		'$(SNAPSHOT_NAME)' \
+		'--testplusarg' \
+		'UVM_TESTNAME=$(UVM_TEST)' \
+		'--log' \
+		"$$sim_log" > $$args_file; \
+	$(XSIM) --file $$args_file; \
+	status=$$?; \
+	rm -f $$args_file; \
+	exit $$status
 	
 	
 gui: elab
-	$(XSIM) $(SNAPSHOT_NAME) --gui
+	@args_file=.xsim_gui_$(UVM_TEST).args; \
+	rm -f $$args_file; \
+	printf '%s\n' \
+		'$(SNAPSHOT_NAME)' \
+		'--gui' \
+		'--testplusarg' \
+		'UVM_TESTNAME=$(UVM_TEST)' > $$args_file; \
+	$(XSIM) --file $$args_file; \
+	status=$$?; \
+	rm -f $$args_file; \
+	exit $$status
+
+
+# ================================
+# Regression
+# ================================
+regression: elab
+	@echo "=== Running Regression ==="
+	rm -f $(REG_SUMMARY)
+	@status=0; \
+	for test in $(REG_TESTS); do \
+		args_file=".xsim_$$test.args"; \
+		sim_log="$$test.log"; \
+		log_file="$$test.log"; \
+		rm -f $$args_file $$sim_log; \
+		printf '%s\n' \
+			'--runall' \
+			'$(SNAPSHOT_NAME)' \
+			'--testplusarg' \
+			"UVM_TESTNAME=$$test" \
+			'--log' \
+			"$$sim_log" > $$args_file; \
+		echo "=== Running UVM Test: $$test ==="; \
+		$(XSIM) --file $$args_file; \
+		xsim_status=$$?; \
+		rm -f $$args_file; \
+		if [ $$xsim_status -ne 0 ]; then \
+			result="$$test : FAIL (xsim error, check $$log_file)"; \
+			status=1; \
+		elif [ ! -f "$$log_file" ]; then \
+			result="$$test : FAIL (log missing)"; \
+			status=1; \
+		elif grep -Eq "UVM_ERROR :[[:space:]]*0" "$$log_file" && grep -Eq "UVM_FATAL :[[:space:]]*0" "$$log_file"; then \
+			result="$$test : PASS"; \
+		else \
+			result="$$test : FAIL (check $$log_file)"; \
+			status=1; \
+		fi; \
+		echo "$$result"; \
+		echo "$$result" >> $(REG_SUMMARY); \
+	done; \
+	exit $$status
 	
 	
 # ================================
@@ -141,3 +207,5 @@ clean:
 	rm -rf xsim.dir
 	rm -rf *.jou
 	rm -rf *.pb
+
+.PHONY: setup compile elab run gui regression all clean

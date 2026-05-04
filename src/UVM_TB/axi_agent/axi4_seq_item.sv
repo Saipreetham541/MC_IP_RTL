@@ -1,12 +1,13 @@
 typedef enum bit {
-  READ  = 1,
-  WRITE = 0
+  WRITE = 0,
+  READ = 1
+  
 } axn_type_e;
 
 class axi4_seq_item extends uvm_sequence_item;
 
   `uvm_object_utils(axi4_seq_item)
-  typedef enum{read, write}axn_type_e;   
+  //typedef enum{read, write}axn_type_e;   
   rand bit [39:0] addr;
   rand bit [7:0] id;
   rand bit [7:0] len; // AWLEN/ARLEN
@@ -16,7 +17,7 @@ class axi4_seq_item extends uvm_sequence_item;
   rand bit [127:0] strb[]; // write strobes per beat
   rand bit [1:0] resp; // expected/actual BRESP/RRESP
   //rand bit [3:0] qos; // AWQOS/ARQOS
-  rand  bit axn_type; // READ / WRITE
+  rand axn_type_e axn_type; // READ / WRITE
  
  //rand bit [31:0] delay_cycles; // inter-transaction delay
  
@@ -29,14 +30,8 @@ class axi4_seq_item extends uvm_sequence_item;
 	constraint burst_c1{burst inside{1,2};}
 	
 	constraint len_c2{len inside {[0:255]}; solve len before data;}
-	constraint addr_align_c3{addr % (2 ** size) == 0;}
-	constraint data_size{data.size==len+1;}
-	constraint strb_size_c {strb.size == len+1;}
-	constraint strb_zero_c {foreach(strb[i])
-								strb[i] == 128'b1;}
-	constraint data_value{foreach(data[i])
-							data[i]==i+1;}							
-								
+	constraint addr_align_c3{soft addr % (2 ** size) == 0;}
+	constraint siz {size == 'd7;}	
 								
 								
 	//constraint awaddr_align_c3{awaddr % ((2 ** awsize)) == 0;}
@@ -70,21 +65,24 @@ class axi4_seq_item extends uvm_sequence_item;
 
 	endfunction
 
+
 	
 	
 	virtual function void do_print(uvm_printer printer);
-		printer.print_field("addr",addr,40,UVM_HEX);
-		printer.print_field("id",id,8,UVM_HEX);
-		printer.print_field("len",len,8,UVM_HEX);
-		printer.print_field("size",size,3,UVM_HEX);
-		printer.print_field("burst",burst,2,UVM_HEX);
-		foreach(data[i]) begin
-		printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_DEC);
+		printer.print_field("addr",addr,40,UVM_DEC);
+		printer.print_field("id",id,8,UVM_DEC);
+		printer.print_field("len",len,8,UVM_DEC);
+		printer.print_field("size",size,3,UVM_DEC);
+		printer.print_field("burst",burst,2,UVM_DEC);
+		if(axn_type == WRITE )begin
+			foreach(data[i]) begin
+			printer.print_field($sformatf("data[%0d]",i),data[i],1024,UVM_HEX);
+			end
+			foreach(strb[i]) begin
+			printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_HEX);
+			end
+			//printer.print_field("last",last,1,UVM_DEC);
 		end
-		foreach(strb[i]) begin
-		printer.print_field($sformatf("strb[%0d]",i),strb[i],128,UVM_HEX);
-		end
-		//printer.print_field("last",last,1,UVM_HEX);
 	endfunction
 	
 	function void display();
@@ -93,9 +91,17 @@ class axi4_seq_item extends uvm_sequence_item;
 
 	function string convert2string();
 
+		string data_str = "";
+		//if(opcode==3'd0 || opcode==3'd3) begin
+			foreach (data[i]) begin
+				data_str = {$sformatf("%0h", data[i]),data_str};
+			end
+		//end
+		//else data_str="";
+
 		return $sformatf(
-		"type=%s addr=0x%0h id=%0d len=%0d size=%0d burst=%0d resp=%0d beats=%0d",
-		(axn_type == WRITE) ? "WRITE" : "READ",addr,id,len,size,burst,resp,len+1);
+		"type=%s addr=%0d id=%0d len=%0d size=%0d burst=%0d resp=%0d beats=%0d \n data[%s]",
+		(axn_type == WRITE ) ? "WRITE" : "READ",addr,id,len,size,burst,resp,len+1,data_str);
 
 	endfunction
 endclass

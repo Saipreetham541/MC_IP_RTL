@@ -40,10 +40,7 @@ class axfdi_comparator extends uvm_component;
         RESERVED    = 4'h6
   } opcode_e;
 
-  typedef enum bit {
-        WRITE = 1'b0 ,
-        READ = 1'b1 
-  } txn_type ;
+
 
   int total_cnt, pass_cnt, fail_cnt;
   int total_expected_cnt, total_actual_cnt;
@@ -152,6 +149,10 @@ class axfdi_comparator extends uvm_component;
       total_actual_cnt++;
       key = make_key_for_axi_req(act_axi,port);
 
+      $display("\n[cmp] collect_act_mgr_req\n");
+      $display(act_axi.convert2string);
+      $display("\n\n");
+
       if (!exp_axi_req_db.exists(key) || exp_axi_req_db[key].size() == 0) begin
         `uvm_error("CMP", $sformatf("Unexpected AXI MGR REQ  packet key=%s", key))
         unexpected_actual_tnx++;
@@ -170,36 +171,36 @@ class axfdi_comparator extends uvm_component;
 
   task collect_act_fdi_tx();
     fdi_pkt_item act_pkt, exp_pkt;
-  string key;
-  bit pass;
-  forever begin
-    act_fdi_tx_fifo.get(act_pkt);
-    total_actual_cnt++;
-    key = make_key_for_fdi(act_pkt);
+    string key;
+    bit pass;
+    forever begin
+      act_fdi_tx_fifo.get(act_pkt);
+      total_actual_cnt++;
+      key = make_key_for_fdi(act_pkt);
 
-    $display("\n[CMP] collect_act_fdi_tx\n");
-    $display(act_pkt.convert2string);
-    $display("\n\n");
-    $display("\n\n\n\n\ncollect_act_fdi_tx\n\n\n\n\n\n");
-    $display(act_pkt.credit_rtn_vcn);
-    $display(key);
-    $display("\n\n\n\n\n\n\n\n\n\n\n");
+      $display("\n[CMP] collect_act_fdi_tx\n");
+      $display(act_pkt.convert2string);
+      $display("\n\n");
+      //$display("\n\n\n\n\ncollect_act_fdi_tx\n\n\n\n\n\n");
+      //$display(act_pkt.credit_rtn_vcn);
+      //$display(key);
+      //$display("\n\n\n\n\n\n\n\n\n\n\n");
 
-    if (!exp_fdi_tx_db.exists(key) || exp_fdi_tx_db[key].size() == 0) begin
-      `uvm_error("\n[CMP", $sformatf("Unexpected FDI TX packet key=%s\n\n", key))
-      unexpected_actual_tnx++;
-      fail_cnt++;
-      total_cnt++;
-      `uvm_info("\n\n[CMP collect_act_fdi_tx",act_pkt.convert2string(),UVM_LOW)
+      if (!exp_fdi_tx_db.exists(key) || exp_fdi_tx_db[key].size() == 0) begin
+        `uvm_error("\n[CMP", $sformatf("Unexpected FDI TX packet key=%s\n\n", key))
+        unexpected_actual_tnx++;
+        fail_cnt++;
+        total_cnt++;
+        `uvm_info("\n\n[CMP collect_act_fdi_tx",act_pkt.convert2string(),UVM_LOW)
+      end
+      else begin
+        exp_pkt = exp_fdi_tx_db[key].pop_front();
+        pass = compare_fdi_pkt_item(exp_pkt, act_pkt);
+        total_cnt++;
+        if (pass) pass_cnt++;
+        else      fail_cnt++;
+      end
     end
-    else begin
-      exp_pkt = exp_fdi_tx_db[key].pop_front();
-      pass = compare_fdi_pkt_item(exp_pkt, act_pkt);
-      total_cnt++;
-      if (pass) pass_cnt++;
-      else      fail_cnt++;
-    end
-  end
   endtask
 
   // EXPEXTED INPUTS COLLECTOR TASKS
@@ -212,6 +213,9 @@ class axfdi_comparator extends uvm_component;
       total_expected_cnt++;
       key = make_key_for_axi_rsp(exp_axi,port);
       exp_axi_rsp_db[key].push_back(exp_axi);
+      $display("\n[cmp] collect_exp_sub_rsp\n");
+      $display(exp_axi.convert2string);
+      $display("\n\n");
     end
   endtask 
 
@@ -223,6 +227,9 @@ class axfdi_comparator extends uvm_component;
       total_expected_cnt++;
       key = make_key_for_axi_req(exp_axi,port);
       exp_axi_req_db[key].push_back(exp_axi);
+      $display("\n[cmp] collect_exp_mgr_req\n");
+      $display(exp_axi.convert2string);
+      $display("\n\n");
     end    
   endtask 
 
@@ -238,6 +245,9 @@ class axfdi_comparator extends uvm_component;
       //$display(exp_pkt.credit_rtn_vcn);
       //$display(key);
       //$display("\n\n\n\n\n\n\n\n\n\n\n");
+      $display("\n[CMP] collect_exp_fdi_tx\n");
+      $display(exp_pkt.convert2string);
+      $display("\n\n");
     end
   endtask 
   
@@ -278,7 +288,8 @@ class axfdi_comparator extends uvm_component;
     if (exp.strb       != act.strb)       pass = 0;
     if (exp.resp       != act.resp)       pass = 0;
     if (exp.axn_type   != act.axn_type)   pass = 0;
-
+    //foreach (exp.strb[0][i])
+      //$display("[cmp] compare_axi_req exp_strobe [%0d] == %0d  | act_strobe [%0d] == %0d",i,exp.strb[0][i],i,act.strb[0][i]);
     if (!pass) begin
 
       `uvm_error("\n[CMP_AXI_REQ",
@@ -308,6 +319,8 @@ class axfdi_comparator extends uvm_component;
     if (exp.strb       != act.strb)       pass = 0;
     if (exp.resp       != act.resp)       pass = 0;
     if (exp.axn_type   != act.axn_type)   pass = 0;
+    //foreach (exp.strb[0][i])
+      //$display("[cmp] compare_axi_req exp_strobe [%0d] == %0d  | act_strobe [%0d] == %0d",i,exp.strb[0][i],i,act.strb[0][i]);
 
     if (!pass) begin
 
@@ -351,6 +364,8 @@ class axfdi_comparator extends uvm_component;
         if (exp.addr        !== act.addr)        pass = 0;
         if (exp.data        !=  act.data)        pass = 0;
         if (exp.wstrb       !=  act.wstrb)       pass = 0;
+        //foreach (exp.wstrb[0][i])
+      //$display("[cmp] compare_axi_req exp_wstrobe [%0d] == %0d  | act_strobe [%0d] == %0d",i,exp.wstrb[0][i],i,act.wstrb[0][i]);
       end
 
       WRITE_RESP, READ_RESP: begin

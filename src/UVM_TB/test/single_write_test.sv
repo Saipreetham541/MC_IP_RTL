@@ -10,7 +10,8 @@ class single_write_test extends axfdi_test;
 	function void build_phase(uvm_phase phase);
 		super.build_phase(phase);
 		$display("extended:single_write_test");
-		
+		agt_cfg[0].role=axi_agt_config::SUB;
+		agt_cfg[1].role=axi_agt_config::SUB;
 		
 	endfunction
 	

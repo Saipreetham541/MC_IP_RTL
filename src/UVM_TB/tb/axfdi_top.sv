@@ -206,7 +206,9 @@ begin
    uvm_config_db #(virtual reset_interface)::set(null,"*","rst_intf",rst_intf);
    
   //uvm_factory::get().print();
-  run_test("single_write_test");
-   
+  //run_test("single_write_test");
+  //run_test("single_read_test");
+  //run_test("fdi_data_test");
+  run_test();
 end
 endmodule

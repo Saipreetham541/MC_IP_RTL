@@ -9,8 +9,8 @@ class axfdi_predictor extends uvm_component;
   localparam int unsigned NP_INIT_CREDIT       = 32;
   localparam int unsigned CPL_INIT_CREDIT      = 32;
   localparam int unsigned CREDIT_RTN_THRESHOLD = 16;
-  localparam int unsigned CFG_NP_WEIGHT        = 1;
-  localparam int unsigned CFG_CPL_WEIGHT       = 2;
+  localparam int unsigned CFG_NP_WEIGHT        = 2;
+  localparam int unsigned CFG_CPL_WEIGHT       = 1;
 
   //ENUM DECLEARATION
 
@@ -24,10 +24,6 @@ class axfdi_predictor extends uvm_component;
         RESERVED    = 4'h6
     } opcode_e;
 
-    typedef enum bit {
-        WRITE = 1'b0 ,
-        READ = 1'b1 
-    } txn_type ;
 
     //PREDICTOR INPUTS
 
@@ -85,7 +81,7 @@ class axfdi_predictor extends uvm_component;
         fdi_rx_fifo   = new("fdi_rx_fifo",this);
         exp_fdi_tx_ap = new("exp_fdi_tx_ap",this);
 
-        // Predictor-local scheduling and credit state starts from reset defaults.
+        // Predictor-local reset defaults.
         np_cnt            = CFG_NP_WEIGHT;
         cpl_cnt           = CFG_CPL_WEIGHT;
         tx_np_credit_cnt  = 0;
@@ -93,7 +89,6 @@ class axfdi_predictor extends uvm_component;
         rx_np_consumed    = 0;
         rx_cpl_consumed   = 0;
 
-        // Expect the bridge to perform the initial credit exchange once RX credits arrive.
         init_np_pending   = 1'b1;
         init_cpl_pending  = 1'b1;
         credit_rtn_pending = 1'b0;
@@ -101,15 +96,15 @@ class axfdi_predictor extends uvm_component;
         credit_rtn_cnt_q   = '0;
 
         last_port         = 1'b1;
-        last_req_txn_type = WRITE_REQ;
-        last_rsp_txn_type = WRITE_RESP;
+        last_req_txn_type = READ_REQ;
+        last_rsp_txn_type = READ_RESP;
     endfunction
 
     task run_phase(uvm_phase phase);
         fork
 
-            $display("\n[PRD] run_phase\n");
-            $display("\n\n");
+            //$display("\n[PRD] run_phase\n");
+            //$display("\n\n");
             collect_sub_req(0);
             collect_sub_req(1);
             collect_mgr_rsp(0);
@@ -126,6 +121,7 @@ class axfdi_predictor extends uvm_component;
             sub_req_fifo[port].get(req);
             $display("\n[PRD] collect_sub_req\n");
             $display(req.convert2string);
+			$display("axn_type=%0s",req.axn_type);
             $display("\n\n");
             req_c = axi4_seq_item::type_id::create("req_c");
             req_c.copy(req);
@@ -167,14 +163,14 @@ class axfdi_predictor extends uvm_component;
             pkt_c = fdi_pkt_item::type_id::create("pkt_c");
             pkt_c.copy(pkt);
 
-            $display("\n[PRD] collect_fdi_rx\n");
-            $display(pkt.convert2string);
-            $display("\n\n");
+            //$display("\n[PRD] collect_fdi_rx\n");
+            //$display(pkt.convert2string);
+            //$display("\n\n");
 
             if (pkt_c.opcode == 4'd4) begin
                 
                 $display("\n[PRD] collect_fdi_rx(credit)\n");
-                $display(pkt.convert2string);
+                $display(pkt_c.convert2string);
                 $display("\n\n");
 
                 if (pkt_c.credit_rtn_vcn == 2'h0)begin
@@ -189,7 +185,7 @@ class axfdi_predictor extends uvm_component;
             end
             else if (pkt_c.opcode == 4'd0 || pkt_c.opcode == 4'd1 ) begin
                 $display("\n[PRD] collect_fdi_rx(request)\n");
-                $display(pkt.convert2string);
+                $display(pkt_c.convert2string);
                 $display("\n\n");
 
                 rx_np_consumed++;
@@ -199,7 +195,7 @@ class axfdi_predictor extends uvm_component;
             end
             else if (pkt_c.opcode == WRITE_RESP || pkt_c.opcode == READ_RESP) begin
                 $display("\n[PRD] collect_fdi_rx(response)\n");
-                $display(pkt.convert2string);
+                $display(pkt_c.convert2string);
                 $display("\n\n");
 
                 rx_cpl_consumed++;
@@ -315,19 +311,49 @@ class axfdi_predictor extends uvm_component;
     //DATA AND STROBE PACKING AND UNPACKING FUNCTIONS
 
     function void pack_axi_payload_to_fdi(axi4_seq_item axi, ref fdi_pkt_item pkt);
-        pkt.data  = new[BYTES_PER_BEAT];
+
+        pkt.data  = new[216];
         pkt.wstrb = new[1];
-        foreach (pkt.data[i]) pkt.data[i] = (axi.data.size() > 0) ? axi.data[0][(i*8)+:8] : '0;
-        pkt.wstrb[0] = (axi.strb.size() > 0) ? axi.strb[0] : '0;
+
+        // Fill zeros
+        for (int i = 0; i < 216; i++) begin
+            pkt.data[i] = 8'h00;
+        end
+
+        // Fill AXI data (MSB-first)
+        for (int i = 0; i <=127; i++) begin
+            pkt.data[215-i] = axi.data[0][1023 - (i*8) -: 8];
+        end
+        pkt.wstrb[0] = axi.strb[0];
+
     endfunction
 
     function void unpack_fdi_payload_to_axi(fdi_pkt_item pkt, ref axi4_seq_item axi);
-        axi.data = new[1];
-        axi.strb = new[1];
-        axi.data[0] = '0;
-        foreach (pkt.data[i]) axi.data[0][(i*8)+:8] = pkt.data[i];
+
+    axi.data = new[1];
+    axi.strb = new[1];
+
+    axi.data[0] = '0;
+
+    // Only 128 bytes map to AXI (1024 bits)
+    for (int i = 0; i < 128; i++) begin
+        axi.data[0][1023 - (i*8) -: 8] = pkt.data[215 - i];
+
+        //$display("pkt.data[%0d] = %0h\n", 215-i, pkt.data[215-i]);
+        //$display("axi.data[0][%0d] = %0h", 1023 - (i*8), axi.data[0][1023 - (i*8) -: 8]);
+    end
+
+    //$display("\nAXI DATA = %0h\n", axi.data[0]);
+
+    // WSTRB handling
+    //if (pkt.wstrb.size() > 0)
         axi.strb[0] = pkt.wstrb[0];
-    endfunction
+        //foreach (pkt.wstrb[0][i])
+      //$display("[PRD] unpack_fdi_payload_to_axi strobe [%0d] == %0d",i,pkt.wstrb[0][i]);
+    //else
+      //  axi.strb[0] = '0;
+
+endfunction
 
     //BULDING EXPECTED FDI PACKET FROM AXI TXN
 
@@ -337,7 +363,7 @@ class axfdi_predictor extends uvm_component;
         pkt = fdi_pkt_item::type_id::create("pkt");
         pkt.port_id = port;
         pkt.opcode  = txn_type;
-        pkt.vcn     = (txn_type == WRITE_RESP || txn_type == READ_RESP) ? 3'h0 : 3'h1;
+        pkt.vcn     = (txn_type == WRITE_RESP || txn_type == READ_RESP) ? 3'h1 : 3'h0; 
 
         if (txn_type == WRITE_REQ) begin
             axi = wr_req_q[port][0];
@@ -374,7 +400,6 @@ class axfdi_predictor extends uvm_component;
             pack_axi_payload_to_fdi(axi, pkt);
         end
         else begin
-            // CREDIT_RTN packets are encoded by the current driver with only opcode/credit fields.
             pkt.port_id = '0;
             pkt.vcn     = '0;
             pkt.txn_id = '0;
@@ -455,22 +480,17 @@ class axfdi_predictor extends uvm_component;
         int         port;
         opcode_e    txn_type;
         fdi_pkt_item exp_pkt;
-        if (!choose_next_tx(port, txn_type)) begin
-             return;
+
+        if (choose_next_tx(port, txn_type)) begin
+            exp_pkt = build_exp_fdi_pkt(port, txn_type);
+            exp_fdi_tx_ap.write(exp_pkt);
+            update_after_tx(port, txn_type, exp_pkt);
         end
-        exp_pkt = build_exp_fdi_pkt(port, txn_type);
-        exp_fdi_tx_ap.write(exp_pkt);
-        update_after_tx(port, txn_type, exp_pkt);
     endtask
 
     function axi4_seq_item predict_axi_mgr_req_from_fdi_rx_req(fdi_pkt_item pkt);
     
         axi4_seq_item req = axi4_seq_item::type_id::create("req");
-
-        $display("\n[PRD] predict_axi_mgr_req_from_fdi_rx_req(request)\n");
-        $display(req.convert2string);
-        $display("\n\n");
-
         req.addr  = pkt.addr;
         req.id    = pkt.txn_id;
         req.len   = pkt.burst_len;
@@ -479,6 +499,10 @@ class axfdi_predictor extends uvm_component;
         req.resp  = pkt.resp;
         unpack_fdi_payload_to_axi(pkt, req);
         req.axn_type = (pkt.opcode == WRITE_REQ) ? WRITE : READ;
+        $display("\n[PRD] predict_axi_mgr_req_from_fdi_rx_req(request)\n");
+        $display(req.convert2string);
+        $display("\n\n");
+        $display("dsts_size = %0d",req.data.size()  );
         return req;
     endfunction
 
@@ -492,8 +516,11 @@ class axfdi_predictor extends uvm_component;
         rsp.resp   = pkt.resp;
         unpack_fdi_payload_to_axi(pkt, rsp);
         rsp.axn_type = (pkt.opcode == WRITE_RESP) ? WRITE : READ;
+
+        $display("\n[PRD] predict_axi_sub_rsp_from_fdi_rx_rsp(request)\n");
+        $display(rsp.convert2string);
+        $display("\n\n");
+
         return rsp;
     endfunction
 endclass
-
-

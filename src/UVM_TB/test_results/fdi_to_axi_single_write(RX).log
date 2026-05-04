@@ -1,0 +1,619 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Mon May  4 06:46:13 2026
+# Process ID         : 5428
+# Current directory  : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim
+# Command line       : xsim.exe -log logs/sim.log -mode tcl -source {xsim.dir/uvm_sim_snapshot/xsim_script.tcl}
+# Log file           : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim/logs/sim.log
+# Journal file       : D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/sim\xsim.jou
+# Running On         : Shivasai
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16745 MB
+# Swap memory        : 3221 MB
+# Total Virtual      : 19966 MB
+# Available Virtual  : 7546 MB
+#-----------------------------------------------------------
+source xsim.dir/uvm_sim_snapshot/xsim_script.tcl
+# xsim {uvm_sim_snapshot} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(18601) @ 0: reporter [UVM/RELNOTES] 
+----------------------------------------------------------------
+UVM-1.2
+(C) 2007-2014 Mentor Graphics Corporation
+(C) 2007-2014 Cadence Design Systems, Inc.
+(C) 2006-2014 Synopsys, Inc.
+(C) 2011-2013 Cypress Semiconductor Corp.
+(C) 2013-2014 NVIDIA Corporation
+----------------------------------------------------------------
+
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  You are using a version of the UVM library that has been compiled
+  with `UVM_NO_DEPRECATED undefined.
+
+  You are using a version of the UVM library that has been compiled
+  with `UVM_OBJECT_DO_NOT_NEED_CONSTRUCTOR undefined.
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_INFO @ 0: reporter [RNTST] Running test fdi_data_test...
+extended:single_write_test
+UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(18752) @ 0: reporter [UVMTOP] UVM testbench topology:
+--------------------------------------------------------------------
+Name                         Type                        Size  Value
+--------------------------------------------------------------------
+uvm_test_top                 fdi_data_test               -     @366 
+  env                        axfdi_env                   -     @390 
+    apb_agt                  apb_agent                   -     @575 
+      apb_drv                apb_driver                  -     @612 
+        rsp_port             uvm_analysis_port           -     @631 
+        seq_item_port        uvm_seq_item_pull_port      -     @621 
+      apb_mon                apb_monitor                 -     @603 
+      apb_seqr               apb_sequencer               -     @641 
+        rsp_export           uvm_analysis_export         -     @650 
+        seq_item_export      uvm_seq_item_pull_imp       -     @768 
+        arbitration_queue    array                       0     -    
+        lock_queue           array                       0     -    
+        num_last_reqs        integral                    32    'd1  
+        num_last_rsps        integral                    32    'd1  
+    axi_agt[0]               axi_agent                   -     @538 
+      mgr_drv[0]             mgr_driver                  -     @852 
+        rsp_port             uvm_analysis_port           -     @871 
+        seq_item_port        uvm_seq_item_pull_port      -     @861 
+      mgr_mon[0]             mgr_monitor                 -     @794 
+        req1                 uvm_analysis_port           -     @803 
+        res1                 uvm_analysis_port           -     @813 
+      mgr_seqr[0]            mgr_sequencer               -     @881 
+        rsp_export           uvm_analysis_export         -     @890 
+        seq_item_export      uvm_seq_item_pull_imp       -     @1008
+        arbitration_queue    array                       0     -    
+        lock_queue           array                       0     -    
+        num_last_reqs        integral                    32    'd1  
+        num_last_rsps        integral                    32    'd1  
+      sub_drvh[0]            sub_driver                  -     @1018
+        rsp_port             uvm_analysis_port           -     @1037
+        seq_item_port        uvm_seq_item_pull_port      -     @1027
+      sub_mon[0]             sub_monitor                 -     @823 
+        req                  uvm_analysis_port           -     @832 
+        res                  uvm_analysis_port           -     @842 
+      sub_seqr[0]            sub_sequencer               -     @1047
+        rsp_export           uvm_analysis_export         -     @1056
+        seq_item_export      uvm_seq_item_pull_imp       -     @1174
+        arbitration_queue    array                       0     -    
+        lock_queue           array                       0     -    
+        num_last_reqs        integral                    32    'd1  
+        num_last_rsps        integral                    32    'd1  
+    axi_agt[1]               axi_agent                   -     @555 
+      mgr_drv[1]             mgr_driver                  -     @1275
+        rsp_port             uvm_analysis_port           -     @1294
+        seq_item_port        uvm_seq_item_pull_port      -     @1284
+      mgr_mon[1]             mgr_monitor                 -     @1217
+        req1                 uvm_analysis_port           -     @1226
+        res1                 uvm_analysis_port           -     @1236
+      mgr_seqr[1]            mgr_sequencer               -     @1304
+        rsp_export           uvm_analysis_export         -     @1313
+        seq_item_export      uvm_seq_item_pull_imp       -     @1431
+        arbitration_queue    array                       0     -    
+        lock_queue           array                       0     -    
+        num_last_reqs        integral                    32    'd1  
+        num_last_rsps        integral                    32    'd1  
+      sub_drvh[1]            sub_driver                  -     @1441
+        rsp_port             uvm_analysis_port           -     @1460
+        seq_item_port        uvm_seq_item_pull_port      -     @1450
+      sub_mon[1]             sub_monitor                 -     @1246
+        req                  uvm_analysis_port           -     @1255
+        res                  uvm_analysis_port           -     @1265
+      sub_seqr[1]            sub_sequencer               -     @1470
+        rsp_export           uvm_analysis_export         -     @1479
+        seq_item_export      uvm_seq_item_pull_imp       -     @1597
+        arbitration_queue    array                       0     -    
+        lock_queue           array                       0     -    
+        num_last_reqs        integral                    32    'd1  
+        num_last_rsps        integral                    32    'd1  
+    fdi_agt                  fdi_agent                   -     @566 
+      credit_mgr             fdi_credit_manager          -     @1664
+      fdi_drv                fdi_driver                  -     @1677
+        rsp_port             uvm_analysis_port           -     @1696
+        seq_item_port        uvm_seq_item_pull_port      -     @1686
+      fdi_mon                fdi_monitor                 -     @1635
+        ap_rx                uvm_analysis_port           -     @1654
+        ap_tx                uvm_analysis_port           -     @1644
+      fdi_seqr               fdi_sequencer               -     @1706
+        rsp_export           uvm_analysis_export         -     @1715
+        seq_item_export      uvm_seq_item_pull_imp       -     @1833
+        arbitration_queue    array                       0     -    
+        lock_queue           array                       0     -    
+        num_last_reqs        integral                    32    'd1  
+        num_last_rsps        integral                    32    'd1  
+    sb                       axfdi_scoreboard            -     @584 
+      cmp                    axfdi_comparator            -     @1967
+        act_fdi_tx_fifo      uvm_tlm_analysis_fifo #(T)  -     @2548
+          analysis_export    uvm_analysis_imp            -     @2597
+          get_ap             uvm_analysis_port           -     @2587
+          get_peek_export    uvm_get_peek_imp            -     @2567
+          put_ap             uvm_analysis_port           -     @2577
+          put_export         uvm_put_imp                 -     @2557
+        act_fdi_tx_xp        uvm_analysis_export         -     @2528
+        act_mgr_req_fifo[0]  uvm_tlm_analysis_fifo #(T)  -     @2075
+          analysis_export    uvm_analysis_imp            -     @2124
+          get_ap             uvm_analysis_port           -     @2114
+          get_peek_export    uvm_get_peek_imp            -     @2094
+          put_ap             uvm_analysis_port           -     @2104
+          put_export         uvm_put_imp                 -     @2084
+        act_mgr_req_fifo[1]  uvm_tlm_analysis_fifo #(T)  -     @2351
+          analysis_export    uvm_analysis_imp            -     @2400
+          get_ap             uvm_analysis_port           -     @2390
+          get_peek_export    uvm_get_peek_imp            -     @2370
+          put_ap             uvm_analysis_port           -     @2380
+          put_export         uvm_put_imp                 -     @2360
+        act_mgr_req_xp[0]    uvm_analysis_export         -     @1986
+        act_mgr_req_xp[1]    uvm_analysis_export         -     @2262
+        act_sub_rsp_fifo[0]  uvm_tlm_analysis_fifo #(T)  -     @2016
+          analysis_export    uvm_analysis_imp            -     @2065
+          get_ap             uvm_analysis_port           -     @2055
+          get_peek_export    uvm_get_peek_imp            -     @2035
+          put_ap             uvm_analysis_port           -     @2045
+          put_export         uvm_put_imp                 -     @2025
+        act_sub_rsp_fifo[1]  uvm_tlm_analysis_fifo #(T)  -     @2292
+          analysis_export    uvm_analysis_imp            -     @2341
+          get_ap             uvm_analysis_port           -     @2331
+          get_peek_export    uvm_get_peek_imp            -     @2311
+          put_ap             uvm_analysis_port           -     @2321
+          put_export         uvm_put_imp                 -     @2301
+        act_sub_rsp_xp[0]    uvm_analysis_export         -     @1976
+        act_sub_rsp_xp[1]    uvm_analysis_export         -     @2252
+        exp_fdi_tx_fifo      uvm_tlm_analysis_fifo #(T)  -     @2607
+          analysis_export    uvm_analysis_imp            -     @2656
+          get_ap             uvm_analysis_port           -     @2646
+          get_peek_export    uvm_get_peek_imp            -     @2626
+          put_ap             uvm_analysis_port           -     @2636
+          put_export         uvm_put_imp                 -     @2616
+        exp_fdi_tx_xp        uvm_analysis_export         -     @2538
+        exp_mgr_req_fifo[0]  uvm_tlm_analysis_fifo #(T)  -     @2193
+          analysis_export    uvm_analysis_imp            -     @2242
+          get_ap             uvm_analysis_port           -     @2232
+          get_peek_export    uvm_get_peek_imp            -     @2212
+          put_ap             uvm_analysis_port           -     @2222
+          put_export         uvm_put_imp                 -     @2202
+        exp_mgr_req_fifo[1]  uvm_tlm_analysis_fifo #(T)  -     @2469
+          analysis_export    uvm_analysis_imp            -     @2518
+          get_ap             uvm_analysis_port           -     @2508
+          get_peek_export    uvm_get_peek_imp            -     @2488
+          put_ap             uvm_analysis_port           -     @2498
+          put_export         uvm_put_imp                 -     @2478
+        exp_mgr_req_xp[0]    uvm_analysis_export         -     @2006
+        exp_mgr_req_xp[1]    uvm_analysis_export         -     @2282
+        exp_sub_rsp_fifo[0]  uvm_tlm_analysis_fifo #(T)  -     @2134
+          analysis_export    uvm_analysis_imp            -     @2183
+          get_ap             uvm_analysis_port           -     @2173
+          get_peek_export    uvm_get_peek_imp            -     @2153
+          put_ap             uvm_analysis_port           -     @2163
+          put_export         uvm_put_imp                 -     @2143
+        exp_sub_rsp_fifo[1]  uvm_tlm_analysis_fifo #(T)  -     @2410
+          analysis_export    uvm_analysis_imp            -     @2459
+          get_ap             uvm_analysis_port           -     @2449
+          get_peek_export    uvm_get_peek_imp            -     @2429
+          put_ap             uvm_analysis_port           -     @2439
+          put_export         uvm_put_imp                 -     @2419
+        exp_sub_rsp_xp[0]    uvm_analysis_export         -     @1996
+        exp_sub_rsp_xp[1]    uvm_analysis_export         -     @2272
+      cmp_fdi_tx_xp          uvm_analysis_export         -     @1948
+      cmp_mgr_req_xp[0]      uvm_analysis_export         -     @1888
+      cmp_mgr_req_xp[1]      uvm_analysis_export         -     @1928
+      cmp_sub_rsp_xp[0]      uvm_analysis_export         -     @1878
+      cmp_sub_rsp_xp[1]      uvm_analysis_export         -     @1918
+      prd                    axfdi_predictor             -     @1958
+        exp_fdi_tx_ap        uvm_analysis_port           -     @3001
+        exp_mgr_req_ap[0]    uvm_analysis_port           -     @2794
+        exp_mgr_req_ap[1]    uvm_analysis_port           -     @2932
+        exp_sub_rsp_ap[0]    uvm_analysis_port           -     @2784
+        exp_sub_rsp_ap[1]    uvm_analysis_port           -     @2922
+        fdi_rx_fifo          uvm_tlm_analysis_fifo #(T)  -     @2942
+          analysis_export    uvm_analysis_imp            -     @2991
+          get_ap             uvm_analysis_port           -     @2981
+          get_peek_export    uvm_get_peek_imp            -     @2961
+          put_ap             uvm_analysis_port           -     @2971
+          put_export         uvm_put_imp                 -     @2951
+        mgr_rsp_fifo_p[0]    uvm_tlm_analysis_fifo #(T)  -     @2725
+          analysis_export    uvm_analysis_imp            -     @2774
+          get_ap             uvm_analysis_port           -     @2764
+          get_peek_export    uvm_get_peek_imp            -     @2744
+          put_ap             uvm_analysis_port           -     @2754
+          put_export         uvm_put_imp                 -     @2734
+        mgr_rsp_fifo_p[1]    uvm_tlm_analysis_fifo #(T)  -     @2863
+          analysis_export    uvm_analysis_imp            -     @2912
+          get_ap             uvm_analysis_port           -     @2902
+          get_peek_export    uvm_get_peek_imp            -     @2882
+          put_ap             uvm_analysis_port           -     @2892
+          put_export         uvm_put_imp                 -     @2872
+        sub_req_fifo_p[0]    uvm_tlm_analysis_fifo #(T)  -     @2666
+          analysis_export    uvm_analysis_imp            -     @2715
+          get_ap             uvm_analysis_port           -     @2705
+          get_peek_export    uvm_get_peek_imp            -     @2685
+          put_ap             uvm_analysis_port           -     @2695
+          put_export         uvm_put_imp                 -     @2675
+        sub_req_fifo_p[1]    uvm_tlm_analysis_fifo #(T)  -     @2804
+          analysis_export    uvm_analysis_imp            -     @2853
+          get_ap             uvm_analysis_port           -     @2843
+          get_peek_export    uvm_get_peek_imp            -     @2823
+          put_ap             uvm_analysis_port           -     @2833
+          put_export         uvm_put_imp                 -     @2813
+      prd_fdi_rx_xp          uvm_analysis_export         -     @1938
+      prd_mgr_rsp_xp[0]      uvm_analysis_export         -     @1868
+      prd_mgr_rsp_xp[1]      uvm_analysis_export         -     @1908
+      prd_sub_req_xp[0]      uvm_analysis_export         -     @1858
+      prd_sub_req_xp[1]      uvm_analysis_export         -     @1898
+    vserqrh                  virtual_seqr                -     @401 
+      rsp_export             uvm_analysis_export         -     @410 
+      seq_item_export        uvm_seq_item_pull_imp       -     @528 
+      arbitration_queue      array                       0     -    
+      lock_queue             array                       0     -    
+      num_last_reqs          integral                    32    'd1  
+      num_last_rsps          integral                    32    'd1  
+--------------------------------------------------------------------
+
+UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(20867) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_INFO ../test/axfdi_test.sv(77) @ 0: uvm_test_top [RESET] Applying reset
+waiting for reset
+UVM_INFO ../axi_agent/sub_driver.sv(35) @ 51000: uvm_test_top.env.axi_agt[0].sub_drvh[0] [from sub_drv] sub_drv disabled
+UVM_INFO ../axi_agent/sub_driver.sv(35) @ 51000: uvm_test_top.env.axi_agt[1].sub_drvh[1] [from sub_drv] sub_drv disabled
+UVM_INFO ../test/axfdi_test.sv(96) @ 52000: uvm_test_top [RESET] reset completed
+raise objection started
+driver
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+fditxn_0              fdi_pkt_item  -     @3218
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd1  
+-----------------------------------------------
+opcode =100
+credit_rtn_cnt=100000
+credit_rtn_vcn=1
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_pl2lp             fdi_pkt_item  -     @3294
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd1  
+-----------------------------------------------
+
+[PRD] collect_fdi_rx(credit)
+
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=1 bp=0
+data=[]
+
+
+
+
+
+[PRD] collect_fdi_rx(credit)
+
+tx_np_credit_cnt 0 || tx_cpl_credit_cnt 32
+
+
+
+
+[CMP] collect_exp_fdi_tx
+
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=1 bp=0
+data=[]
+
+
+
+
+driver
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+fditxn_1              fdi_pkt_item  -     @3331
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+opcode =100
+credit_rtn_cnt=100000
+credit_rtn_vcn=0
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_pl2lp             fdi_pkt_item  -     @3383
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+
+[PRD] collect_fdi_rx(credit)
+
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=0 bp=0
+data=[]
+
+
+
+
+
+[PRD] collect_fdi_rx(credit)
+
+tx_np_credit_cnt 32 || tx_cpl_credit_cnt 32
+
+
+
+
+[CMP] collect_exp_fdi_tx
+
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=0 bp=0
+data=[]
+
+
+
+
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_lp2pl             fdi_pkt_item  -     @3421
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd1  
+-----------------------------------------------
+
+[CMP] collect_act_fdi_tx
+
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=1 bp=0
+data=[]
+
+
+
+
+UVM_INFO D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(388) @ 66000: uvm_test_top.env.sb.cmp [
+[CMP_FDI] 
+FDI PACKET MATCH
+EXPECTED:
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=1 bp=0
+data=[]
+
+ACTUAL:
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=1 bp=0
+data=[]
+
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_lp2pl             fdi_pkt_item  -     @3499
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd4  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd0  
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     'd0  
+  burst_size          integral      8     'd0  
+  resp                integral      2     'd0  
+  addr                integral      40    'd0  
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     32   
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+
+[CMP] collect_act_fdi_tx
+
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=0 bp=0
+data=[]
+
+
+
+
+UVM_INFO D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(388) @ 73000: uvm_test_top.env.sb.cmp [
+[CMP_FDI] 
+FDI PACKET MATCH
+EXPECTED:
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=0 bp=0
+data=[]
+
+ACTUAL:
+
+opcode=4 vcn=0 port=0 txn_id=0 len=0 burst_type=0 size=0 resp=0 addr=0  credit_cnt=32 credit_vcn=0 bp=0
+data=[]
+
+driver
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+data_txn              fdi_pkt_item  -     @3657
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd0  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd58 
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     3    
+  burst_size          integral      8     'd3  
+  resp                integral      2     'd0  
+  addr                integral      40    'd140
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     'd0  
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+-----------------------------------------------
+Name                  Type          Size  Value
+-----------------------------------------------
+txn_pl2lp             fdi_pkt_item  -     @3709
+  VCN                 integral      8     'd0  
+  opcode              integral      4     'd0  
+  port_id             integral      1     'd0  
+  txn_id              integral      8     'd58 
+  burst_len           integral      8     'd0  
+  burst_type          integral      2     3    
+  burst_size          integral      8     'd3  
+  resp                integral      2     'd0  
+  addr                integral      40    'd140
+  backpressure_cycle  integral      1     'd0  
+  credit_rtn_cnt      integral      6     'd0  
+  credit_rtn_vcn      integral      2     'd0  
+-----------------------------------------------
+
+[PRD] collect_fdi_rx(request)
+
+
+opcode=0 vcn=0 port=0 txn_id=58 len=0 burst_type=3 size=3 resp=0 addr=140  credit_cnt=0 credit_vcn=0 bp=0
+data=[aa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+
+
+
+
+
+[PRD] predict_axi_mgr_req_from_fdi_rx_req(request)
+
+type=WRITE addr=140 id=58 len=0 size=3 burst=3 resp=0 beats=1 
+ data[aa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+
+
+
+dsts_size = 1
+
+[cmp] collect_exp_mgr_req
+
+type=WRITE addr=140 id=58 len=0 size=3 burst=3 resp=0 beats=1 
+ data[aa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+
+
+
+UVM_INFO ../axi_agent/mgr_driver.sv(36) @ 89000: uvm_test_top.env.axi_agt[0].mgr_drv[0] [from mgr_drv] mgr_as_req
+txn: (axi4_seq_item@3732) {
+  addr: 'd0 
+  id: 'd0 
+  len: 'd0 
+  size: 7 
+  burst: 'd1 
+}
+txnh: (axi4_seq_item@3980) {
+  addr: 'd140 
+  id: 'd58 
+  len: 'd0 
+  size: 'd3 
+  burst: 3 
+  data[0]: 'haa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 
+  strb[0]: 'hffffffffffffffffffffffffffffffff 
+}
+
+[cmp] collect_act_mgr_req
+
+type=WRITE addr=140 id=58 len=0 size=3 burst=3 resp=0 beats=1 
+ data[aa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+
+
+
+UVM_INFO D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(305) @ 109000: uvm_test_top.env.sb.cmp [
+[CMP_AXI_REQ] 
+AXI REQ PACKET MATCH
+EXPECTED:
+type=WRITE addr=140 id=58 len=0 size=3 burst=3 resp=0 beats=1 
+ data[aa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+ACTUAL:
+type=WRITE addr=140 id=58 len=0 size=3 burst=3 resp=0 beats=1 
+ data[aa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(19968) @ 389000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+UVM_INFO D:/vlsi/SEVYA/AXI-FDI/Busbridges/src/UVM_TB/tb/axfdi_comparator.sv(468) @ 389000: uvm_test_top.env.sb.cmp [CMP_SUMMARY] 
+
+
+Comparator summary:
+  test name                       = fdi_data_test
+  test status                     = PASSED
+  total comparisons               = 3
+  pass comparisons                = 3
+  fail comparisons                = 0
+  total expected transactions     = 3
+  total actual transactions       = 3
+  total unmatched actual txns     = 0
+  total pending expected txns     = 0
+
+
+
+UVM_INFO C:AMDDesignToÿÿÿ‚5.2Vivadodata/system_verilog/uvm_1.2/xlnx_uvm_package.sv(13673) @ 389000: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :   14
+UVM_WARNING :    0
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[
+[CMP_AXI_REQ]     1
+[
+[CMP_FDI]     2
+[CMP_SUMMARY]     1
+[RESET]     2
+[RNTST]     1
+[TEST_DONE]     1
+[UVM/COMP/NAMECHECK]     1
+[UVM/RELNOTES]     1
+[UVMTOP]     1
+[from mgr_drv]     1
+[from sub_drv]     2
+
+$finish called at time : 389 ns : File "C:\AMDDesignTools\2025.2\Vivado\data/system_verilog/uvm_1.2/xlnx_uvm_package.sv" Line 18699
+exit
+INFO: [Common 17-206] Exiting xsim at Mon May  4 06:46:17 2026...

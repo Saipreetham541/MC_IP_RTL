@@ -359,7 +359,7 @@ module axfdi_packetizer  #(
 
             // NO WSTRB
             flit_tx_data[44] = 0;
-            flit_tx_data[255:128] = '0;
+            flit_tx_data[255:128] = '1;
            
 
 

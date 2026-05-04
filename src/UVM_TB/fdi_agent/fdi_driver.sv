@@ -14,6 +14,8 @@ super.new(name,parent);
 endfunction
 
 function void build_phase(uvm_phase phase);
+	super.build_phase(phase);
+	
 if(!uvm_config_db#(fdi_agt_config)::get(this,"","fdi_agt_config",fdi_cfg))
 `uvm_fatal("FATAL","FROM FDI_DRIVER CLASS")
 if(!uvm_config_db #(virtual reset_interface)::get(this,"","rst_intf",rst_intf))
@@ -33,8 +35,8 @@ endfunction
 
 task run_phase(uvm_phase phase);
   $display("waiting for reset");
-  while(!(vif.global_reset && vif.fdi_rst_n))
-    @(vif.fdi_drv_cb);
+  wait(vif.global_reset && vif.fdi_rst_n);
+    
 
   vif.fdi_drv_cb.fdi_pl_inband_pres<=1;
     
@@ -61,7 +63,7 @@ forever begin
 		if(txn.opcode == 4'h4) begin
 			drive_packet(txn);
 		end
-	    else if (txn.opcode == 4'h0 || txn.opcode == 4'h1 || txn.opcode == 4'h2 || txn.opcode == 4'h1)
+	    else if (txn.opcode == 4'h0 || txn.opcode == 4'h1 || txn.opcode == 4'h2 || txn.opcode == 4'h3)
 		begin
 			while(!credit_mgr.has_credit(txn.vcn))
 				@(vif.fdi_drv_cb);
@@ -74,7 +76,7 @@ forever begin
 
 endtask
 
-// SENDING FLIT /////////////////////////////////////////
+// SENDING FLIT 
 task send_flit(bit [2047:0] flit,bit sop,bit eop);
   @(vif.fdi_drv_cb);
   vif.fdi_drv_cb.fdi_pl_data<=flit;
@@ -154,7 +156,7 @@ end
   if(wstrb_present==1)
     header_flit[255:128]=txn.wstrb[0];
   else 
-	header_flit[255:128]='0;
+	header_flit[255:128]='1;
 
   for(int i=0;i<216;i++) begin
 
