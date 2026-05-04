@@ -313,7 +313,7 @@ class axfdi_predictor extends uvm_component;
     function void pack_axi_payload_to_fdi(axi4_seq_item axi, ref fdi_pkt_item pkt);
 
         pkt.data  = new[216];
-        pkt.wstrb = new[0];
+        pkt.wstrb = new[1];
 
         // Fill zeros
         for (int i = 0; i < 216; i++) begin
@@ -324,6 +324,7 @@ class axfdi_predictor extends uvm_component;
         for (int i = 0; i <=127; i++) begin
             pkt.data[215-i] = axi.data[0][1023 - (i*8) -: 8];
         end
+        pkt.wstrb[0] = axi.strb[0];
 
     endfunction
 
@@ -345,10 +346,12 @@ class axfdi_predictor extends uvm_component;
     //$display("\nAXI DATA = %0h\n", axi.data[0]);
 
     // WSTRB handling
-    if (pkt.wstrb.size() > 0)
+    //if (pkt.wstrb.size() > 0)
         axi.strb[0] = pkt.wstrb[0];
-    else
-        axi.strb[0] = '1;
+        //foreach (pkt.wstrb[0][i])
+      //$display("[PRD] unpack_fdi_payload_to_axi strobe [%0d] == %0d",i,pkt.wstrb[0][i]);
+    //else
+      //  axi.strb[0] = '0;
 
 endfunction
 

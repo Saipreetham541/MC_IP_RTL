@@ -11,15 +11,23 @@ class mgr_axi_req_ready_seq extends uvm_sequence #(axi4_seq_item);
         begin
             txn = axi4_seq_item::type_id::create("txn");
             start_item(txn);
-            assert(txn.randomize() with {
-
-                
-                                        
-                        id inside{[51:100]};
-                        })
-			else begin
-                `uvm_fatal("SEQ", "Randomization failed for random_mngr_axi_seq")
-            end
+            if(!txn.randomize() with {
+                                        len==0;
+										data.size() == len+1;
+										strb.size() == len+1;  
+                                        addr == 0;           
+                                        id == 0;
+										foreach(strb[i]) {
+											strb[i] == 128'b0;
+											}
+							
+										foreach (data[i]) {
+											data[i][1023 : 0] == '0;
+										}
+										})begin
+										`uvm_fatal("RAND_FAIL", "FDI txn randomization failed")
+                                        end
+                        
             finish_item(txn);
         end
     endtask

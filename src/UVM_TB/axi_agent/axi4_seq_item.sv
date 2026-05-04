@@ -30,21 +30,8 @@ class axi4_seq_item extends uvm_sequence_item;
 	constraint burst_c1{burst inside{1,2};}
 	
 	constraint len_c2{len inside {[0:255]}; solve len before data;}
-	constraint addr_align_c3{addr % (2 ** size) == 0;}
-	constraint data_size{data.size==len+1;}
-	constraint strb_size_c {strb.size == len+1;}
-	constraint strb_zero_c {foreach(strb[i])
-								strb[i] == 128'b1;}
-	//constraint data_value{foreach(data[i])
-							//data[i]==i+1;}							
-		//constraint data_value{foreach(data[i])
-		//					data[i]== 'hAA;}							
-	constraint data_value {
-		foreach (data[i]) {
-			data[i][1023 : 1016 ] == 8'hAA;  // MSB byte
-			data[i][1015:0]    == 'b0;      // remaining bits
-			}
-		}												
+	constraint addr_align_c3{soft addr % (2 ** size) == 0;}
+	constraint siz {size == 'd7;}	
 								
 								
 	//constraint awaddr_align_c3{awaddr % ((2 ** awsize)) == 0;}

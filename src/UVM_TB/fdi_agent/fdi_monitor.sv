@@ -140,7 +140,15 @@ class fdi_monitor extends uvm_monitor;
     if (txn.opcode == 4'h0 && flit[44]) begin
       txn.wstrb = new[1];
       txn.wstrb[0] = flit[255:128];
+      $display("[fdi_monitor] flit[44] = %0d",flit[44]);
     end
+    else begin
+      txn.wstrb = new[1];
+      txn.wstrb[0] = flit[255:128];
+      //foreach (txn.wstrb[0][i])
+      //$display("[fdi_monitor] strobe [%0d] == %0d",i,txn.wstrb[0][i]);
+    end
+    
   endfunction
 endclass
 

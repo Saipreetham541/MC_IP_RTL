@@ -156,7 +156,7 @@ end
   if(wstrb_present==1)
     header_flit[255:128]=txn.wstrb[0];
   else 
-	header_flit[255:128]='0;
+	header_flit[255:128]='1;
 
   for(int i=0;i<216;i++) begin
 

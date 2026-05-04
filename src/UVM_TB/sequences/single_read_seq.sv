@@ -10,11 +10,21 @@ class single_read_seq extends uvm_sequence#(axi4_seq_item);
 		begin
 			txn=axi4_seq_item::type_id::create("txn");
 			start_item(txn);
-			assert(txn.randomize() with{axn_type== READ;
+			if(!txn.randomize() with{axn_type== READ;
 										len==0;
 										burst==2'b01;
-										//data.size==0;
-										});
+										data.size() == len+1;
+										strb.size() == len+1;
+										foreach(strb[i]) {
+											strb[i] == 128'b0;
+											}
+							
+										foreach (data[i]) {
+											data[i][1023 : 0] == '0;
+										}
+										})begin
+										`uvm_fatal("RAND_FAIL", "FDI txn randomization failed")
+      									end
 			finish_item(txn);
 		end
 	endtask

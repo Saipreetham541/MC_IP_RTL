@@ -285,10 +285,11 @@ class axfdi_comparator extends uvm_component;
     if (exp.size       != act.size)       pass = 0;
     if (exp.burst      != act.burst)      pass = 0;
     if (exp.data       != act.data)       pass = 0;
-    //if (exp.strb       != act.strb)       pass = 0;
+    if (exp.strb       != act.strb)       pass = 0;
     if (exp.resp       != act.resp)       pass = 0;
     if (exp.axn_type   != act.axn_type)   pass = 0;
-
+    //foreach (exp.strb[0][i])
+      //$display("[cmp] compare_axi_req exp_strobe [%0d] == %0d  | act_strobe [%0d] == %0d",i,exp.strb[0][i],i,act.strb[0][i]);
     if (!pass) begin
 
       `uvm_error("\n[CMP_AXI_REQ",
@@ -318,6 +319,8 @@ class axfdi_comparator extends uvm_component;
     if (exp.strb       != act.strb)       pass = 0;
     if (exp.resp       != act.resp)       pass = 0;
     if (exp.axn_type   != act.axn_type)   pass = 0;
+    //foreach (exp.strb[0][i])
+      //$display("[cmp] compare_axi_req exp_strobe [%0d] == %0d  | act_strobe [%0d] == %0d",i,exp.strb[0][i],i,act.strb[0][i]);
 
     if (!pass) begin
 
@@ -361,6 +364,8 @@ class axfdi_comparator extends uvm_component;
         if (exp.addr        !== act.addr)        pass = 0;
         if (exp.data        !=  act.data)        pass = 0;
         if (exp.wstrb       !=  act.wstrb)       pass = 0;
+        //foreach (exp.wstrb[0][i])
+      //$display("[cmp] compare_axi_req exp_wstrobe [%0d] == %0d  | act_strobe [%0d] == %0d",i,exp.wstrb[0][i],i,act.wstrb[0][i]);
       end
 
       WRITE_RESP, READ_RESP: begin

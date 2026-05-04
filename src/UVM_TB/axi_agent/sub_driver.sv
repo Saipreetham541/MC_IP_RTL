@@ -39,19 +39,19 @@ task run_phase(uvm_phase phase);
 			//$display("\n\n\n\n\n\n\n\n");
 			//$display("time %0t = ",$time);
 			seq_item_port.get_next_item(txn);
-			$display("sub_drv_runphaseeeeeeeeeeeeeeeeeeeeeeeeeeee\n\n");
+			//$display("sub_drv_runphaseeeeeeeeeeeeeeeeeeeeeeeeeeee\n\n");
 			//display(txn.convert2string());
-				$display("txn.axn_type=%0d", txn.axn_type);
+			//	$display("txn.axn_type=%0d", txn.axn_type);
 			//$display("\n\n\n\n\n\n\n\n");
 			//$display("time %0t = ",$time);
 			 if(txn.axn_type== WRITE )
 			 begin
-			 $display("calling write_reqqqqqqqqqqqqqqqqqqqqqqq");
+			 //$display("calling write_reqqqqqqqqqqqqqqqqqqqqqqq");
 					drive_write(txn);
 			end
 				else if (txn.axn_type== READ)
 				begin
-				 $display("calling read_reqrrrrrrrrrrrrrrrrrrrrrrrrrr");
+				// $display("calling read_reqrrrrrrrrrrrrrrrrrrrrrrrrrr");
 					drive_read(txn);
 				end
 			seq_item_port.item_done();

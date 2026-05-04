@@ -241,7 +241,7 @@ module axfdi_depacketizer #(
            r_flit_credit_rtn_cnt <= s_flit_credit_rtn_cnt;
            r_flit_addr <= s_flit_addr;
            if (s_flit_wstrb_present) r_flit_wstrb_b0 <= s_flit_wstrb_b0;
-           else r_flit_wstrb_b0 <= 128'b1;
+           else r_flit_wstrb_b0 <= '1;
            r_flit_data_line <= s_flit_data_line;
            r_write_req_en <= s_write_req_en;
            r_read_req_en <= s_read_req_en;
