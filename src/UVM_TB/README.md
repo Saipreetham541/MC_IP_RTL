@@ -1,4 +1,4 @@
-hiiiii> ## This Directory contains UVM for AXIFDI Bridge
+## This Directory contains UVM for AXIFDI Bridge
 
 ## Overview
 
