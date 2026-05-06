@@ -207,13 +207,20 @@ The make targets currently use Windows-style absolute paths for both the Vivado 
 
 RTL sanity test has been performed based on QuestaSIM simulation flow: `src/tb/`, which contains the tb and do files     
 
-> **Note:**  
-> This repository contains the AXFDI bridge source code, developed by **Sevya Multimedia Technologies**.  
-  >> Contributors:  
-  >>Pavan Kammili (pavan.kammili@sevyamm.com)  
-  >>Raja Ramagani (raja.ramagani@sevyamm.com)  
-  >>Yesaswini Bedadhuru (yesaswini.bedadhuru@sevyamm.com)  
-  >>Vishwa Patwari (vishwa.patwari@sevyamm.com)  
-  >>Shivasai Tatipalli (shivasai.tatipalli@sevyamm.com)  
-  >> Aravind P S  (aravind.prasannanpillai@sevyamm.com)  
+## Company And Contributors
 
+<div align="center">
+  <h3>Sevya Multimedia Technologies</h3>
+  <h2><strong><span style="color: #0057B8;">PROPRIETARY AND CONFIDENTIAL</span></strong></h2>
+</div>
+
+This repository contains the AXFDI bridge source code developed by **Sevya Multimedia Technologies**.
+
+| Contributor | Contact |
+| --- | --- |
+| Pavan Kammili | `pavan.kammili@sevyamm.com` |
+| Raja Ramagani | `raja.ramagani@sevyamm.com` |
+| Yesaswini Bedadhuru | `yesaswini.bedadhuru@sevyamm.com` |
+| Vishwa Patwari | `vishwa.patwari@sevyamm.com` |
+| Shivasai Tatipalli | `shivasai.tatipalli@sevyamm.com` |
+| Aravind P S | `aravind.prasannanpillai@sevyamm.com` |
