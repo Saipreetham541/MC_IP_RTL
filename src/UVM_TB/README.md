@@ -1,4 +1,4 @@
->## This Directory contains UVM for AXIFDI Bridge: Developed by VTEAM
+>## This Directory contains UVM for AXIFDI Bridge:
 
 ## Overview
 
