@@ -1,12 +1,8 @@
-# Busbridges
-
-## AXI to FDI Bridge
-The AXFDI bridge is defined to connect the AXI interface with the FDI interface
-The specification about the implementation can be found: [AXI-FDI SPEC](https://github.com/sevyamm/Busbridges/blob/master/docs/AXI-FDI%20Bridge%20%E2%80%94%20Project%20SpecificationV2.pdf) defines AXI-to-FDI Bridge  
+# Busbridges: AXI to FDI Bridge 
 
 ## Project Description
 
-According to the project specification in `docs/`, `AXFDI_BRIDGE` is a fully symmetric, bidirectional protocol-conversion IP that connects the local SoC AXI4 Full fabric to a UCIe 2.0 Flex Die Interface (FDI) mainband link. The same bridge instance is intended to be used on both dies of a chiplet link, so traffic can move in either direction using the same architectural model.
+According to the project specification in `docs/`, `AXFDI_BRIDGE` is a fully symmetric, bidirectional protocol-conversion IP that connects the local SoC AXI4 Full fabric to a UCIe 2.0 Flex Die Interface (FDI) mainband link. The same bridge instance is intended to be used on both dies of a chiplet link, so traffic can move in either direction using the same architectural model. [AXI-FDI SPEC](https://github.com/sevyamm/Busbridges/blob/master/docs/AXI-FDI%20Bridge%20%E2%80%94%20Project%20SpecificationV2.pdf) 
 
 At the system level, the bridge has three main jobs:
 
