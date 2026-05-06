@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains the UVM verification environment for the AXI-FDI bridge RTL in `src/rtl/`.
+This directory contains the UVM verification environment for the AXI-FDI bridge RTL in `src/rtl/`. It includes reusable AXI, FDI, and APB agents, protocol   interfaces, directed sequences, virtual sequences, scoreboard/predictor/comparator infrastructure, testcases, and Vivado XSim makefile-based simulation support.
 
 ## Directory Structure
 
