@@ -204,7 +204,7 @@ The current simulation flow in `src/UVM_TB/sim/Makefile` is based on Vivado `xvl
 - Default regression list: `single_read_test single_write_test fdi_data_test`
 
 The make targets currently use Windows-style absolute paths for both the Vivado installation and the repository location, so they may need to be adjusted before running in a different environment.
-<!--
+
 > **Note:**  
 > This repository contains the AXFDI bridge source code, developed by **Sevya Multimedia Technologies**.  
   >> Contributors:  
@@ -214,4 +214,4 @@ The make targets currently use Windows-style absolute paths for both the Vivado 
   >>Vishwa Patwari (vishwa.patwari@sevyamm.com)  
   >>Shivasai Tatipalli (shivasai.tatipalli@sevyamm.com)  
   >> Aravind P S  (aravind.prasannanpillai@sevyamm.com)  
--->
+
