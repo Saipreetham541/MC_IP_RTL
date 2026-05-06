@@ -203,7 +203,7 @@ The make targets currently use Windows-style absolute paths for both the Vivado 
 
 RTL sanity test has been performed based on QuestaSIM simulation flow: `src/tb/`, which contains the tb and do files  
 
-> **Git revision:
+> **Git revision:**
   >>V1.0.0: Design and UVM environment supporting single beat AXI transcation 
 
 > **Note:**  
