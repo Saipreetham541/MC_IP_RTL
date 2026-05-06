@@ -201,10 +201,13 @@ The current simulation flow in `src/UVM_TB/sim/Makefile` is based on Vivado `xvl
 
 The make targets currently use Windows-style absolute paths for both the Vivado installation and the repository location, so they may need to be adjusted before running in a different environment.
 
-RTL sanity test has been performed based on QuestaSIM simulation flow: `src/tb/`, which contains the tb and do files     
+RTL sanity test has been performed based on QuestaSIM simulation flow: `src/tb/`, which contains the tb and do files  
+
+> **Git revision:
+  >>V1.0.0: Design and UVM environment supporting single beat AXI transcation 
 
 > **Note:**  
-> This repository contains the AXFDI bridge source code, developed by **Sevya Multimedia Technologies**.  
+> This repository contains the AXFDI bridge source code, developed by **Sevya Multimedia Technologies**.
   >> Contributors:  
   >>Pavan Kammili (pavan.kammili@sevyamm.com)  
   >>Raja Ramagani (raja.ramagani@sevyamm.com)  
