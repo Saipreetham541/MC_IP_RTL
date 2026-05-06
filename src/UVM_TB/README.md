@@ -9,7 +9,7 @@ This directory contains the UVM verification environment for the AXI-FDI bridge 
 - `interfaces/`: SystemVerilog interfaces for AXI manager, AXI subordinate, FDI, APB, and reset connectivity.
 - `axi_agent/`: AXI sequence item, config, driver, monitor, sequencer, coverage, and agent implementation for both manager and subordinate roles.
 - `fdi_agent/`: FDI packet item, config, driver, monitor, sequencer, sequences, coverage, and a local credit model.
-- `apb_agent/`: APB-side verification scaffolding with config, transaction, driver, monitor, sequencer, sequences, and agent.
+- `apb_agent/`: APB-side verification framework with config, transaction, driver, monitor, sequencer, sequences, and agent.
 - `tb/`: environment, environment config, scoreboard, predictor, comparator, virtual sequencer, and the simulation top module.
 - `sequences/`: leaf AXI and FDI sequences used to generate directed traffic and protocol corner cases.
 - `virtual_seqs/`: virtual sequences that coordinate AXI-side and FDI-side stimulus across the environment.
