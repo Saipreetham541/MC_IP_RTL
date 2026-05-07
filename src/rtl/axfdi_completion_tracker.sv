@@ -30,13 +30,12 @@ module axfdi_completion_tracker #(
  input logic                rx_vcn,
  input logic [txn_id_w-1:0] rx_txn_id,
  output logic               rx_resp_port_id,
- output logic               rx_resp_port_id_valid,
 
  //signals from packetizer
  input logic                tx_vcn,
  input logic [txn_id_w-1:0] tx_txn_id,
  input logic                tx_port_id,
- output logic               tx_write_done,
+ //output logic               tx_write_done,
  input logic                tx_txn_valid
 );
 
@@ -55,12 +54,10 @@ module axfdi_completion_tracker #(
    logic [entry_idx_w-1:0] rx_d_index;
    logic                   r_rx_resp_port_id, s_rx_resp_port_id;
 
-   logic                   r_rx_resp_port_id_valid;
-   logic                   r_tx_write_done;
+//   logic                   r_tx_write_done;
 
    assign rx_resp_port_id = r_rx_resp_port_id;
-   assign rx_resp_port_id_valid = r_rx_resp_port_id_valid;
-   assign tx_write_done = r_tx_write_done;
+   //assign tx_write_done = r_tx_write_done;
 
    //loop to check for the free slot to assign value to the tracker
    always_comb begin
@@ -95,9 +92,8 @@ module axfdi_completion_tracker #(
 
    always_ff @(posedge fdi_clk or negedge por_n)
      if (!por_n) begin
-        r_rx_resp_port_id_valid <= 1'b0;
         r_rx_resp_port_id <= '0;
-        r_tx_write_done <= 1'b0;
+   //     r_tx_write_done <= 1'b0;
         for (int idx=0; idx < tracker_depth; idx++) begin
            completion_tracker[idx].port_id <= 1'b0;
            completion_tracker[idx].vcn <= 1'b0;
@@ -106,9 +102,8 @@ module axfdi_completion_tracker #(
         end
      end else begin
         if (!fdi_rst_n) begin
-           r_rx_resp_port_id_valid <= 1'b0;
            r_rx_resp_port_id <= '0;
-           r_tx_write_done <= 1'b0;
+      //     r_tx_write_done <= 1'b0;
            for (int idx=0; idx < tracker_depth; idx++) begin
               completion_tracker[idx].port_id <= 1'b0;
               completion_tracker[idx].vcn <= 1'b0;
@@ -121,18 +116,16 @@ module axfdi_completion_tracker #(
               completion_tracker[tx_d_index].vcn <= tx_vcn;
               completion_tracker[tx_d_index].data_valid <= 1'b1;
               completion_tracker[tx_d_index].txn_id <= tx_txn_id;
-              r_tx_write_done <= 1'b1;
+              //r_tx_write_done <= 1'b1;
            end
            if (rx_d_hit) begin
               r_rx_resp_port_id <= s_rx_resp_port_id;
-              r_rx_resp_port_id_valid <= 1'b1;
               completion_tracker[rx_d_index].port_id <= '0;
               completion_tracker[rx_d_index].vcn <= '0;
               completion_tracker[rx_d_index].data_valid <= '0;
               completion_tracker[rx_d_index].txn_id <= '0;
            end else begin
               r_rx_resp_port_id <= '0;
-              r_rx_resp_port_id_valid <= '0;
            end
         end
      end

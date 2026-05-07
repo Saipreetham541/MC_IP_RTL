@@ -264,6 +264,7 @@ module axfdi_axi_mgr #(
       aw_buf_ren   <= 1'b0;
 
 
+/* -----\/----- EXCLUDED -----\/-----
       if (!AW_cdc_pending && !AW_buf_wr_pending) begin
         if (!AW_cdc_empty && !aw_buf_full) begin
           AW_cdc_rd_en   <= 1'b1;
@@ -279,6 +280,15 @@ module axfdi_axi_mgr #(
           AW_buf_wr_pending <= 1'b0;
         end
       end
+ -----/\----- EXCLUDED -----/\----- */
+       if (!AW_cdc_empty && !aw_buf_full && !AW_cdc_rd_en) begin
+          AW_cdc_rd_en   <= 1'b1;
+       end
+       AW_cdc_pending <= AW_cdc_rd_en;
+       aw_buf_wen <= AW_cdc_pending;
+       if (AW_cdc_pending) begin
+          AW_hold_data      <= AW_cdc_data;
+       end
 
 
       if (AW_load_pending) begin
@@ -350,6 +360,7 @@ module axfdi_axi_mgr #(
       w_buf_ren   <= 1'b0;
 
 
+/* -----\/----- EXCLUDED -----\/-----
       if (!W_cdc_pending && !W_buf_wr_pending) begin
         if (!W_cdc_empty && !w_buf_full) begin
           W_cdc_rd_en   <= 1'b1;
@@ -365,6 +376,16 @@ module axfdi_axi_mgr #(
           W_buf_wr_pending <= 1'b0;
         end
       end
+ -----/\----- EXCLUDED -----/\----- */
+
+       if (!W_cdc_empty && !w_buf_full && !W_cdc_rd_en) begin
+          W_cdc_rd_en   <= 1'b1;
+       end
+       W_cdc_pending <= W_cdc_rd_en;
+       w_buf_wen <= W_cdc_pending;
+       if (W_cdc_pending) begin
+          W_hold_data      <= W_cdc_data;
+       end
 
 
       if (W_load_pending) begin

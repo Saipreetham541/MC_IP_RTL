@@ -116,7 +116,8 @@ module axfdi_axi_sub #(
   logic [B_W-1:0]   B_din;
 
   // pipeline control for sync FIFO reads
-  logic             aw_w_rd_pending;
+  logic             aw_rd_pending;
+  logic             w_rd_pending;
   logic             ar_rd_pending;
   logic             b_cdc_pending;
   logic             B_hold_valid;
@@ -126,7 +127,8 @@ module axfdi_axi_sub #(
   logic             r_load_pending;
   logic [R_W-1:0]   R_din_hold;
 
-  wire pair_aw_w;
+  wire aw_issue;
+  wire w_issue;
 
   // AW channel
   assign aw_buf_din = {awid, awlen, awburst, awsize, awaddr};
@@ -152,13 +154,11 @@ module axfdi_axi_sub #(
     .full(w_buf_full), .empty(w_buf_empty)
   );
 
-  // AW+W Pair
-  assign pair_aw_w = ~aw_buf_empty & ~w_buf_empty
-                   & ~AW_cdc_full  & ~W_cdc_full
-                   & ~aw_w_rd_pending;
+  assign aw_issue  = ~aw_buf_empty & ~AW_cdc_full & ~aw_rd_pending;
+  assign w_issue   = ~w_buf_empty  & ~W_cdc_full  & ~w_rd_pending;
 
-  assign aw_buf_ren = pair_aw_w;
-  assign w_buf_ren  = pair_aw_w;
+  assign aw_buf_ren = aw_issue;
+  assign w_buf_ren  = w_issue;
 
   always_ff @(posedge axi_clk, negedge por_n) begin
     if (!por_n) begin
@@ -166,7 +166,8 @@ module axfdi_axi_sub #(
       AW_cdc_data_r  <= '0;
       W_cdc_wr_en_r  <= 1'b0;
       W_cdc_data_r   <= '0;
-      aw_w_rd_pending <= 1'b0;
+      aw_rd_pending   <= 1'b0;
+      w_rd_pending    <= 1'b0;
     end
     else begin
     if (!axi_rst_n) begin
@@ -174,21 +175,26 @@ module axfdi_axi_sub #(
       AW_cdc_data_r  <= '0;
       W_cdc_wr_en_r  <= 1'b0;
       W_cdc_data_r   <= '0;
-      aw_w_rd_pending <= 1'b0;
+      aw_rd_pending   <= 1'b0;
+      w_rd_pending    <= 1'b0;
     end else begin
       AW_cdc_wr_en_r <= 1'b0;
       W_cdc_wr_en_r  <= 1'b0;
 
-      if (pair_aw_w) begin
-        aw_w_rd_pending <= 1'b1;
-      end else if (aw_w_rd_pending) begin
-        if (~AW_cdc_full & ~W_cdc_full) begin
-          AW_cdc_wr_en_r  <= 1'b1;
-          AW_cdc_data_r   <= aw_buf_dout;
-          W_cdc_wr_en_r   <= 1'b1;
-          W_cdc_data_r    <= w_buf_dout;
-          aw_w_rd_pending <= 1'b0;
-        end
+      if (aw_issue) begin
+        aw_rd_pending <= 1'b1;
+      end else if (aw_rd_pending && ~AW_cdc_full) begin
+        AW_cdc_wr_en_r <= 1'b1;
+        AW_cdc_data_r  <= aw_buf_dout;
+        aw_rd_pending  <= 1'b0;
+      end
+
+      if (w_issue) begin
+        w_rd_pending <= 1'b1;
+      end else if (w_rd_pending && ~W_cdc_full) begin
+        W_cdc_wr_en_r <= 1'b1;
+        W_cdc_data_r  <= w_buf_dout;
+        w_rd_pending  <= 1'b0;
       end
     end
   end

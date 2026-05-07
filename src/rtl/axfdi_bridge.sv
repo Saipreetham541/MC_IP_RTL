@@ -64,7 +64,7 @@ module axfdi_bridge
   //write data signals
   input logic [axi_data_w-1:0]    PORT0_SUB_wdata,
   input logic [axi_wstrb_w-1:0]   PORT0_SUB_wstrb,
-  input logic                    PORT0_SUB_wlast,
+  input logic                     PORT0_SUB_wlast,
   input logic                     PORT0_SUB_wvalid,
   output logic                    PORT0_SUB_wready,
   //write response signals
@@ -229,26 +229,23 @@ module axfdi_bridge
    logic                          s_credit_init_done;
 
    //From depacker to port router
-   logic [axi_data_w-1:0]         s_depktr_portrtr_axi_data;
-   logic [axi_len_w-1:0]          s_depktr_portrtr_axi_burst_len;
-   logic [axi_burst_w-1:0]        s_depktr_portrtr_axi_burst_type;
-   logic [axi_size_w-1:0]         s_depktr_portrtr_axi_burst_size;
-   logic [axi_resp_w-1:0]         s_depktr_portrtr_axi_resp;
-   logic [axi_addr_w-1:0]         s_depktr_portrtr_axi_addr;
-   logic [axi_wstrb_w-1:0]        s_depktr_portrtr_axi_wstrb;
-   logic                          s_portrtr_depktr_bakpres;
-   logic                          s_depktr_portrtr_flit_endofpkt;
-   logic                          s_depktr_portrtr_flit_startofpkt;
-
-   logic                          s_portrtr_depktr_read_done; //indicating port router has performed read
-   logic                          s_depktr_portrtr_write_req_valid;
-   logic                          s_depktr_portrtr_read_req_valid;
-   logic                          s_depktr_portrtr_write_resp_valid;
-   logic                          s_depktr_portrtr_read_resp_valid;
+   logic [cdc_aw_d_w-1:0]         s_aw_d;
+   logic                          s_aw_d_valid;
+   logic                          s_aw_d_ready;
+   logic [cdc_w_d_w-1:0]          s_w_d;
+   logic                          s_w_d_valid;
+   logic                          s_w_d_ready;
+   logic [cdc_ar_d_w-1:0]         s_ar_d;
+   logic                          s_ar_d_valid;
+   logic                          s_ar_d_ready;
+   logic [cdc_b_d_w-1:0]          s_b_d;
+   logic                          s_b_d_valid;
+   logic                          s_b_d_ready;
+   logic [cdc_r_d_w-1:0]          s_r_d;
+   logic                          s_r_d_valid;
+   logic                          s_r_d_ready;
    logic                          s_depktr_portrtr_port_id;
-   logic [axi_id_w-1:0]           s_depktr_portrtr_txn_id;
-
-   //FROM depacketizer to Credit Manager
+     //FROM depacketizer to Credit Manager
    logic [1:0]                    s_depktr_crdtmgr_credit_vcn;//credit_rtn_vcn
    logic [5:0]                    s_depktr_crdtmgr_credit_cnt;
    logic                          s_depktr_crdtmgr_rtn_valid;
@@ -259,7 +256,6 @@ module axfdi_bridge
    logic                          s_depktr_cmpltkr_vcn;
    logic [7:0]                    s_depktr_cmpltkr_txn_id;
    logic                          s_cmpltkr_depktr_port_id;
-   logic                          s_cmpltkr_depktr_port_id_valid;
 
    //from Packetizer to credit maanger
    logic                          s_credit_rtn_opcode_en;
@@ -338,7 +334,7 @@ module axfdi_bridge
    logic                          s_port0_mgr_cdc_w_d_full;
    logic                          s_port0_mgr_cdc_w_d_empty;
    logic                          s_port0_mgr_cdc_w_d_rd_en;
-   logic [cdc_w_d_w-1:0]         s_port0_mgr_cdc_w_d_out;
+   logic [cdc_w_d_w-1:0]          s_port0_mgr_cdc_w_d_out;
    logic [cdc_ar_d_w-1:0]         s_port0_mgr_cdc_ar_d;
    logic                          s_port0_mgr_cdc_ar_d_wr_en;
    logic                          s_port0_mgr_cdc_ar_d_full;
@@ -468,14 +464,6 @@ module axfdi_bridge
 
    axfdi_port_router
      #(
-       .axi_data_w(axi_data_w),
-       .axi_burst_len_w (axi_len_w),
-       .axi_burst_type_w (axi_burst_w),
-       .axi_burst_size_w (axi_size_w),
-       .axi_resp_w(axi_resp_w),
-       .axi_addr_w(axi_addr_w),
-       .axi_wstrb_w(axi_wstrb_w),
-       .axi_id_w(axi_id_w),
        .cdc_aw_d_w(cdc_aw_d_w),
        .cdc_w_d_w(cdc_w_d_w),
        .cdc_ar_d_w(cdc_ar_d_w),
@@ -484,58 +472,56 @@ module axfdi_bridge
        )u_axfdi_port_router
        (
         //clock and reset signals
-        .fdi_clk(fdi_clk_i),
-        .fdi_rst_n(fdi_rst_n_i),
-        .por_n(por_n_i),
+        .fdi_clk                (fdi_clk_i),
+        .fdi_rst_n              (fdi_rst_n_i),
+        .por_n                  (por_n_i),
+        .aw_d                   (s_aw_d),
+        .aw_d_valid             (s_aw_d_valid),
+        .aw_d_ready             (s_aw_d_ready),
+        .w_d                    (s_w_d),
+        .w_d_valid              (s_w_d_valid),
+        .w_d_ready              (s_w_d_ready),
+        .ar_d                   (s_ar_d),
+        .ar_d_valid             (s_ar_d_valid),
+        .ar_d_ready             (s_ar_d_ready),
+        .b_d                    (s_b_d),
+        .b_d_valid              (s_b_d_valid),
+        .b_d_ready              (s_b_d_ready),
+        .r_d                    (s_r_d),
+        .r_d_valid              (s_r_d_valid),
+        .r_d_ready              (s_r_d_ready),
+        .depktr_portrtr_port_id (s_depktr_portrtr_port_id),
 
-        .depktr_portrtr_axi_data(s_depktr_portrtr_axi_data),
-        .depktr_portrtr_axi_burst_len(s_depktr_portrtr_axi_burst_len),
-        .depktr_portrtr_axi_burst_type(s_depktr_portrtr_axi_burst_type),
-        .depktr_portrtr_axi_burst_size(s_depktr_portrtr_axi_burst_size),
-        .depktr_portrtr_axi_resp(s_depktr_portrtr_axi_resp),
-        .depktr_portrtr_axi_addr(s_depktr_portrtr_axi_addr),
-        .depktr_portrtr_axi_wstrb(s_depktr_portrtr_axi_wstrb),
-        .portrtr_depktr_bakpres(s_portrtr_depktr_bakpres),
-        .depktr_portrtr_flit_endofpkt(s_depktr_portrtr_flit_endofpkt),
-        .depktr_portrtr_flit_startofpkt(s_depktr_portrtr_flit_startofpkt),
-        .portrtr_depktr_read_done(s_portrtr_depktr_read_done), //indicating port router has performed read
-        .depktr_portrtr_write_req_valid(s_depktr_portrtr_write_req_valid),
-        .depktr_portrtr_read_req_valid(s_depktr_portrtr_read_req_valid),
-        .depktr_portrtr_write_resp_valid(s_depktr_portrtr_write_resp_valid),
-        .depktr_portrtr_read_resp_valid(s_depktr_portrtr_read_resp_valid),
-        .depktr_portrtr_port_id(s_depktr_portrtr_port_id),
-        .depktr_portrtr_txn_id(s_depktr_portrtr_txn_id),
-
-        .port0_cdc_aw_d(s_port0_mgr_cdc_aw_d),
-        .port0_cdc_aw_d_wr_en(s_port0_mgr_cdc_aw_d_wr_en),
-        .port0_cdc_aw_d_full(s_port0_mgr_cdc_aw_d_full),
-        .port0_cdc_w_d(s_port0_mgr_cdc_w_d),
-        .port0_cdc_w_d_wr_en(s_port0_mgr_cdc_w_d_wr_en),
-        .port0_cdc_w_d_full(s_port0_mgr_cdc_w_d_full),
-        .port0_cdc_ar_d(s_port0_mgr_cdc_ar_d),
-        .port0_cdc_ar_d_wr_en(s_port0_mgr_cdc_ar_d_wr_en),
-        .port0_cdc_ar_d_full(s_port0_mgr_cdc_ar_d_full),
-        .port0_cdc_b_d(s_port0_sub_cdc_b_d),
-        .port0_cdc_b_d_wr_en(s_port0_sub_cdc_b_d_wr_en),
-        .port0_cdc_b_d_full(s_port0_sub_cdc_b_d_full),
-        .port0_cdc_r_d(s_port0_sub_cdc_r_d),
-        .port0_cdc_r_d_wr_en(s_port0_sub_cdc_r_d_wr_en),
-        .port0_cdc_r_d_full(s_port0_sub_cdc_r_d_full),
-        .port1_cdc_aw_d(s_port1_mgr_cdc_aw_d),
-        .port1_cdc_aw_d_wr_en(s_port1_mgr_cdc_aw_d_wr_en),
-        .port1_cdc_aw_d_full(s_port1_mgr_cdc_aw_d_full),
-        .port1_cdc_w_d(s_port1_mgr_cdc_w_d),
-        .port1_cdc_w_d_wr_en(s_port1_mgr_cdc_w_d_wr_en),
-        .port1_cdc_w_d_full(s_port1_mgr_cdc_w_d_full),
-        .port1_cdc_ar_d(s_port1_mgr_cdc_ar_d),
-        .port1_cdc_ar_d_wr_en(s_port1_mgr_cdc_ar_d_wr_en),
-        .port1_cdc_ar_d_full(s_port1_mgr_cdc_ar_d_full),
-        .port1_cdc_b_d(s_port1_sub_cdc_b_d),
-        .port1_cdc_b_d_wr_en(s_port1_sub_cdc_b_d_wr_en),
-        .port1_cdc_b_d_full(s_port1_sub_cdc_b_d_full),
-        .port1_cdc_r_d(s_port1_sub_cdc_r_d),
-        .port1_cdc_r_d_wr_en(s_port1_sub_cdc_r_d_wr_en),
-        .port1_cdc_r_d_full(s_port1_sub_cdc_r_d_full)
+        .port0_cdc_aw_d         (s_port0_mgr_cdc_aw_d),
+        .port0_cdc_aw_d_wr_en   (s_port0_mgr_cdc_aw_d_wr_en),
+        .port0_cdc_aw_d_full    (s_port0_mgr_cdc_aw_d_full),
+        .port0_cdc_w_d          (s_port0_mgr_cdc_w_d),
+        .port0_cdc_w_d_wr_en    (s_port0_mgr_cdc_w_d_wr_en),
+        .port0_cdc_w_d_full     (s_port0_mgr_cdc_w_d_full),
+        .port0_cdc_ar_d         (s_port0_mgr_cdc_ar_d),
+        .port0_cdc_ar_d_wr_en   (s_port0_mgr_cdc_ar_d_wr_en),
+        .port0_cdc_ar_d_full    (s_port0_mgr_cdc_ar_d_full),
+        .port0_cdc_b_d          (s_port0_sub_cdc_b_d),
+        .port0_cdc_b_d_wr_en    (s_port0_sub_cdc_b_d_wr_en),
+        .port0_cdc_b_d_full     (s_port0_sub_cdc_b_d_full),
+        .port0_cdc_r_d          (s_port0_sub_cdc_r_d),
+        .port0_cdc_r_d_wr_en    (s_port0_sub_cdc_r_d_wr_en),
+        .port0_cdc_r_d_full     (s_port0_sub_cdc_r_d_full),
+        .port1_cdc_aw_d         (s_port1_mgr_cdc_aw_d),
+        .port1_cdc_aw_d_wr_en   (s_port1_mgr_cdc_aw_d_wr_en),
+        .port1_cdc_aw_d_full    (s_port1_mgr_cdc_aw_d_full),
+        .port1_cdc_w_d          (s_port1_mgr_cdc_w_d),
+        .port1_cdc_w_d_wr_en    (s_port1_mgr_cdc_w_d_wr_en),
+        .port1_cdc_w_d_full     (s_port1_mgr_cdc_w_d_full),
+        .port1_cdc_ar_d         (s_port1_mgr_cdc_ar_d),
+        .port1_cdc_ar_d_wr_en   (s_port1_mgr_cdc_ar_d_wr_en),
+        .port1_cdc_ar_d_full    (s_port1_mgr_cdc_ar_d_full),
+        .port1_cdc_b_d          (s_port1_sub_cdc_b_d),
+        .port1_cdc_b_d_wr_en    (s_port1_sub_cdc_b_d_wr_en),
+        .port1_cdc_b_d_full     (s_port1_sub_cdc_b_d_full),
+        .port1_cdc_r_d          (s_port1_sub_cdc_r_d),
+        .port1_cdc_r_d_wr_en    (s_port1_sub_cdc_r_d_wr_en),
+        .port1_cdc_r_d_full     (s_port1_sub_cdc_r_d_full)
         );
 
    axfdi_completion_tracker
@@ -555,13 +541,11 @@ module axfdi_bridge
       .rx_vcn(s_depktr_cmpltkr_vcn),
       .rx_txn_id(s_depktr_cmpltkr_txn_id) ,
       .rx_resp_port_id(s_cmpltkr_depktr_port_id),
-      .rx_resp_port_id_valid(s_cmpltkr_depktr_port_id_valid),
-
       //signals from packetizer
       .tx_vcn(s_pktr_cmpltkr_tx_vcn),
       .tx_txn_id(s_pktr_cmpltkr_tx_txn_id),
       .tx_port_id(s_pktr_cmpltkr_tx_port_id),
-      .tx_write_done(s_pktr_cmpltkr_tx_write_done),
+      //.tx_write_done(s_pktr_cmpltkr_tx_write_done),
       .tx_txn_valid(s_pktr_cmpltkr_tx_txn_valid)
       );
 
@@ -606,64 +590,61 @@ module axfdi_bridge
 
    axfdi_depacketizer
      #(
-       .fdi_flit_width(fdi_data_w),
-       .axi_data_w(axi_data_w),
-       .axi_burst_len_w (axi_len_w),
+       .fdi_flit_width   (fdi_data_w),
+       .axi_data_w       (axi_data_w),
+       .axi_burst_len_w  (axi_len_w),
        .axi_burst_type_w (axi_burst_w),
        .axi_burst_size_w (axi_size_w),
-       .axi_resp_w(axi_resp_w),
-       .axi_addr_w(axi_addr_w),
-       .axi_wstrb_w(axi_wstrb_w),
-       .axi_id_w(axi_id_w),
-       .credit_size(credit_size),
-       .rtn_vcn_w(rtn_vcn_w),
-       .vcn_w(vcn_w)
+       .axi_resp_w       (axi_resp_w),
+       .axi_addr_w       (axi_addr_w),
+       .axi_wstrb_w      (axi_wstrb_w),
+       .axi_id_w         (axi_id_w),
+       .credit_size      (credit_size),
+       .rtn_vcn_w        (rtn_vcn_w),
+       .vcn_w            (vcn_w)
        ) u_axfdi_depacketizer
        (
         //clock and reset
-        .fdi_clk(fdi_clk_i),
-        .fdi_rst_n(fdi_rst_n_i),
-        .por_n(por_n_i), //global reset
+        .fdi_clk   (fdi_clk_i),
+        .fdi_rst_n (fdi_rst_n_i),
+        .por_n     (por_n_i), //global reset
 
-        .flit_rx_data(s_flit_rx_data),
-        .flit_rx_data_valid(s_flit_rx_data_valid),
-        .fdi_depktr_rx_startofpkt(s_fdi_depktr_rx_startofpkt),
-        .fdi_depktr_rx_endofpkt(s_fdi_depktr_rx_endofpkt),
-        .fdi_depktr_rx_trdy(s_fdi_depktr_rx_trdy),
-
-        //signals to the credit manager
-        .depktr_crdtmgr_credit_vcn(s_depktr_crdtmgr_credit_vcn),//credit_rtn_vcn
-        .depktr_crdtmgr_credit_cnt(s_depktr_crdtmgr_credit_cnt),
-        .depktr_crdtmgr_rtn_valid(s_depktr_crdtmgr_rtn_valid),
-        .depktr_crdtmgr_credit_rx_incr(s_depktr_crdtmgr_credit_rx_incr),
-        .depktr_crdtmgr_rx_vcn(s_depktr_crdtmgr_rx_vcn), //vcn from header
+        .flit_rx_data                  (s_flit_rx_data),
+        .flit_rx_data_valid            (s_flit_rx_data_valid),
+        .fdi_depktr_rx_startofpkt      (s_fdi_depktr_rx_startofpkt),
+        .fdi_depktr_rx_endofpkt        (s_fdi_depktr_rx_endofpkt),
+        .fdi_depktr_rx_trdy            (s_fdi_depktr_rx_trdy),
+        .aw_d                          (s_aw_d),
+        .aw_d_valid                    (s_aw_d_valid),
+        .aw_d_ready                    (s_aw_d_ready),
+        .w_d                           (s_w_d),
+        .w_d_valid                     (s_w_d_valid),
+        .w_d_ready                     (s_w_d_ready),
+        .ar_d                          (s_ar_d),
+        .ar_d_valid                    (s_ar_d_valid),
+        .ar_d_ready                    (s_ar_d_ready),
+        .b_d                           (s_b_d),
+        .b_d_valid                     (s_b_d_valid),
+        .b_d_ready                     (s_b_d_ready),
+        .r_d                           (s_r_d),
+        .r_d_valid                     (s_r_d_valid),
+        .r_d_ready                     (s_r_d_ready),
+        .depktr_portrtr_port_id        (s_depktr_portrtr_port_id),
+              //signals to the credit manager
+        .depktr_crdtmgr_credit_vcn     (s_depktr_crdtmgr_credit_vcn),//credit_rtn_vcn
+        .depktr_crdtmgr_credit_cnt     (s_depktr_crdtmgr_credit_cnt),
+        .depktr_crdtmgr_rtn_valid      (s_depktr_crdtmgr_rtn_valid),
+        .depktr_crdtmgr_credit_rx_incr (s_depktr_crdtmgr_credit_rx_incr),
+        .depktr_crdtmgr_rx_vcn         (s_depktr_crdtmgr_rx_vcn), //vcn from header
 
         //signals to the port router
-        .depktr_portrtr_axi_data(s_depktr_portrtr_axi_data),
-        .depktr_portrtr_axi_burst_len(s_depktr_portrtr_axi_burst_len),
-        .depktr_portrtr_axi_burst_type(s_depktr_portrtr_axi_burst_type),
-        .depktr_portrtr_axi_burst_size(s_depktr_portrtr_axi_burst_size),
-        .depktr_portrtr_axi_resp(s_depktr_portrtr_axi_resp),
-        .depktr_portrtr_axi_addr(s_depktr_portrtr_axi_addr),
-        .depktr_portrtr_axi_wstrb(s_depktr_portrtr_axi_wstrb),
-        .portrtr_depktr_bakpres(s_portrtr_depktr_bakpres),
-        .depktr_portrtr_flit_startofpkt(s_depktr_portrtr_flit_startofpkt),
-        .depktr_portrtr_flit_endofpkt(s_depktr_portrtr_flit_endofpkt),
-        .portrtr_depktr_read_done(s_portrtr_depktr_read_done), //indicating port router has performed read
-        .depktr_portrtr_write_req_valid(s_depktr_portrtr_write_req_valid),
-        .depktr_portrtr_read_req_valid(s_depktr_portrtr_read_req_valid),
-        .depktr_portrtr_write_resp_valid(s_depktr_portrtr_write_resp_valid),
-        .depktr_portrtr_read_resp_valid(s_depktr_portrtr_read_resp_valid),
-        .depktr_portrtr_port_id(s_depktr_portrtr_port_id),
-        .depktr_portrtr_txn_id(s_depktr_portrtr_txn_id),
+
 
         //signals completion tracker
-        .depktr_cmpltkr_resp_valid(s_depktr_cmpltkr_resp_valid),
-        .depktr_cmpltkr_vcn(s_depktr_cmpltkr_vcn),
-        .depktr_cmpltkr_txn_id(s_depktr_cmpltkr_txn_id),
-        .cmpltkr_depktr_port_id(s_cmpltkr_depktr_port_id),
-        .cmpltkr_depktr_port_id_valid(s_cmpltkr_depktr_port_id_valid)
-
+        .depktr_cmpltkr_resp_valid     (s_depktr_cmpltkr_resp_valid),
+        .depktr_cmpltkr_vcn            (s_depktr_cmpltkr_vcn),
+        .depktr_cmpltkr_txn_id         (s_depktr_cmpltkr_txn_id),
+        .cmpltkr_depktr_port_id        (s_cmpltkr_depktr_port_id)
         );
    //PORT0 MGR
    axfdi_axi_mgr
@@ -1195,8 +1176,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr0_tx_aw
        (
-        .clk_wr(axi_clk_i),
-        .clk_rd(fdi_clk_i),
+        .clk_wr(fdi_clk_i),
+        .clk_rd(axi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port0_mgr_cdc_aw_d_wr_en),
         .rd_en(s_port0_mgr_cdc_aw_d_rd_en),
@@ -1213,8 +1194,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr0_tx_w
        (
-        .clk_wr(axi_clk_i),
-        .clk_rd(fdi_clk_i),
+        .clk_wr(fdi_clk_i),
+        .clk_rd(axi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port0_mgr_cdc_w_d_wr_en),
         .rd_en(s_port0_mgr_cdc_w_d_rd_en),
@@ -1232,8 +1213,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr0_tx_ar
        (
-        .clk_wr(axi_clk_i),
-        .clk_rd(fdi_clk_i),
+        .clk_wr(fdi_clk_i),
+        .clk_rd(axi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port0_mgr_cdc_ar_d_wr_en),
         .rd_en(s_port0_mgr_cdc_ar_d_rd_en),
@@ -1251,8 +1232,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr0_rx_r
        (
-        .clk_wr(fdi_clk_i),
-        .clk_rd(axi_clk_i),
+        .clk_wr(axi_clk_i),
+        .clk_rd(fdi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port0_mgr_cdc_r_d_wr_en),
         .rd_en(s_port0_mgr_cdc_r_d_rd_en),
@@ -1270,8 +1251,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr0_rx_b
        (
-        .clk_wr(fdi_clk_i),
-        .clk_rd(axi_clk_i),
+        .clk_wr(axi_clk_i),
+        .clk_rd(fdi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port0_mgr_cdc_b_d_wr_en),
         .rd_en(s_port0_mgr_cdc_b_d_rd_en),
@@ -1289,8 +1270,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr1_tx_aw
        (
-        .clk_wr(axi_clk_i),
-        .clk_rd(fdi_clk_i),
+        .clk_wr(fdi_clk_i),
+        .clk_rd(axi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port1_mgr_cdc_aw_d_wr_en),
         .rd_en(s_port1_mgr_cdc_aw_d_rd_en),
@@ -1307,8 +1288,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr1_tx_w
        (
-        .clk_wr(axi_clk_i),
-        .clk_rd(fdi_clk_i),
+        .clk_wr(fdi_clk_i),
+        .clk_rd(axi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port1_mgr_cdc_w_d_wr_en),
         .rd_en(s_port1_mgr_cdc_w_d_rd_en),
@@ -1326,8 +1307,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr1_tx_ar
        (
-        .clk_wr(axi_clk_i),
-        .clk_rd(fdi_clk_i),
+        .clk_wr(fdi_clk_i),
+        .clk_rd(axi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port1_mgr_cdc_ar_d_wr_en),
         .rd_en(s_port1_mgr_cdc_ar_d_rd_en),
@@ -1345,8 +1326,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr1_rx_r
        (
-        .clk_wr(fdi_clk_i),
-        .clk_rd(axi_clk_i),
+        .clk_wr(axi_clk_i),
+        .clk_rd(fdi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port1_mgr_cdc_r_d_wr_en),
         .rd_en(s_port1_mgr_cdc_r_d_rd_en),
@@ -1364,8 +1345,8 @@ module axfdi_bridge
        .addr_w(cdc_addr_w)
        ) u_cdc_fifo_mgr1_rx_b
        (
-        .clk_wr(fdi_clk_i),
-        .clk_rd(axi_clk_i),
+        .clk_wr(axi_clk_i),
+        .clk_rd(fdi_clk_i),
         .rst(por_n_i),
         .wr_en(s_port1_mgr_cdc_b_d_wr_en),
         .rd_en(s_port1_mgr_cdc_b_d_rd_en),
@@ -1500,7 +1481,7 @@ module axfdi_bridge
         .tx_vcn(s_pktr_cmpltkr_tx_vcn),
         .tx_txn_id(s_pktr_cmpltkr_tx_txn_id),
         .tx_port_id(s_pktr_cmpltkr_tx_port_id),
-        .tx_write_done(s_pktr_cmpltkr_tx_write_done),
+        //.tx_write_done(s_pktr_cmpltkr_tx_write_done),
         .tx_txn_valid(s_pktr_cmpltkr_tx_txn_valid),
 
     // -------- FDI --------

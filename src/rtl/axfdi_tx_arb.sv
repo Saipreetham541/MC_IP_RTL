@@ -133,7 +133,7 @@ always_comb begin
 end
 
 
-assign reload = (cpl_cnt_next == 0) && (np_cnt_next == 0);
+assign reload = (cpl_cnt_next == 0) || (np_cnt_next == 0);
    
     always_ff @(posedge fdi_clk, negedge por_n) begin
     if (!por_n) begin
@@ -298,7 +298,7 @@ end
    assign crd_rtn_valid = crd_rtn;
    assign txn_type = s_txn_type;//was r_txn_type
    //to match the width just added 0 to the msb
-   assign vcn_sel = {1'b0,r_vcn_sel};
+   assign vcn_sel = {1'b0,s_vcn_sel};//was r_vcn_sel
 endmodule
 
 
