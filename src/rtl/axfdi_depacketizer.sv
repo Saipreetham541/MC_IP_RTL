@@ -143,8 +143,8 @@ module axfdi_depacketizer #(
    assign depktr_portrtr_read_req_valid = r_read_req_en;
    assign depktr_portrtr_write_resp_valid = (cmpltkr_depktr_port_id_valid) ? r_write_resp_en : 1'b0;
    assign depktr_portrtr_read_resp_valid = ( cmpltkr_depktr_port_id_valid) ? r_read_resp_en : 1'b0;
-   assign depktr_portrtr_port_id = (r_write_req_en && r_read_req_en) ? r_flit_port_id:
-                                   (r_write_resp_en && r_read_resp_en) ? cmpltkr_depktr_port_id:
+   assign depktr_portrtr_port_id = (r_write_req_en || r_read_req_en) ? r_flit_port_id:
+                                    (r_write_resp_en || r_read_resp_en) ? cmpltkr_depktr_port_id:
                                    1'b0;
    assign depktr_portrtr_txn_id = r_flit_txn_id;
 
