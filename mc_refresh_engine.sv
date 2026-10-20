@@ -3,13 +3,14 @@
 module mc_refresh_engine
   import mc_pkg::*;
 (
-  input  logic clk,
-  input  logic rst_n,
-  input  logic ref_ack,           // Pulsed by scheduler when REF command is issued
-  output logic ref_req,           // High when refresh is pending (top priority)
-  output logic ref_deadline_miss  // Pulsed if tREFI expires while previous ref_req is still pending
+  input  logic clk,               // Advances the periodic refresh interval.
+  input  logic rst_n,             // Synchronous active-low reset.
+  input  logic ref_ack,           // Scheduler actually issued the requested REF.
+  output logic ref_req,           // Held high so refresh cannot be lost while banks drain.
+  output logic ref_deadline_miss  // Pulses when another interval expires before acknowledgement.
 );
 
+  // Counts remaining cycles until refresh service becomes due.
   logic [12:0] refi_counter;
 
   always_ff @(posedge clk) begin
@@ -20,6 +21,8 @@ module mc_refresh_engine
     end else begin
       ref_deadline_miss <= 1'b0;
 
+      // Acknowledgement clears the outstanding request. A simultaneous interval
+      // expiry below creates the next request, so elapsed refresh debt is kept.
       if (ref_ack) begin
         ref_req <= 1'b0;
       end

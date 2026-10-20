@@ -2,7 +2,8 @@
 
 package mc_pkg;
 
-  // Sizing & Addressing Parameters (Section 13.2)
+  // System geometry and interface widths. Central definitions keep queue,
+  // scheduler, and formatter indexing consistent.
   localparam int AXI_DATA_W          = 256;
   localparam int AXI_ADDR_W          = 40;
   localparam int AXI_ID_W            = 8;
@@ -22,10 +23,18 @@ package mc_pkg;
   localparam int TOTAL_BANKS         = NUM_BANKGROUPS * NUM_BANKS_PER_GROUP; // 16 banks
   localparam int BG_ADDR_W           = 2;
   localparam int BANK_ADDR_W         = 2;
+  localparam int BANK_IDX_W          = BG_ADDR_W + BANK_ADDR_W;
   localparam int ROW_ADDR_W          = 14;
   localparam int COL_ADDR_W          = 5;
 
-  // HBM3 DRAM Timing Parameters in dfi_clk cycles @ 1 GHz (Section 7.3.2)
+  localparam int DFI_NUM_PORTS       = NUM_PC_PER_CH;
+  localparam int DFI_ROW_W           = 1 + ROW_ADDR_W + BANK_ADDR_W + BG_ADDR_W + 3;
+  localparam int DFI_COL_W           = 1 + COL_ADDR_W + BANK_ADDR_W + BG_ADDR_W + 2;
+  localparam int WRLAT_W             = 4;
+  localparam int WRLAT_DEPTH         = 1 << WRLAT_W;
+
+  // HBM3 timing values expressed in dfi_clk cycles at 1 GHz. Timing counters
+  // load these constants when the corresponding command is actually issued.
   localparam logic [7:0]  T_RCD  = 8'd18;   // ACT to RD/WR delay
   localparam logic [7:0]  T_RAS  = 8'd34;   // ACT to PRE minimum open time
   localparam logic [7:0]  T_RP   = 8'd14;   // PRE to next ACT delay
@@ -39,7 +48,7 @@ package mc_pkg;
   localparam logic [12:0] T_REFI = 13'd3900;// Refresh interval (3.9 us)
   localparam logic [9:0]  T_RFC  = 10'd350; // Refresh cycle lock duration
 
-  // DFI Row & Column Command Encodings (Section 3.3.2a)
+  // Typed DFI encodings prevent row and column command values being mixed.
   typedef enum logic [2:0] {
     ROW_CMD_NOP    = 3'b000,
     ROW_CMD_ACT    = 3'b001,
@@ -56,7 +65,8 @@ package mc_pkg;
     COL_CMD_RDA = 2'b11 // Read/Write with auto-precharge (if used)
   } col_cmd_e;
 
-  // Command Queue Entry Structure
+  // One decoded transaction. wdb_ptr is meaningful for writes; axi_id is kept
+  // for reads so returning PHY data can be associated with its AXI transaction.
   typedef struct packed {
     logic [AXI_ID_W-1:0]    axi_id;
     logic                   is_write;

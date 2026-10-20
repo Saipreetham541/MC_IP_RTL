@@ -3,36 +3,40 @@
 module mc_cmdq
   import mc_pkg::*;
 (
-  input  logic                     clk,
-  input  logic                     rst_n,
+  input  logic                     clk,           // Scheduler clock for all queue state.
+  input  logic                     rst_n,         // Synchronous active-low queue reset.
 
-  // Push interface (from Address Decoder / Router)
+  // The decoder asserts push_val with one complete command. cmdq_full lets the
+  // decoder stop before data is lost; cmdq_overflow reports an attempted push
+  // while every slot is occupied.
   input  logic                     push_val,
   input  cmd_entry_t               push_entry,
   output logic                     cmdq_full,
-  output logic                     cmdq_overflow, // Error flag for Section 10
+  output logic                     cmdq_overflow,
 
-  // Pop / Invalidate interface (from Scheduler when RD/WR column cmd issues)
+  // ACT and PRE are intermediate operations, so a slot is invalidated only
+  // when its final RD/WR column command is granted.
   input  logic                     pop_val,
   input  logic [CMDQ_ADDR_W-1:0]   pop_idx,
 
-  // Continuous live visibility of all 32 slots to Scheduler
+  // The scheduler needs parallel visibility to evaluate and arbitrate every
+  // occupied command instead of being restricted to FIFO order.
   output logic [CMDQ_DEPTH-1:0]    slot_valid,
   output cmd_entry_t               slot_data [CMDQ_DEPTH-1:0]
 );
 
   cmd_entry_t            entries [CMDQ_DEPTH-1:0];
   logic [CMDQ_DEPTH-1:0] valid_reg;
+  logic [CMDQ_ADDR_W-1:0] free_idx;
+  logic                   free_found;
 
   assign slot_valid    = valid_reg;
   assign slot_data     = entries;
   assign cmdq_full     = &valid_reg;
   assign cmdq_overflow = push_val && cmdq_full;
 
-  // Priority encoder: find the lowest-index empty slot
-  logic [CMDQ_ADDR_W-1:0] free_idx;
-  logic                   free_found;
-
+  // Lowest-index allocation keeps the logic deterministic and allows the
+  // scheduler to use slot index as a stable identity until the command pops.
   always_comb begin
     free_idx   = '0;
     free_found = 1'b0;
@@ -51,12 +55,12 @@ module mc_cmdq
         entries[i] <= '0;
       end
     end else begin
-      // Free slot when RD/WR column command wins arbitration
+      // The granted column command completes this queue entry.
       if (pop_val) begin
         valid_reg[pop_idx] <= 1'b0;
       end
 
-      // Allocate slot when new command arrives
+      // Store only when space exists; overflow remains visible to the caller.
       if (push_val && !cmdq_full) begin
         valid_reg[free_idx] <= 1'b1;
         entries[free_idx]   <= push_entry;

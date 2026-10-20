@@ -5,21 +5,23 @@ module mc_rdb
 #(
   parameter int DFI_PC_DATA_W = 32
 ) (
-  input  logic                      clk,
-  input  logic                      rst_n,
+  input  logic                      clk,          // Scheduler/DFI return clock.
+  input  logic                      rst_n,        // Synchronous active-low reset.
 
-  // Tag push when COL_CMD_RD is issued by Scheduler
+  // PHY read data returns in issue order but without an AXI ID. Record the ID
+  // at RD issue so it can be restored when the corresponding data returns.
   input  logic                      rd_cmd_issue_val,
   input  logic [AXI_ID_W-1:0]       rd_cmd_issue_id,
-  output logic                      rdb_full,      // Stalls new RD commands if full
+  output logic                      rdb_full,      // Stops RD issue before response storage overflows.
 
-  // Returning Read Data from DFI PHY (per-PC lane)
+  // A valid return consumes the oldest in-flight ID and creates one completed
+  // {ID,data} entry. Returns with no in-flight ID are ignored.
   input  logic                      dfi_rddata_valid,
   input  logic [DFI_PC_DATA_W-1:0]  dfi_rddata,
 
-  // Read Completion output to R CDC FIFO / AXI Front-End
-  output logic                      rdb_valid,
-  input  logic                      rdb_ready,
+  // Standard valid/ready completion interface toward the AXI response path.
+  output logic                      rdb_valid,     // Current data and ID are valid.
+  input  logic                      rdb_ready,     // Consumer accepts the current entry.
   output logic [DFI_PC_DATA_W-1:0]  rdb_data,
   output logic [AXI_ID_W-1:0]       rdb_axi_id
 );
@@ -33,10 +35,14 @@ module mc_rdb
   logic [AXI_ID_W-1:0]      ret_id_fifo [RDB_DEPTH-1:0];
   logic [RDB_ADDR_W:0]      data_wr_ptr, data_rd_ptr;
 
-  // Track total outstanding reads (in-flight + buffered) so RDB never overflows
+  // id_wr_ptr counts every issued read while data_rd_ptr counts every response
+  // consumed by AXI. Their difference therefore covers both PHY-in-flight and
+  // locally buffered responses, which is the capacity the scheduler must limit.
   wire [RDB_ADDR_W:0] outstanding_cnt = id_wr_ptr - data_rd_ptr;
+  wire                  id_empty        = (id_wr_ptr == id_rd_ptr);
   assign rdb_full  = (outstanding_cnt == RDB_DEPTH[RDB_ADDR_W:0]);
 
+  // data_wr_ptr/data_rd_ptr describe only completed responses exposed to AXI.
   wire data_empty  = (data_wr_ptr == data_rd_ptr);
   assign rdb_valid = !data_empty;
   assign rdb_data   = data_fifo[data_rd_ptr[RDB_ADDR_W-1:0]];
@@ -56,7 +62,7 @@ module mc_rdb
       end
 
       // Capture returning DFI read data and pair with oldest in-flight AXI ID
-      if (dfi_rddata_valid) begin
+      if (dfi_rddata_valid && !id_empty) begin
         data_fifo[data_wr_ptr[RDB_ADDR_W-1:0]]   <= dfi_rddata;
         ret_id_fifo[data_wr_ptr[RDB_ADDR_W-1:0]] <= id_fifo[id_rd_ptr[RDB_ADDR_W-1:0]];
         id_rd_ptr                                <= id_rd_ptr + 1'b1;

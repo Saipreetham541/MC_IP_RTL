@@ -5,14 +5,14 @@ module mc_arbiter
 #(
   parameter int NUM_REQ = 32
 ) (
-  input  logic                        clk,
-  input  logic                        rst_n,
-  input  logic [NUM_REQ-1:0]          req_valid,   // Slot occupied
-  input  logic [NUM_REQ-1:0]          req_legal,   // Slot timing-legal this cycle
-  input  logic                        grant_ack,   // 1 = winner actually consumed downstream
-  output logic [NUM_REQ-1:0]          grant,       // 1-hot winner mask
-  output logic [$clog2(NUM_REQ)-1:0]  grant_idx,   // Binary winner index
-  output logic                        grant_valid  // 1 = at least one eligible candidate exists
+  input  logic                        clk,         // Advances per-request wait counters.
+  input  logic                        rst_n,       // Synchronous active-low reset.
+  input  logic [NUM_REQ-1:0]          req_valid,   // Marks occupied/requesting slots.
+  input  logic [NUM_REQ-1:0]          req_legal,   // Masks requests blocked by timing/resources.
+  input  logic                        grant_ack,   // Confirms the selected request really issued.
+  output logic [NUM_REQ-1:0]          grant,       // One-hot form used for per-slot updates.
+  output logic [$clog2(NUM_REQ)-1:0]  grant_idx,   // Binary form used to index command storage.
+  output logic                        grant_valid  // Distinguishes slot zero from no selection.
 );
 
   localparam int IDX_W = $clog2(NUM_REQ);
@@ -20,24 +20,22 @@ module mc_arbiter
   logic [CREDIT_CTR_WIDTH-1:0] wait_ctr [NUM_REQ-1:0];
   logic [NUM_REQ-1:0]          eligible;
 
+  // A request participates only when a command exists and can legally execute.
   assign eligible = req_valid & req_legal;
 
   // Combinational Winner Selection:
   // Highest wait_ctr wins; ties broken by lowest index (0 beats 1, etc.)
   always_comb begin
     logic [CREDIT_CTR_WIDTH-1:0] max_ctr;
-    logic                        found;
 
     grant_valid = 1'b0;
     grant_idx   = '0;
     max_ctr     = '0;
-    found       = 1'b0;
 
     for (int i = 0; i < NUM_REQ; i++) begin
       if (eligible[i]) begin
         // Strictly greater (>) ensures lower index 'i' keeps the win on a tie
-        if (!found || (wait_ctr[i] > max_ctr)) begin
-          found       = 1'b1;
+        if (!grant_valid || (wait_ctr[i] > max_ctr)) begin
           grant_valid = 1'b1;
           max_ctr     = wait_ctr[i];
           grant_idx   = IDX_W'(i);
@@ -54,7 +52,8 @@ module mc_arbiter
     end
   end
 
-  // Sequential Wait Counter Update (Section 5.2)
+  // Eligible losers age so they eventually outrank newer traffic. The counter
+  // resets only after downstream acceptance; a denied winner must retry.
   always_ff @(posedge clk) begin
     if (!rst_n) begin
       for (int i = 0; i < NUM_REQ; i++) begin

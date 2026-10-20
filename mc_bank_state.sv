@@ -3,23 +3,26 @@
 module mc_bank_state
   import mc_pkg::*;
 (
-  input  logic                      clk,
-  input  logic                      rst_n,
+  input  logic                      clk,          // Advances bank-open state.
+  input  logic                      rst_n,        // Synchronous active-low reset.
 
-  // Execution updates from scheduler when command wins arbitration
-  input  logic                      cmd_act_en,
-  input  logic                      cmd_pre_en,
-  input  logic                      cmd_preall_en,
-  input  logic [BG_ADDR_W-1:0]      update_bg,
-  input  logic [BANK_ADDR_W-1:0]    update_bank,
-  input  logic [ROW_ADDR_W-1:0]     update_row,
+  // Enable inputs are accepted-command pulses, not candidate requests. This is
+  // required so a command rejected by channel arbitration cannot corrupt state.
+  input  logic                      cmd_act_en,    // Opens one bank at update_row.
+  input  logic                      cmd_pre_en,    // Closes one selected bank.
+  input  logic                      cmd_preall_en, // Closes all banks for PREALL/refresh cleanup.
+  input  logic [BG_ADDR_W-1:0]      update_bg,    // Bank-group half of the flat bank index.
+  input  logic [BANK_ADDR_W-1:0]    update_bank,  // Bank half of the flat bank index.
+  input  logic [ROW_ADDR_W-1:0]     update_row,   // Row remembered when ACT opens a bank.
 
-  // Continuous live status to scheduler
+  // The scheduler reads this table combinationally to distinguish a page hit,
+  // a closed bank, and a row conflict for every queued command.
   output logic [TOTAL_BANKS-1:0]    bank_is_open,
   output logic [ROW_ADDR_W-1:0]     open_row [TOTAL_BANKS-1:0]
 );
 
-  wire [3:0] flat_update_bank = {update_bg, update_bank};
+  // Concatenation matches the address mapping used throughout the scheduler.
+  wire [BANK_IDX_W-1:0] flat_update_bank = {update_bg, update_bank};
 
   always_ff @(posedge clk) begin
     if (!rst_n) begin
@@ -28,6 +31,7 @@ module mc_bank_state
         open_row[i] <= '0;
       end
     end else begin
+      // PREALL has priority because it invalidates every individual open row.
       if (cmd_preall_en) begin
         bank_is_open <= '0;
       end else begin

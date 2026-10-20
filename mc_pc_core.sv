@@ -6,51 +6,55 @@ module mc_pc_core
   parameter int DFI_PC_DATA_W = 32,
   parameter int DFI_PC_MASK_W = 4
 ) (
-  input  logic                      clk,          // dfi_clk (1 GHz)
-  input  logic                      rst_n,        // ctl_reset_n
+  input  logic                      clk,          // DFI-domain clock; all core state advances here.
+  input  logic                      rst_n,        // Synchronous active-low controller reset.
 
-  // 1. Decoded Command Push Interface (from Address Decoder)
-  input  logic                      cmd_push_val,
-  input  cmd_entry_t                cmd_push_entry,
-  output logic                      cmdq_full,
+  // Decoded transaction input. cmdq_full is backpressure: the decoder must
+  // retain the command until a queue slot is available.
+  input  logic                      cmd_push_val,   // One-cycle request to store cmd_push_entry.
+  input  cmd_entry_t                cmd_push_entry, // Address, type, ID, and optional WDB pointer.
+  output logic                      cmdq_full,      // High when no command slot can be allocated.
 
-  // 2. Write Data Buffer (WDB) Interface
-  input  logic                      wdb_push_val,
+  // Write payload storage is separate from CMDQ because command scheduling can
+  // be delayed or reordered. The command carries wdb_alloc_ptr to find its data.
+  input  logic                      wdb_push_val,  // Stores one data/mask payload.
   input  logic [DFI_PC_DATA_W-1:0]  wdb_push_data,
   input  logic [DFI_PC_MASK_W-1:0]  wdb_push_mask,
-  output logic [WDB_ADDR_W-1:0]     wdb_alloc_ptr,
-  output logic                      wdb_full,
-  input  logic [WDB_ADDR_W-1:0]     wdb_raddr,
+  output logic [WDB_ADDR_W-1:0]     wdb_alloc_ptr, // Pointer copied into the write command.
+  output logic                      wdb_full,      // Backpressure when all payload slots are used.
+  input  logic [WDB_ADDR_W-1:0]     wdb_raddr,    // Formatter-selected payload pointer.
   output logic [DFI_PC_DATA_W-1:0]  wdb_rdata,
   output logic [DFI_PC_MASK_W-1:0]  wdb_rmask,
-  input  logic                      wdb_pop_val,
+  input  logic                      wdb_pop_val,   // Releases payload after DFI transmission.
   input  logic [WDB_ADDR_W-1:0]     wdb_pop_ptr,
 
-  // 3. Read Data Buffer (RDB) Interface
+  // Returning PHY data has no AXI ID, so RDB pairs it with IDs recorded when
+  // reads issue and presents a standard valid/ready completion interface.
   input  logic                      dfi_rddata_valid,
   input  logic [DFI_PC_DATA_W-1:0]  dfi_rddata,
-  output logic                      rdb_valid,
-  input  logic                      rdb_ready,
+  output logic                      rdb_valid,     // Completion data and ID are available.
+  input  logic                      rdb_ready,     // Consumer accepts the current completion.
   output logic [DFI_PC_DATA_W-1:0]  rdb_data,
   output logic [AXI_ID_W-1:0]       rdb_axi_id,
 
-  // 4. Candidate Command Outputs to Channel Arbiter (mc_ch_arb)
-  output logic                      row_req_val,
-  output logic                      row_req_is_ref, // High when row_req is a top-priority REF
+  // Candidate commands must receive the matching channel grant before they are
+  // considered issued. This prevents state/timing updates for a rejected request.
+  output logic                      row_req_val,    // A row command is ready for arbitration.
+  output logic                      row_req_is_ref, // Prioritize refresh PRE/REF service.
   output row_cmd_e                  row_req_cmd,
   output logic [ROW_ADDR_W-1:0]     row_req_addr,
   output logic [BG_ADDR_W-1:0]      row_req_bg,
   output logic [BANK_ADDR_W-1:0]    row_req_bank,
-  input  logic                      ch_arb_row_grant,
+  input  logic                      ch_arb_row_grant, // Channel accepted this row request.
 
-  output logic                      col_req_val,
+  output logic                      col_req_val,      // A column command is ready for arbitration.
   output col_cmd_e                  col_req_cmd,
   output logic [COL_ADDR_W-1:0]     col_req_addr,
   output logic [BG_ADDR_W-1:0]      col_req_bg,
   output logic [BANK_ADDR_W-1:0]    col_req_bank,
-  output logic [WDB_ADDR_W-1:0]     col_req_wdb_ptr,
-  output logic [AXI_ID_W-1:0]       col_req_axi_id,
-  input  logic                      ch_arb_col_grant,
+  output logic [WDB_ADDR_W-1:0]     col_req_wdb_ptr,  // Selects payload for WR.
+  output logic [AXI_ID_W-1:0]       col_req_axi_id,   // Records completion identity for RD.
+  input  logic                      ch_arb_col_grant, // Channel accepted this column request.
 
   // 5. Error / Interrupt Status Flags (Section 10)
   output logic                      err_cmdq_overflow,
@@ -58,7 +62,8 @@ module mc_pc_core
   output logic                      err_ref_deadline_miss
 );
 
-  // Internal Signals
+  // Queue visibility and arbitration results. slot_legal is recomputed from
+  // current bank/timing/buffer state every cycle.
   logic [CMDQ_DEPTH-1:0]  slot_valid;
   cmd_entry_t             slot_data [CMDQ_DEPTH-1:0];
   logic [CMDQ_DEPTH-1:0]  slot_legal;
@@ -67,8 +72,8 @@ module mc_pc_core
   logic                   cmdq_grant_valid;
   logic                   cmdq_arb_ack;
 
-  logic [WDB_DEPTH-1:0]   wdb_data_rdy;
-  logic                   rdb_full;
+  logic [WDB_DEPTH-1:0]   wdb_data_rdy; // Prevents WR before its payload arrives.
+  logic                   rdb_full;      // Prevents RD when no completion capacity remains.
 
   logic [TOTAL_BANKS-1:0] bank_is_open;
   logic [ROW_ADDR_W-1:0]  open_row [TOTAL_BANKS-1:0];
@@ -79,14 +84,20 @@ module mc_pc_core
   logic [TOTAL_BANKS-1:0] legal_wr;
   logic                   legal_ref;
 
-  logic                   ref_req;
-  logic                   ref_ack;
+  logic                   ref_req; // Held until all banks are prepared and REF is granted.
+  logic                   ref_ack; // Clears ref_req and starts the tRFC busy interval.
 
+  // These pulses represent commands actually accepted by the channel; only
+  // accepted commands are allowed to change bank or timing state.
   logic                   issue_act;
   logic                   issue_pre;
   logic                   issue_rd;
   logic                   issue_wr;
-  logic [3:0]             active_bank_idx;
+  logic [BANK_IDX_W-1:0]  active_bank_idx;
+
+  logic                   refresh_pre_valid;
+  logic [BANK_IDX_W-1:0]  refresh_pre_bank_idx;
+  logic                   any_bank_open;
 
   // --------------------------------------------------------------------------
   // 1. Command Queue (32 entries)
@@ -198,10 +209,12 @@ module mc_pc_core
   // --------------------------------------------------------------------------
   always_comb begin
     for (int i = 0; i < CMDQ_DEPTH; i++) begin
-      logic [3:0] b_idx;
+      logic [BANK_IDX_W-1:0] b_idx;
       logic       data_buf_ok;
 
       b_idx       = {slot_data[i].bankgroup, slot_data[i].bank};
+      // Page-hit commands consume a data buffer immediately. ACT/PRE may proceed
+      // earlier because they do not yet consume write data or read-return space.
       data_buf_ok = slot_data[i].is_write ? wdb_data_rdy[slot_data[i].wdb_ptr] : !rdb_full;
 
       if (!slot_valid[i]) begin
@@ -222,9 +235,9 @@ module mc_pc_core
   // --------------------------------------------------------------------------
   // 8. CMDQ Credit-Counter Arbiter (32 entries)
   // --------------------------------------------------------------------------
-  // The CMDQ winner's counter only resets if it was not preempted by Refresh
-  // and actually won the downstream channel bus
-  assign cmdq_arb_ack = !(ref_req && legal_ref) &&
+  // Reset the selected slot's age only when its candidate really issued.
+  // A refresh-preempted command keeps its accumulated priority.
+  assign cmdq_arb_ack = (|cmdq_grant) && !ref_req &&
                         ((row_req_val && ch_arb_row_grant) || (col_req_val && ch_arb_col_grant));
 
   mc_arbiter #(
@@ -244,10 +257,29 @@ module mc_pc_core
   // 9. Command Dispatch Logic
   // --------------------------------------------------------------------------
   cmd_entry_t winner;
-  wire [3:0]  winner_b_idx;
+  wire [BANK_IDX_W-1:0] winner_b_idx;
 
   assign winner       = slot_data[cmdq_grant_idx];
   assign winner_b_idx = {winner.bankgroup, winner.bank};
+
+  // During a pending refresh, find the lowest-numbered open bank that is safe to
+  // precharge. One bank is closed per granted PRE; REF waits until every bank is
+  // closed and the timing checker reports all tRP counters expired.
+  always_comb begin
+    refresh_pre_valid    = 1'b0;
+    refresh_pre_bank_idx = '0;
+    any_bank_open        = 1'b0;
+
+    for (int i = 0; i < TOTAL_BANKS; i++) begin
+      if (bank_is_open[i]) begin
+        any_bank_open = 1'b1;
+        if (legal_pre[i] && !refresh_pre_valid) begin
+          refresh_pre_valid    = 1'b1;
+          refresh_pre_bank_idx = BANK_IDX_W'(i);
+        end
+      end
+    end
+  end
 
   always_comb begin
     row_req_val     = 1'b0;
@@ -267,13 +299,23 @@ module mc_pc_core
 
     ref_ack         = 1'b0;
 
-    // Refresh has automatic top priority (Section 5.5)
-    if (ref_req && legal_ref) begin
-      row_req_val    = 1'b1;
-      row_req_is_ref = 1'b1;
-      row_req_cmd    = ROW_CMD_REF;
-      if (ch_arb_row_grant) begin
-        ref_ack = 1'b1;
+    // Refresh preparation and REF have automatic top priority (Section 5.5).
+    if (ref_req) begin
+      if (any_bank_open) begin
+        if (refresh_pre_valid) begin
+          row_req_val     = 1'b1;
+          row_req_is_ref  = 1'b1;
+          row_req_cmd     = ROW_CMD_PRE;
+          row_req_bg      = refresh_pre_bank_idx[BANK_IDX_W-1 -: BG_ADDR_W];
+          row_req_bank    = refresh_pre_bank_idx[BANK_ADDR_W-1:0];
+        end
+      end else if (legal_ref) begin
+        row_req_val    = 1'b1;
+        row_req_is_ref = 1'b1;
+        row_req_cmd    = ROW_CMD_REF;
+        if (ch_arb_row_grant) begin
+          ref_ack = 1'b1;
+        end
       end
     end else if (cmdq_grant_valid) begin
       if (bank_is_open[winner_b_idx] && (open_row[winner_b_idx] == winner.row)) begin
@@ -302,7 +344,8 @@ module mc_pc_core
     end
   end
 
-  // Trigger pulses for Bank State & Timing Counters when granted by Channel Arbiter
+  // Convert granted candidate commands into single-cycle state-update pulses.
+  // active_bank_idx selects the per-bank counters updated by that command.
   assign issue_act       = row_req_val && (row_req_cmd == ROW_CMD_ACT) && ch_arb_row_grant;
   assign issue_pre       = row_req_val && (row_req_cmd == ROW_CMD_PRE) && ch_arb_row_grant;
   assign issue_rd        = col_req_val && (col_req_cmd == COL_CMD_RD)  && ch_arb_col_grant;

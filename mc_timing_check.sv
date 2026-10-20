@@ -3,19 +3,21 @@
 module mc_timing_check
   import mc_pkg::*;
 (
-  input  logic                      clk,
-  input  logic                      rst_n,
+  input  logic                      clk,          // Decrements all active timing counters.
+  input  logic                      rst_n,        // Synchronous active-low reset.
 
-  // Commands actually issued this cycle (after winning arbitration)
+  // Each issued_* input is a granted-command pulse. Candidate requests must not
+  // load counters because they may be rejected by the shared channel arbiter.
   input  logic                      issued_act,
   input  logic                      issued_pre,
   input  logic                      issued_preall,
   input  logic                      issued_rd,
   input  logic                      issued_wr,
   input  logic                      issued_ref,
-  input  logic [3:0]                issued_bank, // {BG[1:0], BA[1:0]}
+  input  logic [BANK_IDX_W-1:0]     issued_bank,  // Selects the per-bank counters to load.
 
-  // Legality bit-vectors output to scheduler
+  // One bit per bank allows all CMDQ entries to evaluate timing legality in
+  // parallel. legal_ref applies to the whole pseudo-channel.
   output logic [TOTAL_BANKS-1:0]    legal_act,
   output logic [TOTAL_BANKS-1:0]    legal_pre,
   output logic [TOTAL_BANKS-1:0]    legal_rd,
@@ -23,7 +25,7 @@ module mc_timing_check
   output logic                      legal_ref
 );
 
-  // Per-bank down-counters
+  // Per-bank counters enforce constraints tied to a specific bank operation.
   logic [7:0] cnt_rcd [TOTAL_BANKS-1:0];
   logic [7:0] cnt_ras [TOTAL_BANKS-1:0];
   logic [7:0] cnt_rp  [TOTAL_BANKS-1:0];
@@ -31,13 +33,13 @@ module mc_timing_check
   logic [7:0] cnt_wr  [TOTAL_BANKS-1:0];
   logic [7:0] cnt_rtp [TOTAL_BANKS-1:0];
 
-  // Per-PC shared down-counters
+  // Shared counters enforce spacing between commands anywhere in this PC.
   logic [7:0] cnt_rrd;
   logic [7:0] cnt_ccd;
   logic [7:0] cnt_wtr;
   logic [9:0] cnt_rfc;
 
-  // 4-entry shift register tracking the last 4 ACT commands for tFAW
+  // Four ACT timestamps are needed to block a fifth activation inside tFAW.
   logic [7:0] faw_timer [3:0];
 
   function automatic [7:0] dec8(input logic [7:0] val);
@@ -48,9 +50,11 @@ module mc_timing_check
     return (val > 10'd0) ? (val - 10'd1) : 10'd0;
   endfunction
 
+  // No normal DRAM command is legal until the refresh recovery interval ends.
   wire refresh_busy = (cnt_rfc > 10'd0);
 
-  // Legality Combinational Logic per Bank
+  // A command is legal only after every timing relationship that affects it has
+  // counted down. Bank-open/row-hit state is checked separately in mc_pc_core.
   genvar b;
   generate
     for (b = 0; b < TOTAL_BANKS; b++) begin : gen_bank_legality
@@ -69,10 +73,19 @@ module mc_timing_check
     end
   endgenerate
 
-  // All-bank refresh is legal when not already refreshing and ACT spacing is clear
-  assign legal_ref = !refresh_busy && (cnt_rrd == 8'd0);
+  // Refresh can start only after all PRE-to-command delays have expired.
+  // Bank-open state is checked by the scheduler before it requests REF.
+  always_comb begin
+    legal_ref = !refresh_busy && (cnt_rrd == 8'd0);
+    for (int i = 0; i < TOTAL_BANKS; i++) begin
+      if (cnt_rp[i] != 8'd0) begin
+        legal_ref = 1'b0;
+      end
+    end
+  end
 
-  // Sequential Down-Counters
+  // Counters saturate at zero. Loading T_x-1 compensates for the issue cycle so
+  // the next command becomes legal after exactly T_x clock spacings.
   always_ff @(posedge clk) begin
     if (!rst_n) begin
       cnt_rrd <= '0;
