@@ -56,9 +56,7 @@ module mc_arbiter
   // resets only after downstream acceptance; a denied winner must retry.
   always_ff @(posedge clk) begin
     if (!rst_n) begin
-      for (int i = 0; i < NUM_REQ; i++) begin
-        wait_ctr[i] <= '0;
-      end
+      wait_ctr <= '{default: '0};
     end else begin
       for (int i = 0; i < NUM_REQ; i++) begin
         if (!req_valid[i]) begin

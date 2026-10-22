@@ -151,44 +151,6 @@ module tb_mc_smoke;
     .err_ref_deadline_miss(err_ref_deadline_miss)
   );
 
-  mc_dfi_fmt #(
-    .DFI_PC_DATA_W (DATA_W),
-    .DFI_PC_MASK_W (MASK_W)
-  ) u_dfi_fmt (
-    .clk               (clk),
-    .rst_n             (rst_n),
-    .row_req_val       (row_req_val),
-    .row_req_grant     (row_req_grant),
-    .row_req_cmd       (row_req_cmd),
-    .row_req_addr      (row_req_addr),
-    .row_req_bg        (row_req_bg),
-    .row_req_bank      (row_req_bank),
-    .col_req_val       (col_req_val),
-    .col_req_grant     (col_req_grant),
-    .col_req_cmd       (col_req_cmd),
-    .col_req_addr      (col_req_addr),
-    .col_req_bg        (col_req_bg),
-    .col_req_bank      (col_req_bank),
-    .col_req_wdb_ptr   (col_req_wdb_ptr),
-    .wdb_rdata_ch0     (wdb_rdata),
-    .wdb_rdata_ch1     ('0),
-    .wdb_rmask_ch0     (wdb_rmask),
-    .wdb_rmask_ch1     ('0),
-    .wdb_raddr_ch0     (wdb_raddr),
-    .wdb_raddr_ch1     (wdb_raddr_unused),
-    .csr_tphy_wrlat    (WRLAT_W'(2)),
-    .dfi_row_ch0       (dfi_row_ch0),
-    .dfi_row_ch1       (dfi_row_ch1),
-    .dfi_col_ch0       (dfi_col_ch0),
-    .dfi_col_ch1       (dfi_col_ch1),
-    .dfi_wrdata_ch0    (dfi_wrdata_ch0),
-    .dfi_wrdata_ch1    (dfi_wrdata_ch1),
-    .dfi_wrmask_ch0    (dfi_wrmask_ch0),
-    .dfi_wrmask_ch1    (dfi_wrmask_ch1),
-    .dfi_wrdata_en_ch0 (dfi_wrdata_en_ch0),
-    .dfi_wrdata_en_ch1 (dfi_wrdata_en_ch1)
-  );
-
   always_ff @(posedge clk) begin
     if (!rst_n) begin
       rd_return_pipe  <= '0;
