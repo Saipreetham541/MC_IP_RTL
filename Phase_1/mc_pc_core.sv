@@ -1,10 +1,23 @@
 `timescale 1ns/1ps
 
-module mc_pc_core
-  import mc_pkg::*;
-#(
+module mc_pc_core #(
   parameter int DFI_PC_DATA_W = 32,
-  parameter int DFI_PC_MASK_W = 4
+  parameter int DFI_PC_MASK_W = 4,
+  parameter int AXI_ID_W      = 8,
+  parameter int CMDQ_DEPTH    = 32,
+  parameter int CMDQ_ADDR_W   = $clog2(CMDQ_DEPTH),
+  parameter int WDB_DEPTH     = 16,
+  parameter int WDB_ADDR_W    = $clog2(WDB_DEPTH),
+  parameter int RDB_DEPTH     = 16,
+  parameter int RDB_ADDR_W    = $clog2(RDB_DEPTH),
+  parameter int BG_ADDR_W     = 2,
+  parameter int BANK_ADDR_W   = 2,
+  parameter int ROW_ADDR_W    = 14,
+  parameter int COL_ADDR_W    = 5,
+  parameter int TOTAL_BANKS   = 16,
+  parameter int BANK_IDX_W    = BG_ADDR_W + BANK_ADDR_W,
+  parameter int CMD_ENTRY_W   = AXI_ID_W + 1 + ROW_ADDR_W + BG_ADDR_W +
+                                BANK_ADDR_W + COL_ADDR_W + WDB_ADDR_W
 ) (
   input  logic                      clk,          // DFI-domain clock; all core state advances here.
   input  logic                      rst_n,        // Synchronous active-low controller reset.
@@ -12,7 +25,7 @@ module mc_pc_core
   // Decoded transaction input. cmdq_full is backpressure: the decoder must
   // retain the command until a queue slot is available.
   input  logic                      cmd_push_val,   // One-cycle request to store cmd_push_entry.
-  input  cmd_entry_t                cmd_push_entry, // Address, type, ID, and optional WDB pointer.
+  input  logic [CMD_ENTRY_W-1:0]    cmd_push_entry, // Packed address, type, ID, and WDB pointer.
   output logic                      cmdq_full,      // High when no command slot can be allocated.
 
   // Write payload storage is separate from CMDQ because command scheduling can
@@ -41,14 +54,14 @@ module mc_pc_core
   // considered issued. This prevents state/timing updates for a rejected request.
   output logic                      row_req_val,    // A row command is ready for arbitration.
   output logic                      row_req_is_ref, // Prioritize refresh PRE/REF service.
-  output row_cmd_e                  row_req_cmd,
+  output logic [2:0]                row_req_cmd,
   output logic [ROW_ADDR_W-1:0]     row_req_addr,
   output logic [BG_ADDR_W-1:0]      row_req_bg,
   output logic [BANK_ADDR_W-1:0]    row_req_bank,
   input  logic                      ch_arb_row_grant, // Channel accepted this row request.
 
   output logic                      col_req_val,      // A column command is ready for arbitration.
-  output col_cmd_e                  col_req_cmd,
+  output logic [1:0]                col_req_cmd,
   output logic [COL_ADDR_W-1:0]     col_req_addr,
   output logic [BG_ADDR_W-1:0]      col_req_bg,
   output logic [BANK_ADDR_W-1:0]    col_req_bank,
@@ -62,10 +75,30 @@ module mc_pc_core
   output logic                      err_ref_deadline_miss
 );
 
+  // Definitions formerly supplied by mc_pkg are local to this controller.
+  localparam logic [2:0] ROW_CMD_NOP = 3'b000;
+  localparam logic [2:0] ROW_CMD_ACT = 3'b001;
+  localparam logic [2:0] ROW_CMD_PRE = 3'b010;
+  localparam logic [2:0] ROW_CMD_REF = 3'b100;
+
+  localparam logic [1:0] COL_CMD_NOP = 2'b00;
+  localparam logic [1:0] COL_CMD_RD  = 2'b01;
+  localparam logic [1:0] COL_CMD_WR  = 2'b10;
+
+  typedef struct packed {
+    logic [AXI_ID_W-1:0]    axi_id;
+    logic                   is_write;
+    logic [ROW_ADDR_W-1:0]  row;
+    logic [BG_ADDR_W-1:0]   bankgroup;
+    logic [BANK_ADDR_W-1:0] bank;
+    logic [COL_ADDR_W-1:0]  col;
+    logic [WDB_ADDR_W-1:0]  wdb_ptr;
+  } cmd_entry_t;
+
   // Queue visibility and arbitration results. slot_legal is recomputed from
   // current bank/timing/buffer state every cycle.
   logic [CMDQ_DEPTH-1:0]  slot_valid;
-  cmd_entry_t             slot_data [CMDQ_DEPTH-1:0];
+  logic [CMD_ENTRY_W-1:0] slot_data [CMDQ_DEPTH-1:0];
   logic [CMDQ_DEPTH-1:0]  slot_legal;
   logic [CMDQ_DEPTH-1:0]  cmdq_grant;
   logic [CMDQ_ADDR_W-1:0] cmdq_grant_idx;
@@ -102,7 +135,11 @@ module mc_pc_core
   // --------------------------------------------------------------------------
   // 1. Command Queue (32 entries)
   // --------------------------------------------------------------------------
-  mc_cmdq u_cmdq (
+  mc_cmdq #(
+    .CMDQ_DEPTH  (CMDQ_DEPTH),
+    .CMDQ_ADDR_W (CMDQ_ADDR_W),
+    .CMD_ENTRY_W (CMD_ENTRY_W)
+  ) u_cmdq (
     .clk           (clk),
     .rst_n         (rst_n),
     .push_val      (cmd_push_val),
@@ -120,7 +157,9 @@ module mc_pc_core
   // --------------------------------------------------------------------------
   mc_wdb #(
     .DFI_PC_DATA_W (DFI_PC_DATA_W),
-    .DFI_PC_MASK_W (DFI_PC_MASK_W)
+    .DFI_PC_MASK_W (DFI_PC_MASK_W),
+    .WDB_DEPTH     (WDB_DEPTH),
+    .WDB_ADDR_W    (WDB_ADDR_W)
   ) u_wdb (
     .clk           (clk),
     .rst_n         (rst_n),
@@ -142,7 +181,10 @@ module mc_pc_core
   // 3. Read Data Buffer (16 entries)
   // --------------------------------------------------------------------------
   mc_rdb #(
-    .DFI_PC_DATA_W (DFI_PC_DATA_W)
+    .DFI_PC_DATA_W (DFI_PC_DATA_W),
+    .AXI_ID_W      (AXI_ID_W),
+    .RDB_DEPTH     (RDB_DEPTH),
+    .RDB_ADDR_W    (RDB_ADDR_W)
   ) u_rdb (
     .clk              (clk),
     .rst_n            (rst_n),
@@ -171,7 +213,13 @@ module mc_pc_core
   // --------------------------------------------------------------------------
   // 5. Bank State Table (16 banks per PC)
   // --------------------------------------------------------------------------
-  mc_bank_state u_bank_state (
+  mc_bank_state #(
+    .BG_ADDR_W   (BG_ADDR_W),
+    .BANK_ADDR_W (BANK_ADDR_W),
+    .ROW_ADDR_W  (ROW_ADDR_W),
+    .TOTAL_BANKS (TOTAL_BANKS),
+    .BANK_IDX_W  (BANK_IDX_W)
+  ) u_bank_state (
     .clk           (clk),
     .rst_n         (rst_n),
     .cmd_act_en    (issue_act),
@@ -187,7 +235,10 @@ module mc_pc_core
   // --------------------------------------------------------------------------
   // 6. DRAM Timing Legality Checker
   // --------------------------------------------------------------------------
-  mc_timing_check u_timing_check (
+  mc_timing_check #(
+    .BANK_IDX_W  (BANK_IDX_W),
+    .TOTAL_BANKS (TOTAL_BANKS)
+  ) u_timing_check (
     .clk           (clk),
     .rst_n         (rst_n),
     .issued_act    (issue_act),
@@ -210,18 +261,20 @@ module mc_pc_core
   always_comb begin
     for (int i = 0; i < CMDQ_DEPTH; i++) begin
       logic [BANK_IDX_W-1:0] b_idx;
-      logic       data_buf_ok;
+      logic                    data_buf_ok;
+      cmd_entry_t              slot_entry;
 
-      b_idx       = {slot_data[i].bankgroup, slot_data[i].bank};
+      slot_entry  = cmd_entry_t'(slot_data[i]);
+      b_idx       = {slot_entry.bankgroup, slot_entry.bank};
       // Page-hit commands consume a data buffer immediately. ACT/PRE may proceed
       // earlier because they do not yet consume write data or read-return space.
-      data_buf_ok = slot_data[i].is_write ? wdb_data_rdy[slot_data[i].wdb_ptr] : !rdb_full;
+      data_buf_ok = slot_entry.is_write ? wdb_data_rdy[slot_entry.wdb_ptr] : !rdb_full;
 
       if (!slot_valid[i]) begin
         slot_legal[i] = 1'b0;
-      end else if (bank_is_open[b_idx] && (open_row[b_idx] == slot_data[i].row)) begin
+      end else if (bank_is_open[b_idx] && (open_row[b_idx] == slot_entry.row)) begin
         // Page Hit: check column timing and WDB/RDB readiness
-        slot_legal[i] = data_buf_ok && (slot_data[i].is_write ? legal_wr[b_idx] : legal_rd[b_idx]);
+        slot_legal[i] = data_buf_ok && (slot_entry.is_write ? legal_wr[b_idx] : legal_rd[b_idx]);
       end else if (!bank_is_open[b_idx]) begin
         // Bank Closed: check ACT timing
         slot_legal[i] = legal_act[b_idx];
@@ -259,7 +312,7 @@ module mc_pc_core
   cmd_entry_t winner;
   wire [BANK_IDX_W-1:0] winner_b_idx;
 
-  assign winner       = slot_data[cmdq_grant_idx];
+  assign winner       = cmd_entry_t'(slot_data[cmdq_grant_idx]);
   assign winner_b_idx = {winner.bankgroup, winner.bank};
 
   // During a pending refresh, find the lowest-numbered open bank that is safe to

@@ -1,9 +1,10 @@
 `timescale 1ns/1ps
 
-module mc_rdb
-  import mc_pkg::*;
-#(
-  parameter int DFI_PC_DATA_W = 32
+module mc_rdb #(
+  parameter int DFI_PC_DATA_W = 32,
+  parameter int AXI_ID_W      = 8,
+  parameter int RDB_DEPTH     = 16,
+  parameter int RDB_ADDR_W    = $clog2(RDB_DEPTH)
 ) (
   input  logic                      clk,          // Scheduler/DFI return clock.
   input  logic                      rst_n,        // Synchronous active-low reset.

@@ -1,10 +1,10 @@
 `timescale 1ns/1ps
 
-module mc_wdb
-  import mc_pkg::*;
-#(
+module mc_wdb #(
   parameter int DFI_PC_DATA_W = 32, // 32-bit data lane per PC on DFI (Section 3.3.2a)
-  parameter int DFI_PC_MASK_W = 4   // 4-bit byte mask per PC on DFI (Section 3.3.2a)
+  parameter int DFI_PC_MASK_W = 4,  // 4-bit byte mask per PC on DFI (Section 3.3.2a)
+  parameter int WDB_DEPTH     = 16,
+  parameter int WDB_ADDR_W    = $clog2(WDB_DEPTH)
 ) (
   input  logic                      clk,           // Scheduler clock for WDB state.
   input  logic                      rst_n,         // Synchronous active-low reset.

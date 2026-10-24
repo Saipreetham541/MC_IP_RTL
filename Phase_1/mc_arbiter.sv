@@ -1,9 +1,8 @@
 `timescale 1ns/1ps
 
-module mc_arbiter
-  import mc_pkg::*;
-#(
-  parameter int NUM_REQ = 32
+module mc_arbiter #(
+  parameter int NUM_REQ          = 32,
+  parameter int CREDIT_CTR_WIDTH = 8
 ) (
   input  logic                        clk,         // Advances per-request wait counters.
   input  logic                        rst_n,       // Synchronous active-low reset.

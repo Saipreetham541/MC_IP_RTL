@@ -1,8 +1,20 @@
 `timescale 1ns/1ps
 
-module mc_timing_check
-  import mc_pkg::*;
-(
+module mc_timing_check #(
+  parameter int BANK_IDX_W  = 4,
+  parameter int TOTAL_BANKS = 16,
+  parameter logic [7:0] T_RCD = 8'd18,
+  parameter logic [7:0] T_RAS = 8'd34,
+  parameter logic [7:0] T_RP  = 8'd14,
+  parameter logic [7:0] T_RC  = 8'd50,
+  parameter logic [7:0] T_RRD = 8'd6,
+  parameter logic [7:0] T_FAW = 8'd32,
+  parameter logic [7:0] T_CCD = 8'd4,
+  parameter logic [7:0] T_WTR = 8'd8,
+  parameter logic [7:0] T_WR  = 8'd18,
+  parameter logic [7:0] T_RTP = 8'd8,
+  parameter logic [9:0] T_RFC = 10'd350
+) (
   input  logic                      clk,          // Decrements all active timing counters.
   input  logic                      rst_n,        // Synchronous active-low reset.
 

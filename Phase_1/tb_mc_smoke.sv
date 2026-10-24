@@ -1,10 +1,35 @@
 `timescale 1ns/1ps
 
 module tb_mc_smoke;
-  import mc_pkg::*;
+  // Standalone geometry and encodings; no package compile dependency is needed.
+  localparam int DATA_W        = 32;
+  localparam int MASK_W        = DATA_W / 8;
+  localparam int AXI_ID_W      = 8;
+  localparam int WDB_DEPTH     = 16;
+  localparam int WDB_ADDR_W    = $clog2(WDB_DEPTH);
+  localparam int ROW_ADDR_W    = 14;
+  localparam int COL_ADDR_W    = 5;
+  localparam int BG_ADDR_W     = 2;
+  localparam int BANK_ADDR_W   = 2;
+  localparam int DFI_NUM_PORTS = 2;
+  localparam int DFI_ROW_W     = 1 + ROW_ADDR_W + BANK_ADDR_W + BG_ADDR_W + 3;
+  localparam int DFI_COL_W     = 1 + COL_ADDR_W + BANK_ADDR_W + BG_ADDR_W + 2;
 
-  localparam int DATA_W = 32;
-  localparam int MASK_W = DATA_W / 8;
+  localparam logic [2:0] ROW_CMD_NOP = 3'b000;
+  localparam logic [1:0] COL_CMD_NOP = 2'b00;
+  localparam logic [1:0] COL_CMD_RD  = 2'b01;
+  localparam logic [12:0] T_REFI = 13'd3900;
+  localparam logic [9:0]  T_RFC  = 10'd350;
+
+  typedef struct packed {
+    logic [AXI_ID_W-1:0]    axi_id;
+    logic                   is_write;
+    logic [ROW_ADDR_W-1:0]  row;
+    logic [BG_ADDR_W-1:0]   bankgroup;
+    logic [BANK_ADDR_W-1:0] bank;
+    logic [COL_ADDR_W-1:0]  col;
+    logic [WDB_ADDR_W-1:0]  wdb_ptr;
+  } cmd_entry_t;
 
   logic clk;
   logic rst_n;
@@ -32,12 +57,12 @@ module tb_mc_smoke;
 
   logic                    row_req_val_0;
   logic                    row_req_is_ref_0;
-  row_cmd_e                row_req_cmd_0;
+  logic [2:0]              row_req_cmd_0;
   logic [ROW_ADDR_W-1:0]   row_req_addr_0;
   logic [BG_ADDR_W-1:0]    row_req_bg_0;
   logic [BANK_ADDR_W-1:0]  row_req_bank_0;
   logic                    col_req_val_0;
-  col_cmd_e                col_req_cmd_0;
+  logic [1:0]              col_req_cmd_0;
   logic [COL_ADDR_W-1:0]   col_req_addr_0;
   logic [BG_ADDR_W-1:0]    col_req_bg_0;
   logic [BANK_ADDR_W-1:0]  col_req_bank_0;
@@ -46,14 +71,14 @@ module tb_mc_smoke;
 
   logic [DFI_NUM_PORTS-1:0] row_req_val;
   logic [DFI_NUM_PORTS-1:0] row_req_grant;
-  row_cmd_e                 row_req_cmd [DFI_NUM_PORTS];
+  logic [2:0]               row_req_cmd [DFI_NUM_PORTS];
   logic [ROW_ADDR_W-1:0]    row_req_addr [DFI_NUM_PORTS];
   logic [BG_ADDR_W-1:0]     row_req_bg [DFI_NUM_PORTS];
   logic [BANK_ADDR_W-1:0]   row_req_bank [DFI_NUM_PORTS];
 
   logic [DFI_NUM_PORTS-1:0] col_req_val;
   logic [DFI_NUM_PORTS-1:0] col_req_grant;
-  col_cmd_e                 col_req_cmd [DFI_NUM_PORTS];
+  logic [1:0]               col_req_cmd [DFI_NUM_PORTS];
   logic [COL_ADDR_W-1:0]    col_req_addr [DFI_NUM_PORTS];
   logic [BG_ADDR_W-1:0]     col_req_bg [DFI_NUM_PORTS];
   logic [BANK_ADDR_W-1:0]   col_req_bank [DFI_NUM_PORTS];

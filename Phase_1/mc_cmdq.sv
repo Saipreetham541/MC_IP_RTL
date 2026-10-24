@@ -1,8 +1,10 @@
 `timescale 1ns/1ps
 
-module mc_cmdq
-  import mc_pkg::*;
-(
+module mc_cmdq #(
+  parameter int CMDQ_DEPTH   = 32,
+  parameter int CMDQ_ADDR_W  = $clog2(CMDQ_DEPTH),
+  parameter int CMD_ENTRY_W  = 36
+) (
   input  logic                     clk,           // Scheduler clock for all queue state.
   input  logic                     rst_n,         // Synchronous active-low queue reset.
 
@@ -10,7 +12,7 @@ module mc_cmdq
   // decoder stop before data is lost; cmdq_overflow reports an attempted push
   // while every slot is occupied.
   input  logic                     push_val,
-  input  cmd_entry_t               push_entry,
+  input  logic [CMD_ENTRY_W-1:0]   push_entry,
   output logic                     cmdq_full,
   output logic                     cmdq_overflow,
 
@@ -22,10 +24,10 @@ module mc_cmdq
   // The scheduler needs parallel visibility to evaluate and arbitrate every
   // occupied command instead of being restricted to FIFO order.
   output logic [CMDQ_DEPTH-1:0]    slot_valid,
-  output cmd_entry_t               slot_data [CMDQ_DEPTH-1:0]
+  output logic [CMD_ENTRY_W-1:0]   slot_data [CMDQ_DEPTH-1:0]
 );
 
-  cmd_entry_t            entries [CMDQ_DEPTH-1:0];
+  logic [CMD_ENTRY_W-1:0] entries [CMDQ_DEPTH-1:0];
   logic [CMDQ_DEPTH-1:0] valid_reg;
   logic [CMDQ_ADDR_W-1:0] free_idx;
   logic                   free_found;

@@ -1,8 +1,8 @@
 `timescale 1ns/1ps
 
-module mc_refresh_engine
-  import mc_pkg::*;
-(
+module mc_refresh_engine #(
+  parameter logic [12:0] T_REFI = 13'd3900
+) (
   input  logic clk,               // Advances the periodic refresh interval.
   input  logic rst_n,             // Synchronous active-low reset.
   input  logic ref_ack,           // Scheduler actually issued the requested REF.

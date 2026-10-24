@@ -1,8 +1,12 @@
 `timescale 1ns/1ps
 
-module mc_bank_state
-  import mc_pkg::*;
-(
+module mc_bank_state #(
+  parameter int BG_ADDR_W   = 2,
+  parameter int BANK_ADDR_W = 2,
+  parameter int ROW_ADDR_W  = 14,
+  parameter int TOTAL_BANKS = 16,
+  parameter int BANK_IDX_W  = BG_ADDR_W + BANK_ADDR_W
+) (
   input  logic                      clk,          // Advances bank-open state.
   input  logic                      rst_n,        // Synchronous active-low reset.
 
