@@ -52,10 +52,10 @@ module mc_async_fifo #(
 
     // Calculate next pointers
     always_comb begin
-        wbin_next  = wptr_bin + w_do;
+        wbin_next  = wptr_bin + {{3{1'b0}}, w_do};
         wgray_next = bin_to_gray(wbin_next);
 
-        rbin_next  = rptr_bin + r_do;
+        rbin_next  = rptr_bin + {{3{1'b0}}, r_do};
         rgray_next = bin_to_gray(rbin_next);
     end
 
