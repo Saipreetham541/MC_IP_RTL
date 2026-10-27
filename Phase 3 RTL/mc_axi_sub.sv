@@ -4,12 +4,6 @@ module mc_axi_sub #(
     parameter int AXI_ID_W   = 8
 ) (
     //==================================================
-    // Clock and reset
-    //==================================================
-    input logic aclk,
-    input logic aresetn,
-
-    //==================================================
     // AXI WRITE ADDRESS CHANNEL
     //==================================================
     input  logic [AXI_ID_W-1:0]   awid,
@@ -18,7 +12,6 @@ module mc_axi_sub #(
     input  logic [2:0]            awsize,
     input  logic [1:0]            awburst,
     input  logic [3:0]            awqos,
-    input  logic                  awlock, //unused no exclusive support
     input  logic [3:0]            awcache,
     input  logic [2:0]            awprot,
     input  logic                  awvalid,
