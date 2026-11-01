@@ -16,8 +16,6 @@ module mc_async_fifo #(
     output logic                  rvalid,
     input  logic                  rready
 );
-
-    // DEPTH must be a power of two and at least 4.
     localparam int ADDR_WIDTH = $clog2(DEPTH);
     localparam int PTR_WIDTH  = ADDR_WIDTH + 1;
 
@@ -27,10 +25,7 @@ module mc_async_fifo #(
     logic [PTR_WIDTH-1:0] rptr_bin, rptr_gray;
 
     // Synchronizers for Gray-coded pointers
-    (* ASYNC_REG = "TRUE" *)
     logic [PTR_WIDTH-1:0] rptr_gray_w1, rptr_gray_w2;
-
-    (* ASYNC_REG = "TRUE" *)
     logic [PTR_WIDTH-1:0] wptr_gray_r1, wptr_gray_r2;
 
     logic wfull, rempty;
@@ -43,36 +38,17 @@ module mc_async_fifo #(
     wire w_do = wvalid && wready;
     wire r_do = rvalid && rready;
 
-    // Binary-to-Gray conversion
-    function automatic logic [PTR_WIDTH-1:0] bin_to_gray(
-        input logic [PTR_WIDTH-1:0] value
-    );
-        bin_to_gray = (value >> 1) ^ value;
-    endfunction
-
     // Calculate next pointers
     always_comb begin
-        wbin_next  = wptr_bin + {{3{1'b0}}, w_do};
-        wgray_next = bin_to_gray(wbin_next);
+        wbin_next  = wptr_bin + {{(PTR_WIDTH-1){1'b0}}, w_do};
+        wgray_next = (wbin_next >> 1) ^ wbin_next;
 
-        rbin_next  = rptr_bin + {{3{1'b0}}, r_do};
-        rgray_next = bin_to_gray(rbin_next);
+        rbin_next  = rptr_bin + {{(PTR_WIDTH-1){1'b0}}, r_do};
+        rgray_next = (rbin_next >> 1) ^ rbin_next;
     end
-
-    // Full detection: If the next write pointer reaches the read pointer after one complete lap, mark the FIFO
-    // full, read pointer with its two most significant Gray bits inverted.
-    always_comb begin
-        wfull_next =
-            (wgray_next ==
-             {~rptr_gray_w2[PTR_WIDTH-1:PTR_WIDTH-2],
-                rptr_gray_w2[PTR_WIDTH-3:0]});
-    end
-
-    // Empty detection: next read pointer equals synchronized
-    // write pointer.
-    always_comb begin
-        rempty_next = (rgray_next == wptr_gray_r2);
-    end
+        
+    assign wfull_next = (wgray_next == {~rptr_gray_w2[PTR_WIDTH-1:PTR_WIDTH-2], rptr_gray_w2[PTR_WIDTH-3:0]});
+    assign rempty_next = (rgray_next == wptr_gray_r2);
 
     // Handshake outputs
     assign wready = !wfull;
@@ -132,11 +108,4 @@ module mc_async_fifo #(
             wptr_gray_r2 <= wptr_gray_r1;
         end
     end
-
-    // Basic parameter checks
-    initial begin
-        if (DEPTH < 4 || (DEPTH & (DEPTH - 1)) != 0)
-            $error("mc_async_fifo: DEPTH must be a power of two >= 4");
-    end
-
 endmodule
