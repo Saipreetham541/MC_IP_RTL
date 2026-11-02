@@ -54,14 +54,6 @@ module mc_timing_check #(
   // Four ACT timestamps are needed to block a fifth activation inside tFAW.
   logic [7:0] faw_timer [3:0];
 
-  function automatic [7:0] dec8(input logic [7:0] val);
-    return (val > 8'd0) ? (val - 8'd1) : 8'd0;
-  endfunction
-
-  function automatic [9:0] dec10(input logic [9:0] val);
-    return (val > 10'd0) ? (val - 10'd1) : 10'd0;
-  endfunction
-
   // No normal DRAM command is legal until the refresh recovery interval ends.
   wire refresh_busy = (cnt_rfc > 10'd0);
 
@@ -117,20 +109,20 @@ module mc_timing_check #(
       end
     end else begin
       // 1. Default every cycle: decrement all active counters by 1
-      cnt_rrd <= dec8(cnt_rrd);
-      cnt_ccd <= dec8(cnt_ccd);
-      cnt_wtr <= dec8(cnt_wtr);
-      cnt_rfc <= dec10(cnt_rfc);
+      cnt_rrd <= (cnt_rrd > 8'd0) ? (cnt_rrd - 8'd1) : 8'd0;
+      cnt_ccd <= (cnt_ccd > 8'd0) ? (cnt_ccd - 8'd1) : 8'd0;
+      cnt_wtr <= (cnt_wtr > 8'd0) ? (cnt_wtr - 8'd1) : 8'd0;
+      cnt_rfc <= (cnt_rfc > 10'd0) ? (cnt_rfc - 10'd1) : 10'd0;
       for (int i = 0; i < 4; i++) begin
-        faw_timer[i] <= dec8(faw_timer[i]);
+        faw_timer[i] <= (faw_timer[i] > 8'd0) ? (faw_timer[i] - 8'd1) : 8'd0;
       end
       for (int i = 0; i < TOTAL_BANKS; i++) begin
-        cnt_rcd[i] <= dec8(cnt_rcd[i]);
-        cnt_ras[i] <= dec8(cnt_ras[i]);
-        cnt_rp[i]  <= dec8(cnt_rp[i]);
-        cnt_rc[i]  <= dec8(cnt_rc[i]);
-        cnt_wr[i]  <= dec8(cnt_wr[i]);
-        cnt_rtp[i] <= dec8(cnt_rtp[i]);
+        cnt_rcd[i] <= (cnt_rcd[i] > 8'd0) ? (cnt_rcd[i] - 8'd1) : 8'd0;
+        cnt_ras[i] <= (cnt_ras[i] > 8'd0) ? (cnt_ras[i] - 8'd1) : 8'd0;
+        cnt_rp[i]  <= (cnt_rp[i] > 8'd0) ? (cnt_rp[i] - 8'd1) : 8'd0;
+        cnt_rc[i]  <= (cnt_rc[i] > 8'd0) ? (cnt_rc[i] - 8'd1) : 8'd0;
+        cnt_wr[i]  <= (cnt_wr[i] > 8'd0) ? (cnt_wr[i] - 8'd1) : 8'd0;
+        cnt_rtp[i] <= (cnt_rtp[i] > 8'd0) ? (cnt_rtp[i] - 8'd1) : 8'd0;
       end
 
       // 2. Load counters when a command is issued (using T_PARAM - 1 for exact cycle spacing)
@@ -140,9 +132,9 @@ module mc_timing_check #(
         cnt_rc[issued_bank]  <= T_RC  - 8'd1;
         cnt_rrd              <= T_RRD - 8'd1;
         // Shift the 4-activation window and insert new T_FAW timer
-        faw_timer[3]         <= dec8(faw_timer[2]);
-        faw_timer[2]         <= dec8(faw_timer[1]);
-        faw_timer[1]         <= dec8(faw_timer[0]);
+        faw_timer[3]         <= (faw_timer[2] > 8'd0) ? (faw_timer[2] - 8'd1) : 8'd0;
+        faw_timer[2]         <= (faw_timer[1] > 8'd0) ? (faw_timer[1] - 8'd1) : 8'd0;
+        faw_timer[1]         <= (faw_timer[0] > 8'd0) ? (faw_timer[0] - 8'd1) : 8'd0;
         faw_timer[0]         <= T_FAW - 8'd1;
       end
 
