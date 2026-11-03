@@ -300,6 +300,7 @@ module mc_pc_core #(
     .rst_n       (rst_n),
     .req_valid   (slot_valid),
     .req_legal   (slot_legal),
+    .req_priority ('0),
     .grant_ack   (cmdq_arb_ack),
     .grant       (cmdq_grant),
     .grant_idx   (cmdq_grant_idx),
