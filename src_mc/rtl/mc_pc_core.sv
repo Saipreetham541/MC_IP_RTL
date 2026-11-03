@@ -1,7 +1,6 @@
 `timescale 1ns/1ps
 
 module mc_pc_core #(
-  parameter int DATA_BURST_WORDS = 1,
   parameter int DFI_PC_DATA_W = 32,
   parameter int DFI_PC_MASK_W = 4,
   parameter int AXI_ID_W      = 8,
@@ -238,11 +237,7 @@ module mc_pc_core #(
   // --------------------------------------------------------------------------
   mc_timing_check #(
     .BANK_IDX_W  (BANK_IDX_W),
-    .TOTAL_BANKS (TOTAL_BANKS),
-    // Conservative spacing protects multiword transfers through a 32-bit lane.
-    .T_CCD       (8'(DATA_BURST_WORDS > 4 ? DATA_BURST_WORDS : 4)),
-    .T_WR        (8'(18 + DATA_BURST_WORDS - 1)),
-    .T_WTR       (8'(8 + DATA_BURST_WORDS - 1))
+    .TOTAL_BANKS (TOTAL_BANKS)
   ) u_timing_check (
     .clk           (clk),
     .rst_n         (rst_n),

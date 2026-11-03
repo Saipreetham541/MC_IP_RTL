@@ -1,11 +1,4 @@
-`default_nettype none
-`timescale 1ns/1ps
-
-// CDC_MODULE: both endpoints flush on either reset; release is synchronized
-// independently to each clock. No transaction survives an AXI/core reset.
 module mc_axi_cdc (
-    output logic axi_reset_ready_n,
-    output logic dfi_reset_ready_n,
 
     // =========================================================
     // CLOCKS AND RESETS
@@ -41,6 +34,16 @@ module mc_axi_cdc (
     output logic [2:0]  m_awprot,
     output logic        m_awvalid,
     input  logic        m_awready,
+
+    // =========================================================
+    // DECODED WRITE ADDRESS: CONTROLLER DOMAIN
+    // =========================================================
+    output logic [3:0]  m_aw_ch_sel,
+    output logic        m_aw_pc_sel,
+    output logic [13:0] m_aw_row_addr,
+    output logic [1:0]  m_aw_bank_group,
+    output logic [1:0]  m_aw_bank_addr,
+    output logic [4:0]  m_aw_col_addr,
 
     // =========================================================
     // W CHANNEL: AXI -> CONTROLLER
@@ -85,6 +88,16 @@ module mc_axi_cdc (
     input  logic        m_arready,
 
     // =========================================================
+    // DECODED READ ADDRESS: CONTROLLER DOMAIN
+    // =========================================================
+    output logic [3:0]  m_ar_ch_sel,
+    output logic        m_ar_pc_sel,
+    output logic [13:0] m_ar_row_addr,
+    output logic [1:0]  m_ar_bank_group,
+    output logic [1:0]  m_ar_bank_addr,
+    output logic [4:0]  m_ar_col_addr,
+
+    // =========================================================
     // B CHANNEL: CONTROLLER -> AXI
     // Width = 10 bits, Depth = 8
     // =========================================================
@@ -121,18 +134,6 @@ module mc_axi_cdc (
     // 1. PACK AXI FIELDS INTO FIFO WORDS
     // =========================================================
 
-
-    wire reset_request_n = aresetn && ctl_reset_n;
-    (* ASYNC_REG = "TRUE" *) logic [1:0] axi_release, dfi_release;
-    always_ff @(posedge aclk or negedge reset_request_n)
-      if (!reset_request_n) axi_release <= 0;
-      else axi_release <= {axi_release[0],1'b1};
-    always_ff @(posedge dfi_clk or negedge reset_request_n)
-      if (!reset_request_n) dfi_release <= 0;
-      else dfi_release <= {dfi_release[0],1'b1};
-    assign axi_reset_ready_n = axi_release[1];
-    assign dfi_reset_ready_n = dfi_release[1];
-
     logic [71:0]  aw_wdata, aw_rdata;
     logic [288:0] w_wdata,  w_rdata;
     logic [71:0]  ar_wdata, ar_rdata;
@@ -165,13 +166,13 @@ module mc_axi_cdc (
         .DEPTH      (8)
     ) u_aw_fifo (
         .wclk   (aclk),
-        .wrst_n (axi_reset_ready_n),
+        .wrst_n (aresetn),
         .wdata  (aw_wdata),
         .wvalid (s_awvalid),
         .wready (s_awready),
 
         .rclk   (dfi_clk),
-        .rrst_n (dfi_reset_ready_n),
+        .rrst_n (ctl_reset_n),
         .rdata  (aw_rdata),
         .rvalid (m_awvalid),
         .rready (m_awready)
@@ -192,13 +193,13 @@ module mc_axi_cdc (
         .DEPTH      (16)
     ) u_w_fifo (
         .wclk   (aclk),
-        .wrst_n (axi_reset_ready_n),
+        .wrst_n (aresetn),
         .wdata  (w_wdata),
         .wvalid (s_wvalid),
         .wready (s_wready),
 
         .rclk   (dfi_clk),
-        .rrst_n (dfi_reset_ready_n),
+        .rrst_n (ctl_reset_n),
         .rdata  (w_rdata),
         .rvalid (m_wvalid),
         .rready (m_wready)
@@ -216,13 +217,13 @@ module mc_axi_cdc (
         .DEPTH      (8)
     ) u_ar_fifo (
         .wclk   (aclk),
-        .wrst_n (axi_reset_ready_n),
+        .wrst_n (aresetn),
         .wdata  (ar_wdata),
         .wvalid (s_arvalid),
         .wready (s_arready),
 
         .rclk   (dfi_clk),
-        .rrst_n (dfi_reset_ready_n),
+        .rrst_n (ctl_reset_n),
         .rdata  (ar_rdata),
         .rvalid (m_arvalid),
         .rready (m_arready)
@@ -235,7 +236,41 @@ module mc_axi_cdc (
 
 
     // =========================================================
-    // 5. B FIFO: dfi_clk -> aclk
+    // 5. WRITE ADDRESS DECODER
+    // Decode the AW FIFO output in the dfi_clk domain.
+    // =========================================================
+
+    mc_addr_decode u_aw_decode (
+        .addr        (m_awaddr),
+        .ch_sel      (m_aw_ch_sel),
+        .pc_sel      (m_aw_pc_sel),
+        .row_addr    (m_aw_row_addr),
+        .bank_group  (m_aw_bank_group),
+        .bank_addr   (m_aw_bank_addr),
+        .col_addr    (m_aw_col_addr),
+        .byte_offset  ()
+    );
+
+
+    // =========================================================
+    // 6. READ ADDRESS DECODER
+    // Decode the AR FIFO output in the dfi_clk domain.
+    // =========================================================
+
+    mc_addr_decode u_ar_decode (
+        .addr        (m_araddr),
+        .ch_sel      (m_ar_ch_sel),
+        .pc_sel      (m_ar_pc_sel),
+        .row_addr    (m_ar_row_addr),
+        .bank_group  (m_ar_bank_group),
+        .bank_addr   (m_ar_bank_addr),
+        .col_addr    (m_ar_col_addr),
+        .byte_offset  ()
+    );
+
+
+    // =========================================================
+    // 7. B FIFO: dfi_clk -> aclk
     // =========================================================
 
     mc_async_fifo #(
@@ -243,13 +278,13 @@ module mc_axi_cdc (
         .DEPTH      (8)
     ) u_b_fifo (
         .wclk   (dfi_clk),
-        .wrst_n (dfi_reset_ready_n),
+        .wrst_n (ctl_reset_n),
         .wdata  (b_wdata),
         .wvalid (m_bvalid),
         .wready (m_bready),
 
         .rclk   (aclk),
-        .rrst_n (axi_reset_ready_n),
+        .rrst_n (aresetn),
         .rdata  (b_rdata),
         .rvalid (s_bvalid),
         .rready (s_bready)
@@ -259,7 +294,7 @@ module mc_axi_cdc (
 
 
     // =========================================================
-    // 6. R FIFO: dfi_clk -> aclk
+    // 8. R FIFO: dfi_clk -> aclk
     // =========================================================
 
     mc_async_fifo #(
@@ -267,13 +302,13 @@ module mc_axi_cdc (
         .DEPTH      (16)
     ) u_r_fifo (
         .wclk   (dfi_clk),
-        .wrst_n (dfi_reset_ready_n),
+        .wrst_n (ctl_reset_n),
         .wdata  (r_wdata),
         .wvalid (m_rvalid),
         .wready (m_rready),
 
         .rclk   (aclk),
-        .rrst_n (axi_reset_ready_n),
+        .rrst_n (aresetn),
         .rdata  (r_rdata),
         .rvalid (s_rvalid),
         .rready (s_rready)
@@ -284,5 +319,3 @@ module mc_axi_cdc (
     } = r_rdata;
 
 endmodule
-
-`default_nettype wire
