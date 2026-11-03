@@ -1,12 +1,13 @@
 # MC16x2 memory-controller RTL
 
-This directory contains a **16-channel, 2-pseudo-channel-per-channel** controller
-core: 32 independent PC schedulers connected to 16 shared channel command buses
-and DFI formatters. The top-level module is [`mc16x2`](rtl/mc16x2.sv).
+`mc16x2` connects one AXI4 slave port through clock-domain crossing and a
+transaction backend to **16 channels / 32 pseudo-channel cores**. APB4 provides
+configuration, status and interrupts. Each channel has shared row/column
+arbitration and a DFI formatter, with separate 32-bit data lanes for its two PCs.
 
-The current top accepts decoded commands and 32-bit write words for each PC.
-AXI/CDC support modules are present separately; the AXI transaction backend,
-APB/CSR subsystem and PHY initialization/control are future integration work.
+The default `AXI_ENABLE=1` configuration uses the AXI/APB path. A static
+`AXI_ENABLE=0` diagnostic configuration preserves the decoded single-word
+interface used by the independent core integration regression.
 
 ## File structure
 
@@ -14,197 +15,258 @@ APB/CSR subsystem and PHY initialization/control are future integration work.
 src_mc/
 |-- README.md
 |-- rtl/
-|   |-- mc16x2.sv             32-PC / 16-channel core top
-|   |-- mc_pc_core.sv         Per-PC scheduler and submodule integration
+|   |-- mc16x2.sv             AXI/APB-facing 16-channel / 32-PC top
+|   |-- mc_axi_sub.sv         AXI transaction backend and address decode
+|   |-- mc_axi_cdc.sv         Five AXI CDC FIFOs and reset-release synchronization
+|   |-- mc_addr_decode.sv     Fixed address-field extraction
+|   |-- mc_async_fifo.sv      Dual-clock storage and synchronized Gray pointers
+|   |-- mc_csr.sv             Control/status register storage, counters and IRQ
+|   |-- mc_apb_if.sv          APB4 transfer handling and bounded wait
+|   |-- mc_sync_dfi.sv        Coherent APB request/response CDC bridge
+|   |-- mc_pc_core.sv         Per-PC queues, scheduler and submodule integration
 |   |-- mc_cmdq.sv            Command queue and slot allocation
 |   |-- mc_wdb.sv             Write payload storage and allocation pointers
 |   |-- mc_rdb.sv             Read-return storage and issue-ID tracking
 |   |-- mc_bank_state.sv      Open-bank and open-row tracking
-|   |-- mc_timing_check.sv    DRAM timing-legality counters
-|   |-- mc_refresh_engine.sv  Per-PC periodic refresh request generation
-|   |-- mc_arbiter.sv         Shared credit-counter arbitration primitive
+|   |-- mc_timing_check.sv    DRAM command timing counters
+|   |-- mc_refresh_engine.sv  Per-PC periodic refresh
+|   |-- mc_arbiter.sv         Credit-counter arbitration primitive
 |   |-- mc_ch_arb.sv          Independent channel row/column arbitration
-|   |-- mc_dfi_fmt.sv         Registered command packing and data-lane routing
-|   |-- mc_addr_decode.sv     Fixed address-field extraction
-|   |-- mc_axi_sub.sv         AXI signal passthrough interface
-|   |-- mc_axi_cdc.sv         Five AXI CDC FIFOs and AW/AR address decode
-|   `-- mc_async_fifo.sv      Gray-pointer asynchronous FIFO
+|   `-- mc_dfi_fmt.sv         Registered command packing and lane routing
 `-- tb/
-    |-- tb_mc16x2.sv          Full core integration regression
-    |-- tb_mc_core.sv         Simple single-PC write/read waveform demo
+    |-- tb_mc16x2_axi.sv      End-to-end AXI/APB/CDC/PHY-model regression
+    |-- tb_mc16x2.sv          Independent decoded 32-PC integration regression
+    |-- tb_mc_core.sv         Single-PC write/read waveform demo
     |-- tb_mc_dfi_fmt.sv      Formatter unit test
     `-- tb_mc_async_fifo.sv   Asynchronous FIFO unit test
 ```
 
-There are 15 RTL modules and four testbenches. Each RTL module has one source
-file in `rtl/`; no duplicate phase snapshot or generated build directory is
-needed in this tree.
+There are 18 RTL modules and five testbenches. Each module has one active
+source definition. Generated build files and waveforms belong outside this tree.
 
-## Architecture
-
-The current top instantiates these blocks directly:
+## Connected hierarchy
 
 ```text
 mc16x2
+|-- g_axi                           AXI_ENABLE=1
+|   |-- u_axi_cdc                   mc_axi_cdc
+|   |   `-- AW / W / AR / B / R      five mc_async_fifo instances
+|   |-- u_axi_sub                   mc_axi_sub
+|   |   `-- u_addr_decode           mc_addr_decode
+|   `-- u_csr                       mc_csr
+|       |-- u_apb_if                mc_apb_if
+|       `-- u_sync_dfi              mc_sync_dfi
 `-- g_channel[0:15]
-    |-- g_pc[0:1].u_pc_core        mc_pc_core
+    |-- g_pc[0:1].u_pc_core         mc_pc_core
     |   |-- mc_cmdq / mc_wdb / mc_rdb
     |   |-- mc_bank_state / mc_timing_check
     |   `-- mc_arbiter / mc_refresh_engine
-    |-- u_ch_arb                  mc_ch_arb, with row and column arbiters
-    `-- u_dfi_fmt                 mc_dfi_fmt
+    |-- u_ch_arb                    row and column arbitration
+    `-- u_dfi_fmt                   channel DFI formatter
 ```
 
-PC0 and PC1 have independent queues, buffers, bank state and refresh engines.
-They share their channel's row and column command buses. Those buses arbitrate
-independently, so a row command for one PC and a column command for the other
-can issue in the same cycle. Refresh candidates receive priority.
+The host AXI signals connect to `mc_axi_cdc`. In the DFI domain,
+`mc_axi_sub` validates requests, generates beat addresses, selects CH/PC,
+allocates commands/payloads and generates B/R responses. Responses return to
+`aclk` through the same CDC set. Address decode is part of the backend, so
+every generated beat address is decoded.
 
-| Resource | Current configuration |
+The backend has one active AXI burst at a time. AW and AR queues arbitrate
+round-robin between bursts. This conservative implementation preserves per-ID
+response ordering and write visibility; it does not exploit all PC cores for
+simultaneously active AXI transactions. The CDC FIFOs can queue additional work.
+
+## Clocks and resets
+
+| Signal | Scope |
 | --- | --- |
-| Channels / PCs | 16 channels, 2 PCs each, 32 PCs total |
-| Banks | 16 per PC: 4 bank groups x 4 banks |
-| CMDQ / WDB / RDB depth | 32 / 16 / 16 entries per PC |
-| PC data / mask | 32 data bits, 4 mask bits |
-| Channel data / mask | 64 data bits, 8 mask bits |
-| Command ID / entry | 8-bit ID, 36-bit decoded entry |
-| Shared row / column bus | 22 bits / 12 bits per channel |
+| `aclk` | Host AXI interface and AXI endpoints of the CDC FIFOs |
+| `dfi_clk` | Backend, all 32 PC cores, lane transfer logic, channel arbiters, formatters and CSR storage |
+| `pclk` | APB interface and APB endpoint of the coherent register bridge |
+| `aresetn` | AXI transaction reset |
+| `ctl_reset_n` | Controller transaction reset |
+| `presetn` | APB bridge and configuration/status reset |
 
-`mc_axi_sub`, `mc_axi_cdc`, `mc_addr_decode` and `mc_async_fifo` are standalone
-support modules; they are not instantiated by the current `mc16x2` top.
+Asserting either `aresetn` or `ctl_reset_n` flushes the complete transaction
+path, including both endpoints of all five AXI FIFOs and all core queues.
+Reset release is synchronized independently to `aclk` and `dfi_clk`. FIFOs
+advertise no transfers while their local reset is active. This coordinated
+flush prevents old payloads or IDs surviving a one-sided reset.
 
-## Top-level interface
+APB configuration/status is retained across AXI/controller resets and clears
+on `presetn`. External memory is not cleared by controller reset. Reset aborts
+outstanding transactions and does not roll back already transferred write data.
 
-All integrated logic uses `dfi_clk`. `ctl_reset_n` is active low; hold it low
-across a rising edge to reset synchronous core state. The formatter and arbiter
-also receive this reset. PHY reset sequencing is not implemented here.
+APB request/response words remain stable until a synchronized toggle
+acknowledgement; multi-bit configuration is not sampled through independent
+bit synchronizers. All register reads/writes execute coherently in `dfi_clk`.
 
-For channel `ch` and local PC `pc`, the flattened port index is:
+## AXI behavior
 
-```text
-p = 2*ch + pc
-channel 0:  PC0 -> p=0,  PC1 -> p=1
-channel 15: PC0 -> p=30, PC1 -> p=31
-```
-
-| Port group | Meaning |
+| Property | Current support |
 | --- | --- |
-| `cmd_push_val[p]`, `cmd_push_entry[p]`, `cmdq_full[p]` | Decoded command ingress |
-| `wdb_push_val[p]`, `wdb_push_data[p]`, `wdb_push_mask[p]`, `wdb_alloc_ptr[p]`, `wdb_full[p]` | Write payload allocation |
-| `rdb_valid[p]`, `rdb_data[p]`, `rdb_axi_id[p]`, `rdb_ready[p]` | Per-PC read completions |
-| `dfi_row_val[ch]`, `dfi_row[ch]`, `dfi_col_val[ch]`, `dfi_col[ch]` | Shared channel commands |
-| `dfi_wrdata[ch]`, `dfi_wrdata_mask[ch]`, `dfi_wrdata_en[ch]` | Channel write data and independent PC enables |
-| `dfi_rddata[ch]`, `dfi_rddata_valid[ch]`, `dfi_rddata_en[ch]` | PHY read returns and PC read enables |
-| `err_cmdq_overflow[p]`, `err_wdb_overflow[p]`, `err_ref_deadline_miss[p]` | Raw per-PC error indications |
+| Data / address / ID | 256 / 40 / 8 bits |
+| Channels | Independent AW, W, B, AR and R interfaces |
+| Bursts | INCR, 1-16 beats; aligned sizes from 1 to 32 bytes per beat |
+| Address checks | Alignment, 4-KiB boundary, reserved high bits and channel enable |
+| Write data | AW/W association in order; W may arrive before AW |
+| Byte enables | WSTRB checked against transfer lanes, then converted to active-high DFI byte-inhibit masks |
+| Read data | Full beat assembly; unrequested narrow-transfer lanes return zero |
+| Ordering | One active backend burst; FIFO-ordered B/R responses and per-ID ordering |
+| Write completion | Posted B after accepted valid payloads and commands are owned by the cores |
+| Read-after-write | New transactions wait for the preceding burst's physical write transfers to finish |
+| Backpressure | Command/WDB capacity, CDC FIFO capacity, BREADY and RREADY |
+| Unsupported requests | SLVERR for unsupported size/type/length, unaligned/cross-page requests, exclusive accesses or malformed write beats |
+| Decode failures | DECERR for reserved address space or disabled channels |
 
-See [`mc16x2.sv`](rtl/mc16x2.sv) for complete port widths and directions.
+Invalid write descriptors are drained according to AWLEN and return one B
+response. Malformed WLAST or out-of-lane WSTRB causes SLVERR; an errored burst
+may have earlier valid beats already committed and is not atomic. Invalid
+reads return the requested number of error beats with correct RID/RLAST and
+zero data. EXOKAY is never generated.
 
-### Decoded command entry
+If write data does not arrive within the programmed timeout, the backend
+returns SLVERR and latches a write-path fault. Further writes require an
+AXI/controller reset to resynchronize AW/W association; reads and APB remain
+available. Timeout zero disables this check. It measures DFI cycles waiting
+for W data, not cycles stalled by core capacity.
 
-`cmd_push_entry[p]` is packed as follows:
+A global disable stops new backend burst admission; work already accepted by
+the backend drains. AXI FIFO ingress may still queue requests until those FIFOs
+fill. Channel enables are checked when a burst is admitted.
+
+## Address mapping and data transfer
+
+| AXI address bits | Field |
+| --- | --- |
+| 39:33 | Reserved; must be zero |
+| 32:29 | Channel 0-15 |
+| 28 | PC0 or PC1 |
+| 27:14 | Row |
+| 13:12 | Bank group |
+| 11:10 | Bank |
+| 9:5 | Column |
+| 4:0 | Byte offset within a 32-byte column |
+
+The flattened PC index is `p = 2*channel + pc`. Channel 0 uses indices 0/1;
+channel 15 uses 30/31. Each PC has 16 banks, organized as four groups of four.
+
+In AXI mode, one column command corresponds to a **32-byte memory location**.
+The WDB/RDB entries are configured as complete 256-bit AXI beats. A WR sends
+eight consecutive 32-bit words, least-significant word first, starting on the
+same edge as the formatted command. Its WDB pointer stays allocated until the
+last word is captured. A RD expects eight ordered lane words, allowing gaps;
+the top assembles the frame before presenting it to the core RDB/backend.
+
+PC0 occupies channel data bits `[31:0]`, mask `[3:0]` and enable `[0]`; PC1 uses
+`[63:32]`, `[7:4]` and `[1]`. Inactive write lanes are zero. RD enable marks the
+column command; PHY return-valid identifies each subsequent lane word.
+
+The current burst contract uses zero additional write-data offset. Per-PC
+column spacing is conservatively eight clocks in AXI mode. Write recovery and
+write-to-read guards include the seven additional data clocks, so tWR and tWTR
+remain satisfied relative to the final write word. Row and column arbitration
+are independent, and accepted grants feed back to the originating core.
+
+The command entry remains 36 bits:
 
 | Bits | Field |
 | --- | --- |
-| 35:28 | Command ID |
+| 35:28 | ID |
 | 27 | Write=1, read=0 |
-| 26:13 | Row address |
+| 26:13 | Row |
 | 12:11 | Bank group |
 | 10:9 | Bank |
-| 8:4 | Column address |
-| 3:0 | WDB pointer for a write |
+| 8:4 | Column |
+| 3:0 | WDB pointer |
 
-Equivalent SystemVerilog packing:
+## Initial APB register map
 
-```systemverilog
-{id[7:0], is_write, row[13:0], bg[1:0], bank[1:0], col[4:0], wdb_ptr[3:0]}
-```
+This is a **project-defined initial map**. The architecture PDF does not provide
+complete register fields or the companion RDL/IP-XACT source, and its high-level
+ranges overlap. These offsets do not claim compatibility with an approved
+vendor/software register reference.
 
-### Handshake and data behavior
+All registers are 32 bits. Unaligned/unmapped accesses and writes to read-only
+registers return PSLVERR. Writable fields honor PSTRB. APB waits are bounded to
+16 ACCESS clocks; a timed-out request's eventual reply is not reused for the
+next access.
 
-- A command or payload push is accepted at a rising edge only when its matching
-  full output was low before that edge. Do not push into a full buffer.
-- Sample `wdb_alloc_ptr[p]` before pushing its payload, and copy that pointer
-  into the matching write command. Payload may precede the command or arrive
-  on the same edge. A queued command does not reserve an empty WDB slot against
-  unrelated allocations.
-- On an accepted WR, the formatter captures the selected 32-bit payload and raw
-  mask on the same edge as the command, and that WDB slot is released. This is
-  the current zero-additional-write-offset, single-word transfer contract.
-- Channel data `[31:0]` belongs to PC0 and `[63:32]` to PC1. Mask nibbles and
-  enable bits follow the same PC order. Inactive write lanes output zero.
-- RD enable accompanies RD. Return PHY data in issue order independently for
-  each PC; both PC return-valid bits may be high together. The formatter
-  registers returns before the corresponding RDB receives them.
-- Read completions use valid/ready. Data and ID stay stable while ready is low.
-  IDs are restored in DRAM issue order; AXI request-order tracking is future work.
-
-## Testbenches
-
-| File | Simulation top | Purpose |
+| Offset | Register | Access / reset |
 | --- | --- | --- |
-| [`tb_mc16x2.sv`](tb/tb_mc16x2.sv) | `tb_mc16x2` | All-channel stress and integration checks |
-| [`tb_mc_core.sv`](tb/tb_mc_core.sv) | `tb_mc_core` | One checked write/read with a focused waveform |
-| [`tb_mc_dfi_fmt.sv`](tb/tb_mc_dfi_fmt.sv) | `tb_dfi_formatter` | Reset, field packing, PC routing and data strobes |
-| [`tb_mc_async_fifo.sv`](tb/tb_mc_async_fifo.sv) | `tb_mc_async_fifo` | Reset, ordering, fill/full and drain/empty |
+| `0x000` | IP ID | RO, `0x4D431602` |
+| `0x004` | Global enable, bit 0 | RW, 1 |
+| `0x008` | Channel enables, bits 15:0 | RW, `0xFFFF` |
+| `0x00C` | WDATA timeout in DFI clocks | RW, 1024; zero disables |
+| `0x010` | Error status, bits 5:0 | RW1C, zero; new events dominate clearing |
+| `0x014` | IRQ mask, bits 5:0 | RW, `0x3F`; mask bit 1 enables that source |
+| `0x018` | Per-PC CMDQ-full vector | RO |
+| `0x01C` | Per-PC WDB-full vector | RO |
+| `0x020` | Per-PC RDB-valid vector | RO |
+| `0x024` | Completed write-burst responses | RO, zero |
+| `0x028` | Completed read-burst responses | RO, zero |
+| `0x02C` | Backend active bit 0, write-faulted bit 1 | RO |
 
-The formatter test uses the module name `tb_dfi_formatter`, which differs
-from its filename.
+Response counters include error responses. They increment when the backend
+enqueues B or the final R beat into CDC, before host-side response consumption.
+They reset only with `presetn`.
 
-### Single-PC waveform demo
+| Error bit | Source |
+| --- | --- |
+| 0 | WDATA timeout |
+| 1 | AXI validation/protocol error or unsolicited PHY return word |
+| 2 | Any PC CMDQ overflow |
+| 3 | Any PC WDB overflow |
+| 4 | Any PC refresh-deadline miss |
+| 5 | APB access error or timeout |
 
-The demo resets the core, writes `32'h1234_ABCD` to row `14'h0123`, column
-`5'h04`, bank group/bank 0, then reads the same address with ID `8'h21`.
-It checks ACT/WR/RD, payload/mask/ID, WDB release and readback. It finishes
-before refresh, without artificial grant or consumer stalls.
+`irq` is the OR of sticky error bits enabled by the IRQ mask.
 
-The waveform contains RESET, IDLE, WRITE, READ and DONE phase labels and
-accepted-command pulses (`act_fire`, `wr_fire`, `rd_fire`). The test clock
-period is 1 ns, and the behavioral memory uses a five-clock read-return delay.
-The demo does not model the PHY formatter or masked memory updates.
+## Diagnostic decoded mode
 
-## What the 16x2 regression checks
+With the static parameter `AXI_ENABLE=0`, AXI/APB outputs are inactive and the
+original 32 per-PC decoded interfaces drive the cores directly. Each WDB/RDB
+entry then holds one 32-bit word, and a column command transfers one lane word.
+CMDQ/WDB/RDB depths remain 32/16/16 in both configurations.
 
-The scoreboard records accepted host requests and WDB ownership. It compares
-public DFI traffic with those requests and maintains reference memory. A
-separate PHY memory/return queue supplies read data; completions are checked
-against the expected request ID and data. Internal signals are observed for
-grant/fairness assertions.
+In AXI mode the diagnostic command/payload/read-ready inputs are ignored; the
+backend owns those interfaces. Existing per-PC fullness/error/valid outputs
+remain observable. The legacy 32-bit `rdb_data[p]` output shows only the low
+word of a full frame; host read data uses the 256-bit AXI R channel.
 
-Coverage requirements include:
+## Verification
 
-- All 32 PCs, all 16 banks per PC, high row-address bits and all 16 mask values.
-- Distinct per-PC data, PC-select fields, independent lanes and inactive-lane zeros.
-- CMDQ/WDB capacities of 32/16, deliberate overflow checks and correct slot release.
-- RDB capacity 16, queued reads waiting for space, stable stalled completions,
-  simultaneous PHY returns and sibling-PC progress while one PC is stalled.
-- Row conflicts, row/column contention, same-cycle different-PC row/column issue
-  and parallel activity on multiple channels.
-- Seeded load with randomized read readiness, return-pointer wrap and refresh
-  while commands are queued on every PC.
-- One-hot eligible grants, refresh priority and bounded waiting under the
-  current always-accepting formatter contract.
-- Checks for tRCD, tRAS, tRP, tRC, tRRD, tFAW, tCCD, tWTR, tWR, tRTP and tRFC
-  using the current RTL defaults.
-- Reset during outstanding reads, recovery with external memory preserved,
-  delayed write-payload arrival, watchdogs and complete drain.
+| Testbench | Scope |
+| --- | --- |
+| `tb_mc16x2_axi` | Default AXI/APB path, all 32 PCs, beat serialization/assembly, narrow/masked transfers, burst errors, CDC capacity, response stalls, controls/IRQ, timeout and reset recovery |
+| `tb_mc16x2` | Diagnostic decoded mode: independent PC contention, complete buffer capacity, simultaneous lane returns, randomized backpressure, timing and busy refresh |
+| `tb_mc_core` | Focused single-PC ACT/WR/RD waveform and readback |
+| `tb_dfi_formatter` in `tb_mc_dfi_fmt.sv` | Field packing, PC selection, data lanes and reset/strobes |
+| `tb_mc_async_fifo` | FIFO ordering, fill/full, drain/empty and asynchronous clocks |
 
-The PHY model treats mask bit 1 as byte-write inhibit. The RTL forwards raw mask
-bits. IDs are unique while outstanding within a PC in this test, while the same
-IDs are deliberately reused on different PCs.
+The AXI regression uses independently phased clocks and a seed-dependent AXI
+period. Its reference memory is updated from accepted host write data; a
+separate PHY model checks every serialized word/mask, tracks open rows, produces
+read bursts with gaps, and checks timing from the final write data word.
+Output scoreboards check IDs, response codes, RLAST, data and stall stability.
 
-Seeds 1, 7 and 42 passed the full regression, each completing over 34,000 checked
-reads in its main traffic phase. The three unit/demo tests also passed. Prior
-scratch fault checks caught swapped channel-15 read lanes and a fixed WDB read
-pointer; those faults are not present in the sources.
+Directed cases cover W-before-AW, 16-beat and bank-crossing bursts, byte through
+32-byte sizes, all 32 destinations, full AW/W/AR/B/R FIFOs, APB byte strobes,
+RO/unmapped errors, stalled-clock APB timeout/late acknowledgement, global and
+channel enables, IRQ masking/W1C, WDATA timeout, independent AXI/core resets,
+CSR retention and first traffic immediately after reset release. The decoded
+regression retains the larger randomized per-PC scheduling tests.
 
-## Implementation status
+## Remaining implementation boundaries
 
-Current lint includes unused-field/index-bit and mixed synchronous/asynchronous
-reset-style notices. The verified build reported no undriven signals, missing
-ports, combinational loops or inferred latches.
+The transaction path is connected and functional, but the initial backend is
+serialized. Higher concurrency, the approved generated register map, full FIFO
+occupancy/performance monitoring and the final per-PC attribute bookkeeping
+remain future work. Cache/protection/QoS metadata crosses CDC but has no
+scheduling or access-control effect in this implementation.
 
-The integrated top currently covers decoded single-word core operation. AXI
-burst handling, 256-to-32-bit data conversion, AXI response ordering, APB/CSR,
-programmable PHY data offsets, initialization/update and low-power sequencing
-remain to be integrated. Simulation results do not establish synthesis timing
-closure, structural CDC signoff or compliance with a selected HBM/PHY device.
+The eight-word DFI burst and zero-additional-write-offset behavior are the
+current controller/model contract. Programmable PHY latency, initialization,
+update and low-power control still need the selected PHY's requirements. The
+simulations do not establish physical timing closure, structural CDC signoff
+or complete HBM/DFI device compliance.

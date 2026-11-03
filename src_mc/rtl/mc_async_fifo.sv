@@ -1,3 +1,4 @@
+// CDC_MODULE: dual-clock storage, Gray pointers and two-stage synchronizers.
 module mc_async_fifo #(
     parameter int DATA_WIDTH = 8,
     parameter int DEPTH      = 8
@@ -25,8 +26,8 @@ module mc_async_fifo #(
     logic [PTR_WIDTH-1:0] rptr_bin, rptr_gray;
 
     // Synchronizers for Gray-coded pointers
-    logic [PTR_WIDTH-1:0] rptr_gray_w1, rptr_gray_w2;
-    logic [PTR_WIDTH-1:0] wptr_gray_r1, wptr_gray_r2;
+    (* ASYNC_REG = "TRUE" *) logic [PTR_WIDTH-1:0] rptr_gray_w1, rptr_gray_w2;
+    (* ASYNC_REG = "TRUE" *) logic [PTR_WIDTH-1:0] wptr_gray_r1, wptr_gray_r2;
 
     logic wfull, rempty;
 
@@ -51,11 +52,17 @@ module mc_async_fifo #(
     assign rempty_next = (rgray_next == wptr_gray_r2);
 
     // Handshake outputs
-    assign wready = !wfull;
-    assign rvalid = !rempty;
+    // Never advertise a transfer while the local endpoint is held in reset.
+    assign wready = wrst_n && !wfull;
+    assign rvalid = rrst_n && !rempty;
 
-    // First-word-fall-through read interface
-    assign rdata = mem[rptr_bin[ADDR_WIDTH-1:0]];
+    // Registered first-word-fall-through prefetch. This is a synchronous read
+    // port on the dual-clock storage array, including the wide W/R FIFOs.
+    // Payload is intentionally unspecified while rvalid=0; control state resets.
+    always_ff @(posedge rclk) begin
+        if (rrst_n && !rempty_next)
+            rdata <= mem[rbin_next[ADDR_WIDTH-1:0]];
+    end
 
     // Write pointer and memory
     always_ff @(posedge wclk or negedge wrst_n) begin
