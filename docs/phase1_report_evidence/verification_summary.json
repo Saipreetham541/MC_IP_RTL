@@ -1,0 +1,77 @@
+{
+  "review_date": "2026-11-04",
+  "head": "980a443e9813e2eb481cc8805263a929b03b62b1",
+  "tool": "Verilator 5.020 2024-01-01 rev (Debian 5.020-1)",
+  "source_sha256": {
+    "src_mc/rtl/mc_pc_core.sv": "2d77aff692befd4b9ac96ef48a5218a6d3e2852a0fbf0c9f5ed98618aa305aed",
+    "src_mc/rtl/mc_cmdq.sv": "186e43a4a9e35eb71a5bc211b8eff13634cef7d593c776099afd7c96ba4ff142",
+    "src_mc/rtl/mc_wdb.sv": "bb02b8fde6c0426118d66692075acd462178a8f0d6687e43394f0767093887e4",
+    "src_mc/rtl/mc_rdb.sv": "3c2bbb833d606bcddd9e59996d4aebdf2c2aa9305009aeed1478f82008f4886b",
+    "src_mc/rtl/mc_refresh_engine.sv": "739a3c3b212a1062349e2a4b77069e86d0c27cc69d97bbc667a4a47bc2c59633",
+    "src_mc/rtl/mc_bank_state.sv": "bdca3be829497263ca93b8d68a490b7f0224d919bd3301bd560063a20b795982",
+    "src_mc/rtl/mc_timing_check.sv": "b36300427d5925654df31431b3e100ab8cdf4a04e6e4c1b14f814d3de95771e7",
+    "src_mc/rtl/mc_arbiter.sv": "115abdd7a0c4f74459a822d082d4ca15cd521b4cb895ad8f96269a97336227ba",
+    "src_mc/tb/tb_mc_core.sv": "1b685fef5baff1eabfb50fadf9116bfe1b0fa5402f777f34102b4228b321b6f8"
+  },
+  "sampling": "Accepted pulses sampled immediately before each rising clock edge; VCD timescale 1 ps.",
+  "events": [
+    {
+      "time_ns": 12.5,
+      "event": "act_fire"
+    },
+    {
+      "time_ns": 30.5,
+      "event": "wr_fire"
+    },
+    {
+      "time_ns": 38.5,
+      "event": "rd_fire"
+    },
+    {
+      "time_ns": 44.5,
+      "event": "dfi_rddata_valid"
+    },
+    {
+      "time_ns": 45.5,
+      "event": "read_done"
+    }
+  ],
+  "return_valid_driven_ns": [
+    43.5
+  ],
+  "phases": [
+    {
+      "time_ns": 0.0,
+      "phase": "RESET"
+    },
+    {
+      "time_ns": 4.0,
+      "phase": "IDLE"
+    },
+    {
+      "time_ns": 8.0,
+      "phase": "WRITE"
+    },
+    {
+      "time_ns": 31.0,
+      "phase": "IDLE"
+    },
+    {
+      "time_ns": 35.0,
+      "phase": "READ"
+    },
+    {
+      "time_ns": 46.0,
+      "phase": "DONE"
+    }
+  ],
+  "checks": {
+    "ACT_to_WR_cycles": 18,
+    "WR_to_RD_cycles": 8,
+    "RD_to_model_valid_drive_cycles": 5,
+    "RD_to_RDB_capture_cycles": 6,
+    "RD_to_completion_cycles": 7,
+    "smoke_result": "PASS"
+  },
+  "scope": "Current working-copy single-PC smoke; no full-core regression or physical timing analysis rerun."
+}

@@ -1,0 +1,6 @@
+12.0 ns ACT row=0123
+30.0 ns WR  col=04 data=1234abcd
+38.0 ns RD  col=04 id=21
+45.0 ns RDB data=1234abcd id=21
+PASS: one ACT, one WR, one RD and matching readback; waveform: /tmp/mc16x2_phase1_report/tb_mc_core.vcd
+- src_mc/tb/tb_mc_core.sv:281: Verilog $finish

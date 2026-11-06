@@ -6,15 +6,15 @@ module mc_arbiter #(
   parameter int NUM_REQ          = 32,
   parameter int CREDIT_CTR_WIDTH = 8
 ) (
-  input  logic                        clk,         // Advances per-request wait counters.
-  input  logic                        rst_n,       // Synchronous active-low reset.
-  input  logic [NUM_REQ-1:0]          req_valid,   // Marks occupied/requesting slots.
-  input  logic [NUM_REQ-1:0]          req_legal,   // Masks requests blocked by timing/resources.
-  input  logic                        grant_ack,   // Confirms the selected request really issued.
+  input  wire logic                        clk,         // Advances per-request wait counters.
+  input  wire logic                        rst_n,       // Synchronous active-low reset.
+  input  wire logic [NUM_REQ-1:0]          req_valid,   // Marks occupied/requesting slots.
+  input  wire logic [NUM_REQ-1:0]          req_legal,   // Masks requests blocked by timing/resources.
+  input  wire logic                        grant_ack,   // Confirms the selected request really issued.
   output logic [NUM_REQ-1:0]          grant,       // One-hot form used for per-slot updates.
   output logic [$clog2(NUM_REQ)-1:0]  grant_idx,   // Binary form used to index command storage.
   output logic                        grant_valid, // Distinguishes slot zero from no selection.
-  input  logic [NUM_REQ-1:0]          req_priority // Priority requests (for example, refresh).
+  input  wire logic [NUM_REQ-1:0]          req_priority // Priority requests (for example, refresh).
 );
 
   localparam int IDX_W = $clog2(NUM_REQ);

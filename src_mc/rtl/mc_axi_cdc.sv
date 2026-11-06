@@ -11,12 +11,13 @@ module mc_axi_cdc (
 
     // =========================================================
     // AW CHANNEL: AXI -> CONTROLLER
-    // Width = 72 bits, Depth = 8
+    // Width = 73 bits, Depth = 8
     // =========================================================
     input  logic [7:0]  s_awid,
     input  logic [7:0]  s_awlen,
     input  logic [2:0]  s_awsize,
     input  logic [1:0]  s_awburst,
+    input  logic        s_awlock,
     input  logic [39:0] s_awaddr,
     input  logic [3:0]  s_awqos,
     input  logic [3:0]  s_awcache,
@@ -28,6 +29,7 @@ module mc_axi_cdc (
     output logic [7:0]  m_awlen,
     output logic [2:0]  m_awsize,
     output logic [1:0]  m_awburst,
+    output logic        m_awlock,
     output logic [39:0] m_awaddr,
     output logic [3:0]  m_awqos,
     output logic [3:0]  m_awcache,
@@ -63,12 +65,13 @@ module mc_axi_cdc (
 
     // =========================================================
     // AR CHANNEL: AXI -> CONTROLLER
-    // Width = 72 bits, Depth = 8
+    // Width = 73 bits, Depth = 8
     // =========================================================
     input  logic [7:0]  s_arid,
     input  logic [7:0]  s_arlen,
     input  logic [2:0]  s_arsize,
     input  logic [1:0]  s_arburst,
+    input  logic        s_arlock,
     input  logic [39:0] s_araddr,
     input  logic [3:0]  s_arqos,
     input  logic [3:0]  s_arcache,
@@ -80,6 +83,7 @@ module mc_axi_cdc (
     output logic [7:0]  m_arlen,
     output logic [2:0]  m_arsize,
     output logic [1:0]  m_arburst,
+    output logic        m_arlock,
     output logic [39:0] m_araddr,
     output logic [3:0]  m_arqos,
     output logic [3:0]  m_arcache,
@@ -134,21 +138,21 @@ module mc_axi_cdc (
     // 1. PACK AXI FIELDS INTO FIFO WORDS
     // =========================================================
 
-    logic [71:0]  aw_wdata, aw_rdata;
+    logic [72:0]  aw_wdata, aw_rdata;
     logic [288:0] w_wdata,  w_rdata;
-    logic [71:0]  ar_wdata, ar_rdata;
+    logic [72:0]  ar_wdata, ar_rdata;
     logic [9:0]   b_wdata,  b_rdata;
     logic [266:0] r_wdata,  r_rdata;
 
     assign aw_wdata = {
-        s_awid, s_awlen, s_awsize, s_awburst,
+        s_awid, s_awlen, s_awsize, s_awburst, s_awlock,
         s_awaddr, s_awqos, s_awcache, s_awprot
     };
 
     assign w_wdata = {s_wdata, s_wstrb, s_wlast};
 
     assign ar_wdata = {
-        s_arid, s_arlen, s_arsize, s_arburst,
+        s_arid, s_arlen, s_arsize, s_arburst, s_arlock,
         s_araddr, s_arqos, s_arcache, s_arprot
         };
 
@@ -162,7 +166,7 @@ module mc_axi_cdc (
     // =========================================================
 
     mc_async_fifo #(
-        .DATA_WIDTH (72),
+        .DATA_WIDTH (73),
         .DEPTH      (8)
     ) u_aw_fifo (
         .wclk   (aclk),
@@ -179,7 +183,7 @@ module mc_axi_cdc (
     );
 
     assign {
-        m_awid, m_awlen, m_awsize, m_awburst,
+        m_awid, m_awlen, m_awsize, m_awburst, m_awlock,
         m_awaddr, m_awqos, m_awcache, m_awprot
     } = aw_rdata;
 
@@ -213,7 +217,7 @@ module mc_axi_cdc (
     // =========================================================
 
     mc_async_fifo #(
-        .DATA_WIDTH (72),
+        .DATA_WIDTH (73),
         .DEPTH      (8)
     ) u_ar_fifo (
         .wclk   (aclk),
@@ -230,7 +234,7 @@ module mc_axi_cdc (
     );
 
     assign {
-        m_arid, m_arlen, m_arsize, m_arburst,
+        m_arid, m_arlen, m_arsize, m_arburst, m_arlock,
         m_araddr, m_arqos, m_arcache, m_arprot
         } = ar_rdata;
 
@@ -240,16 +244,13 @@ module mc_axi_cdc (
     // Decode the AW FIFO output in the dfi_clk domain.
     // =========================================================
 
-    mc_addr_decode u_aw_decode (
-        .addr        (m_awaddr),
-        .ch_sel      (m_aw_ch_sel),
-        .pc_sel      (m_aw_pc_sel),
-        .row_addr    (m_aw_row_addr),
-        .bank_group  (m_aw_bank_group),
-        .bank_addr   (m_aw_bank_addr),
-        .col_addr    (m_aw_col_addr),
-        .byte_offset  ()
-    );
+    // Compatibility decode outputs; active word decoding lives in mc_addr_decode.
+    assign m_aw_ch_sel     = m_awaddr[29:26];
+    assign m_aw_pc_sel     = m_awaddr[25];
+    assign m_aw_row_addr   = m_awaddr[24:11];
+    assign m_aw_bank_group = m_awaddr[10:9];
+    assign m_aw_bank_addr  = m_awaddr[8:7];
+    assign m_aw_col_addr   = m_awaddr[6:2];
 
 
     // =========================================================
@@ -257,16 +258,13 @@ module mc_axi_cdc (
     // Decode the AR FIFO output in the dfi_clk domain.
     // =========================================================
 
-    mc_addr_decode u_ar_decode (
-        .addr        (m_araddr),
-        .ch_sel      (m_ar_ch_sel),
-        .pc_sel      (m_ar_pc_sel),
-        .row_addr    (m_ar_row_addr),
-        .bank_group  (m_ar_bank_group),
-        .bank_addr   (m_ar_bank_addr),
-        .col_addr    (m_ar_col_addr),
-        .byte_offset  ()
-    );
+    // Compatibility decode outputs; active word decoding lives in mc_addr_decode.
+    assign m_ar_ch_sel     = m_araddr[29:26];
+    assign m_ar_pc_sel     = m_araddr[25];
+    assign m_ar_row_addr   = m_araddr[24:11];
+    assign m_ar_bank_group = m_araddr[10:9];
+    assign m_ar_bank_addr  = m_araddr[8:7];
+    assign m_ar_col_addr   = m_araddr[6:2];
 
 
     // =========================================================

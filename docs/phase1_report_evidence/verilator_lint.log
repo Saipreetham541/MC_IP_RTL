@@ -1,0 +1,25 @@
+%Warning-UNUSEDSIGNAL: src_mc/tb/tb_mc_core.sv:78:19: Signal is not used: 'phase'
+                                                    : ... note: In instance 'tb_mc_core'
+   78 |   logic [8*8-1:0] phase;
+      |                   ^~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.020
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: src_mc/tb/tb_mc_core.sv:79:28: Signal is not used: 'rd_fire'
+                                                    : ... note: In instance 'tb_mc_core'
+   79 |   logic act_fire, wr_fire, rd_fire, read_done;
+      |                            ^~~~~~~
+%Warning-UNUSEDSIGNAL: src_mc/rtl/mc_pc_core.sv:265:32: Bits of signal are not used: 'slot_entry'[35:28,8:4]
+                                                      : ... note: In instance 'tb_mc_core.u_core'
+  265 |       cmd_entry_t              slot_entry;
+      |                                ^~~~~~~~~~
+%Warning-BLKSEQ: src_mc/tb/tb_mc_core.sv:86:19: Blocking assignment '=' in sequential logic process
+                                              : ... Suggest using delayed assignment '<='
+   86 |   always #0.5 clk = ~clk;
+      |                   ^
+%Warning-SYNCASYNCNET: src_mc/tb/tb_mc_core.sv:38:9: Signal flopped as both synchronous and async: 'tb_mc_core.rst_n'
+                       src_mc/rtl/mc_arbiter.sv:69:10: ... Location of async usage
+   69 |     if (!rst_n) begin
+      |          ^~~~~
+                       src_mc/tb/tb_mc_core.sv:147:10: ... Location of sync usage
+  147 |     if (!rst_n) begin
+      |          ^~~~~

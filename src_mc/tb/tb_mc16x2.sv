@@ -2,8 +2,8 @@
 `timescale 1ns/1ps
 
 // Self-checking current-RTL integration regression. The scoreboard consumes
-// host requests and PUBLIC DFI traffic; hierarchy is used only for grant/fairness
-// assertions. A separate PHY memory/return queue drives both independent lanes.
+// decoded requests and PUBLIC DFI traffic. Test-only forces bypass the AXI
+// backend to retain direct queue/capacity/stress coverage of all 32 PCs. A separate PHY memory/return queue drives both independent lanes.
 module tb_mc16x2;
   // Intentional testbench scheduling: blocking scoreboard/model updates occur
   // before/after NBA sampling, with the PHY driver on the opposite edge.
@@ -22,13 +22,87 @@ module tb_mc16x2;
   logic [15:0][63:0] dfi_wrdata, dfi_rddata;
   logic [15:0][7:0] dfi_wrdata_mask;
   logic [15:0][1:0] dfi_wrdata_en, dfi_rddata_en, dfi_rddata_valid;
+  logic [31:0] wr_done;
   logic [31:0] err_cmdq_overflow, err_wdb_overflow, err_ref_deadline_miss;
   logic [31:0] expected_cmd_overflow, expected_wdb_overflow;
   logic pair_returns;
   int unsigned seed, rng;
   int cycle_count;
 
-  mc16x2 dut (.*);
+  mc16x2 dut (
+    .aclk(dfi_clk),
+    .aresetn(ctl_reset_n),
+    .s_axi_awid('0),
+    .s_axi_awaddr('0),
+    .s_axi_awlen('0),
+    .s_axi_awsize('0),
+    .s_axi_awburst('0),
+    .s_axi_awlock('0),
+    .s_axi_awqos('0),
+    .s_axi_awcache('0),
+    .s_axi_awprot('0),
+    .s_axi_awvalid('0),
+    .s_axi_awready(),
+    .s_axi_wdata('0),
+    .s_axi_wstrb('0),
+    .s_axi_wlast('0),
+    .s_axi_wvalid('0),
+    .s_axi_wready(),
+    .s_axi_bid(),
+    .s_axi_bresp(),
+    .s_axi_bvalid(),
+    .s_axi_bready('0),
+    .s_axi_arid('0),
+    .s_axi_araddr('0),
+    .s_axi_arlen('0),
+    .s_axi_arsize('0),
+    .s_axi_arburst('0),
+    .s_axi_arlock('0),
+    .s_axi_arqos('0),
+    .s_axi_arcache('0),
+    .s_axi_arprot('0),
+    .s_axi_arvalid('0),
+    .s_axi_arready(),
+    .s_axi_rid(),
+    .s_axi_rdata(),
+    .s_axi_rresp(),
+    .s_axi_rlast(),
+    .s_axi_rvalid(),
+    .s_axi_rready('0),
+    .dfi_clk(dfi_clk),
+    .ctl_reset_n(ctl_reset_n),
+    .dfi_row_val(dfi_row_val),
+    .dfi_row(dfi_row),
+    .dfi_col_val(dfi_col_val),
+    .dfi_col(dfi_col),
+    .dfi_wrdata(dfi_wrdata),
+    .dfi_wrdata_mask(dfi_wrdata_mask),
+    .dfi_wrdata_en(dfi_wrdata_en),
+    .dfi_rddata_en(dfi_rddata_en),
+    .dfi_rddata(dfi_rddata),
+    .dfi_rddata_valid(dfi_rddata_valid),
+    .err_cmdq_overflow(err_cmdq_overflow),
+    .err_wdb_overflow(err_wdb_overflow),
+    .err_ref_deadline_miss(err_ref_deadline_miss)
+  );
+
+  // White-box core regression only; AXI tests exercise the normal public ports.
+  // Reapply when stimulus changes for simulators that snapshot force RHS values.
+  always @* begin
+    force dut.cmd_push_val = cmd_push_val;
+    force dut.cmd_push_entry = cmd_push_entry;
+    force dut.wdb_push_val = wdb_push_val;
+    force dut.wdb_push_data = wdb_push_data;
+    force dut.wdb_push_mask = wdb_push_mask;
+    force dut.rdb_ready = rdb_ready;
+  end
+  assign cmdq_full = dut.cmdq_full;
+  assign wdb_full = dut.wdb_full;
+  assign wdb_alloc_ptr = dut.wdb_alloc_ptr;
+  assign rdb_valid = dut.rdb_valid;
+  assign rdb_data = dut.rdb_data;
+  assign rdb_axi_id = dut.rdb_axi_id;
+  assign wr_done = dut.wr_done;
   always #0.5 dfi_clk <= ~dfi_clk;
 
   typedef struct packed {

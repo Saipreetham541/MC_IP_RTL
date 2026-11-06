@@ -11,6 +11,7 @@ module mc_axi_sub #(
     input  logic [7:0]            awlen,
     input  logic [2:0]            awsize,
     input  logic [1:0]            awburst,
+    input  logic                  awlock,
     input  logic [3:0]            awqos,
     input  logic [3:0]            awcache,
     input  logic [2:0]            awprot,
@@ -42,7 +43,10 @@ module mc_axi_sub #(
     input  logic [7:0]            arlen,
     input  logic [2:0]            arsize,
     input  logic [1:0]            arburst,
+    input  logic                  arlock,
     input  logic [3:0]            arqos,
+    input  logic [3:0]            arcache,
+    input  logic [2:0]            arprot,
     input  logic                  arvalid,
     output logic                  arready,
 
@@ -64,6 +68,7 @@ module mc_axi_sub #(
     output logic [7:0]            cdc_awlen,
     output logic [2:0]            cdc_awsize,
     output logic [1:0]            cdc_awburst,
+    output logic                  cdc_awlock,
     output logic [3:0]            cdc_awqos,
     output logic [3:0]            cdc_awcache,
     output logic [2:0]            cdc_awprot,
@@ -95,7 +100,10 @@ module mc_axi_sub #(
     output logic [7:0]            cdc_arlen,
     output logic [2:0]            cdc_arsize,
     output logic [1:0]            cdc_arburst,
+    output logic                  cdc_arlock,
     output logic [3:0]            cdc_arqos,
+    output logic [3:0]            cdc_arcache,
+    output logic [2:0]            cdc_arprot,
     output logic                  cdc_arvalid,
     input  logic                  cdc_arready,
 
@@ -118,6 +126,7 @@ module mc_axi_sub #(
     assign cdc_awlen   = awlen;
     assign cdc_awsize  = awsize;
     assign cdc_awburst = awburst;
+    assign cdc_awlock  = awlock;
     assign cdc_awqos   = awqos;
     assign cdc_awcache = awcache;
     assign cdc_awprot  = awprot;
@@ -151,7 +160,10 @@ module mc_axi_sub #(
     assign cdc_arlen   = arlen;
     assign cdc_arsize  = arsize;
     assign cdc_arburst = arburst;
+    assign cdc_arlock  = arlock;
     assign cdc_arqos   = arqos;
+    assign cdc_arcache = arcache;
+    assign cdc_arprot  = arprot;
     assign cdc_arvalid = arvalid;
 
     assign arready = cdc_arready;
